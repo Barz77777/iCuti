@@ -1,7 +1,8 @@
 <?php
 session_start();
 
-$ldap_server = "ldap://172.10.10.70";
+//konfigurasi LDAP
+$ldap_server = "ldap://172.10.10.70"; // Alama LDAP Kalian
 $ldap_port = 389;
 $domain = "training.local";
 
@@ -16,20 +17,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
         $message = "Username Dan Password Wajib Diisi";
         $message_type = "danger";
     } else {
+        //koneksi LDAP
         $ldap_conn = ldap_connect($ldap_server, $ldap_port);
         if (!$ldap_conn) {
             $message = "Gagal Terhubung Ke LDAP.";
             $message_type = "danger";
         } else {
+            //set opsi LDAP
             ldap_set_option($ldap_conn, LDAP_OPT_PROTOCOL_VERSION, 3);
             ldap_set_option($ldap_conn, LDAP_OPT_REFERRALS, 0);
 
-            $ldap_user = $username . '@' . $domain ;
 
+            //format UPN (userPrincipalName)
+            $ldap_user = $username . '@' . $domain ;
+            
+            //coba login
             if (@ldap_bind($ldap_conn, $ldap_user, $password)) {
                 $_SESSION['user'] = $username;
                 $_SESSION['domain'] = $domain;
 
+
+                //jika berhasil login redirect ke halaman beranda
                 header("location: beranda.php");
                 exit();
             } else {
@@ -48,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Login LDAP</title>
+    <title>Login GoCuti</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">

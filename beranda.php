@@ -19,6 +19,7 @@ $domain = $_SESSION['domain'];
 </head>
 <body class="bg-success text-white d-flex align-items-center justify-content-center" style="height: 100vh;">
     <div class="text-center">
+        <script> alert("SELAMAT DATANG <?=($user)?>")</script>
         <h1 class="mb-4">✅ Login Berhasil!</h1>
         <p>Selamat datang, <strong><?= htmlspecialchars($user) ?></strong></p>
         <p>Anda berhasil login ke domain: <strong><?= htmlspecialchars($domain) ?></strong></p>
