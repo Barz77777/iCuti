@@ -1,32 +1,60 @@
 * {
   box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-body {
-  margin: 0;
-   font-family: 'Bai Jamjuree', sans-serif !important;
-  background: #fefefe;
-  color: #111;
-  min-height: 100vh;
+body,
+html {
+  font-family: "Bai Jamjuree", sans-serif !important;
+  background: #f5f5f5;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+/* background 3D */
+spline-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none; /* biar nggak ganggu klik */
+}
+/* Main content di atas spline */
+main {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
   display: flex;
-  flex-direction: row;
-  padding: 0;
   justify-content: center;
   align-items: center;
+  padding: 1rem;
+}
+
+/* Left panel: login card */
+.login-card {
+  position: absolute;
+  z-index: 10;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 48px 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 a {
   color: inherit;
   text-decoration: none;
-}
-
-/* Container layout */
-main {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1fr;
-  /* Mobile single column */
-  min-height: 100vh;
 }
 
 /* Desktop and up: two columns */
@@ -35,36 +63,19 @@ main {
     grid-template-columns: 1fr 1fr;
     max-width: 1400px;
     margin: auto;
-    
   }
-}
-
-/* Left panel: login card */
-.login-card {
-  margin: 40px 24px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.07);
-  max-width: 430px;
-  padding: 40px 28px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-self: center;
-  justify-self: center;
 }
 
 /* Header */
 h1 {
-  font-weight: 800;
-  font-size: 2rem;
-  line-height: 1.2;
+  font-size: 1.75rem;
   text-align: center;
 }
 
 h1 .highlight {
   color: #f59e0b;
-  /* Orange (#f59e0b) */
+  font-size: 1.75rem;
+  text-align: center;
 }
 
 p.subtitle {
@@ -99,22 +110,22 @@ label {
 
 .input-group {
   position: relative;
-  width: 100%;
-  border-radius: 1px; /* Tambahkan kalau perlu */
+  display: flex;
+  align-items: center;
 }
 
 .input-group input {
-    width: 100%;
-    padding: 10px 12px 10px 40px; /* Tambahkan padding kiri untuk ikon */
-    border: 1px solid #ccc;
-    border-radius: 8px !important; /* Added !important for specificity */
-    background: #f5f5f5;
-    font-size: 1rem;
-    color: #111;
-    box-sizing: border-box; 
-    overflow: hidden;
-    outline: none; /* Make sure to remove default outlines */
-    transition: box-shadow 0.3s ease;
+  width: 100%;
+  padding: 10px 12px 10px 40px; /* Tambahkan padding kiri untuk ikon */
+  border: 1px solid #ccc;
+  border-radius: 8px !important; /* Added !important for specificity */
+  background: #f5f5f5;
+  font-size: 1rem;
+  color: #111;
+  box-sizing: border-box;
+  overflow: hidden;
+  outline: none; /* Make sure to remove default outlines */
+  transition: box-shadow 0.3s ease;
 }
 
 .input-group input:focus {
@@ -135,16 +146,16 @@ label {
 
 /* Button */
 button {
-    padding: 8px;
-    background: #f59e0b;
-    border: none;
-    border-radius: 8px !important; /* Added !important for specificity */
-    font-weight: 700;
-    font-size: 1rem;
-    color: #010001;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 3px 7.8px rgba(245, 158, 11, 0.4);
+  padding: 8px;
+  background: #f59e0b;
+  border: none;
+  border-radius: 8px !important; /* Added !important for specificity */
+  font-weight: 700;
+  font-size: 1rem;
+  color: #010001;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 3px 7.8px rgba(245, 158, 11, 0.4);
 }
 
 button:hover,

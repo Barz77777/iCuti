@@ -78,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <body>
     <main>
+        <spline-viewer class="spline-viewer" url="https://prod.spline.design/2ylNlDzXeDXD4sC0/scene.splinecode"></spline-viewer>
         <!-- text welcome -->
         <section class="login-card" role="main" aria-labelledby="login-heading">
             <h1 id="login-heading">
@@ -86,34 +87,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <p class="subtitle">please enter your details to login in your account!</p>
             <?php if (!empty($message)): ?>
                 <div class="alert alert-<?= $message_type ?>"><?= htmlspecialchars($message) ?></div>
-            <?php endif; ?>
-            <!-- form login -->
-            <form method="post" action="" novalidate>
-                <!-- Username -->
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <div class="input-group">
-                        <span class="material-icons">person</span>
-                        <input id="username" name="username" type="text" placeholder="Username" />
+                <?php endif; ?>
+                <!-- form login -->
+                <form method="post" action="" novalidate>
+                    <!-- Username -->
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <div class="input-group">
+                            <span class="material-icons">person</span>
+                            <input id="username" name="username" type="text" placeholder="Username" />
+                        </div>
                     </div>
-                </div>
-                <!-- Password -->
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <div class="input-group">
-                        <span class="material-icons">lock</span>
-                        <input id="password" name="password" type="password" placeholder="Password" />
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-group">
+                            <span class="material-icons">lock</span>
+                            <input id="password" name="password" type="password" placeholder="Password" />
+                        </div>
                     </div>
-                </div>
-                <!-- Tombol Login -->
-                <button type="submit" aria-label="Login to your account">Login</button>
-            </form>
-        </section>
-
-        <section class="image-panel" aria-hidden="true">
-            <img src="asset/Desktop - 2.png" alt="sunset" />
-        </section>
-    </main>
-</body>
+                    <!-- Tombol Login -->
+                    <button type="submit" aria-label="Login to your account">Login</button>
+                </form>
+            </section>
+            
+        </main>
+        <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.10/build/spline-viewer.js"></script>
+    </body>
 
 </html>
