@@ -8,20 +8,10 @@
 body,
 html {
   font-family: "Bai Jamjuree", sans-serif !important;
-  background: #f5f5f5;
+  background: linear-gradient(335deg,rgba(248, 151, 40, 1) 0%, rgba(135, 64, 0, 1) 99%);
   height: 100%;
   width: 100%;
   overflow: hidden;
-}
-/* background 3D */
-spline-viewer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 0;
-  pointer-events: none; /* biar nggak ganggu klik */
 }
 /* Main content di atas spline */
 main {

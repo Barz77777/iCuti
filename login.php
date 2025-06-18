@@ -78,7 +78,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <body>
     <main>
-        <spline-viewer class="spline-viewer" url="https://prod.spline.design/2ylNlDzXeDXD4sC0/scene.splinecode"></spline-viewer>
         <!-- text welcome -->
         <section class="login-card" role="main" aria-labelledby="login-heading">
             <h1 id="login-heading">
@@ -112,7 +111,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </section>
             
         </main>
-        <script type="module" src="https://unpkg.com/@splinetool/viewer@1.10.10/build/spline-viewer.js"></script>
     </body>
 
 </html>
