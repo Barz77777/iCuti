@@ -1,215 +1,157 @@
-* {
-  box-sizing: border-box;
-}
+    /* Reset & base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb;
+      color: #111827;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
 
-body {
-  margin: 0;
-  font-family: "Bai Jamjuree", sans-serif !important;
-  background: #fefefe;
-  color: #111;
-  min-height: 100vh;
-  display: flex;
-  padding: 0;
-  justify-content: center;
-  align-items: center;
-}
+    /* Main container for login */
+    main {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 16px;
+      min-height: calc(100vh - 1px); /* minus header and footer approx */
+    }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+    /* Login card */
+    .login-card {
+      background: white;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      border-radius: 14px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      user-select: none;
+    }
 
-/* Container layout */
-main {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-}
-/* Desktop and up: two columns */
-@media (min-width: 768px) {
-  main {
-    grid-template-columns: 1fr 1fr;
-    max-width: 1400px;
-    margin: auto;
-  }
-}
+     .judul {
+        color: #e9b321;
+        text-align: center;
+        font-size: 30px;
+        user-select: text;
+     }
 
-/* Left panel: login card */
-.login-card {
-  flex: 0 0 45vw; /* atau bisa juga pakai width: 45vw; */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 40px;
-  background-color: #fff;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-  border-radius: 16px;
-  margin: auto;
-}
+    .peringatan {
+        text-align: center;
+        user-select: text;
+        margin-bottom: 20px;
+        
+    }
 
-/* Header */
-h1 {
-  font-weight: 800;
-  font-size: 2rem;
-  line-height: 1.2;
-  text-align: center;
-}
+    /* Form group */
+    label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+      font-size: 1.1rem;
+      user-select: text;
+    }
 
-h1 .highlight {
-  color: #f59e0b;
-  /* Orange (#f59e0b) */
-}
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
 
-p.subtitle {
-  font-size: 0.875rem;
-  color: #444;
-  margin-bottom: 2.5rem;
-  text-align: center; /* Teks di tengah */
-  margin-left: auto; /* Elemen di tengah */
-  margin-right: auto;
-  width: fit-content; /* Supaya lebarnya pas dengan teks */
-}
+    .input-wrapper .material-icons {
+      position: absolute;
+      left: 12px;
+      font-size: 20px;
+      color: #9ca3af; /* gray-400 */
+      pointer-events: none;
+    }
 
-/* Form styles */
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 12px 12px 36px;
+      font-size: 1.15rem;
+      border-radius: 8px;
+      border: 1.5px solid #d1d5db; /* gray-300 */
+      transition: border-color 0.3s;
+      outline-offset: 2px;
+    }
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: #e9b321;
+      outline: none;
+      box-shadow: 0 0 8px rgba(233,179,33,0.4);
+    }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+    /* Login button */
+    button.login-btn {
+      background-color: #e9b321;
+      color: white;
+      font-weight: 700;
+      font-size: 1.25rem;
+      border: none;
+      padding: 14px 0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      user-select: none;
+    }
+    button.login-btn:hover,
+    button.login-btn:focus {
+      background-color: #c48e1f;
+      outline: none;
+    }
 
-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 0;
-}
+    /* Footer */
+    footer {
+      background-color: #010001;
+      color: #d8dbe2;
+      font-size: 0.9rem;
+      padding: 20px 24px;
+      text-align: center;
+      user-select: none;
+    }
 
-.input-group {
-  position: relative;
-  width: 100%;
-  border-radius: 1px; /* Tambahkan kalau perlu */
-}
+    /* Responsive breakpoints */
 
-.input-group input {
-  width: 100%;
-  padding: 10px 12px 10px 40px; /* Tambahkan padding kiri untuk ikon */
-  border: 1px solid #ccc;
-  border-radius: 8px !important; /* Added !important for specificity */
-  background: #f5f5f5;
-  font-size: 1rem;
-  color: #111;
-  box-sizing: border-box;
-  overflow: hidden;
-  outline: none; /* Make sure to remove default outlines */
-  transition: box-shadow 0.3s ease;
-}
+    /* Desktop navigation visible on >=768px */
+    @media (min-width: 768px) {
+      nav.desktop-nav {
+        display: flex;
+      }
+      button.mobile-menu-toggle {
+        display: none;
+      }
+      nav.mobile-nav {
+        display: none !important;
+      }
+      main {
+        padding: 64px 24px;
+        min-height: calc(100vh - 104px);
+      }
+      .login-card {
+        max-width: 350px;
+        padding: 56px 48px;
+      }
+    }
 
-.input-group input:focus {
-  background: #fff;
-  outline: none;
-  box-shadow: 0 0 0 3px #f59e0b;
-}
-
-.input-group .material-icons {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #888;
-  font-size: 20px;
-  pointer-events: none;
-}
-
-/* Button */
-button {
-  padding: 8px;
-  background: #f59e0b;
-  border: none;
-  border-radius: 8px !important; /* Added !important for specificity */
-  font-weight: 700;
-  font-size: 1rem;
-  color: #010001;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 3px 7.8px rgba(245, 158, 11, 0.4);
-}
-
-button:hover,
-button:focus {
-  background: #d97706;
-  /* Darker orange */
-  outline: none;
-  transform: translateY(-2px);
-}
-
-button:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
-
-/* Feedback messages */
-.success-msg {
-  color: #15803d;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-.error-msg {
-  color: #b91c1c;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-/* Right panel: image */
-.image-panel {
-  flex: 1;
-  height: 100vh;
-  overflow: hidden;
-  position: fixed;
-  background: #f5f5f5;
-}
-
-.image-panel img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* dari 'cover' ke 'contain' */
-  display: block;
-  position: fixed;
-}
-
-/* Show image panel on tablet+ */
-@media (min-width: 767px) {
-  .image-panel {
-    display: none;
-  }
-  main {
-    flex-direction: column;
-  }
-}
-
-/* Mobile tweaks */
-@media (max-width: 767px) {
-  main {
-    flex-direction: column;
-  }
-
-  .login-card {
-    width: 90vw;
-    height: auto;
-    margin: 50px auto;
-  }
-
-  .image-panel {
-    display: none;
-  }
-}
-
-
-/* Footer */
+    /* Larger desktop max width constraint (1440+) */
+    @media (min-width: 1440px) {
+      main {
+        max-width: 1170px;
+        margin: 0 auto;
+      }
+    }
