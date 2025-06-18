@@ -34,11 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $ldap_user = $username . '@' . $domain;
 
             //coba login
-
-            //format UPN (userPrincipalName)
-            $ldap_user = $username . '@' . $domain ;
-            
-            //coba login
             if (@ldap_bind($ldap_conn, $ldap_user, $password)) {
                 $_SESSION['user'] = $username;
                 $_SESSION['domain'] = $domain;
@@ -62,24 +57,45 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login</title>
+
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="set.css" />
+
     <meta charset="UTF-8">
     <title>Login GoCuti</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 </head>
-<body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
-    <div class="card shadow" style="width: 400px;">
-        <div class="card-body">
-            <h3 class="card-title text-center mb-4">Login LDAP</h3>
 
+<body>
+    <main>
+        <!-- text welcome -->
+        <section class="login-card" role="main" aria-labelledby="login-heading">
+            <h1 id="login-heading">
+                Welcome back to <span class="highlight">iCuti</span>
+            </h1>
+            <p class="subtitle">please enter your details to login in your account!</p>
             <?php if (!empty($message)): ?>
                 <div class="alert alert-<?= $message_type ?>"><?= htmlspecialchars($message) ?></div>
             <?php endif; ?>
-
-            <form method="POST">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" id="username" name="username" class="form-control" required autofocus>
+            <!-- form login -->
+            <form method="post" action="" novalidate>
+                <!-- Username -->
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="input-group">
+                        <span class="material-icons">person</span>
+                        <input id="username" name="username" type="text" placeholder="Username" />
+                    </div>
                 </div>
                 <!-- Password -->
                 <div class="form-group">
@@ -92,7 +108,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <!-- Tombol Login -->
                 <button type="submit" aria-label="Login to your account">Login</button>
             </form>
-        </div>
-    </div>
+        </section>
+
+        <section class="image-panel" aria-hidden="true">
+            <img src="asset/Desktop - 2.png" alt="sunset" />
+        </section>
+    </main>
 </body>
+
 </html>

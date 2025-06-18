@@ -12,7 +12,7 @@ if (isset($_SESSION['user'])) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LDAP Login</title>
+  <title>WARNING</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
@@ -28,13 +28,13 @@ if (isset($_SESSION['user'])) {
     <p class="peringatan">Silahkan login terlebih dahulu untuk melanjutkan ke aplikasi</p>
     
    
-    <button type="submit" class="login-btn" onclick="window.location.href='login.php'">Login</button>
+    <button type="submit" class="login-btn" onclick="window.location.href='log.php'">Login</button>
     
   </section>
 </main>
 
 <footer>
-  &copy; 2025 GoCuti
+  &copy; 2025 iCuti
 </footer>
 
 <script>
