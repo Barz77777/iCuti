@@ -28,7 +28,7 @@ if (isset($_SESSION['user'])) {
     <p class="peringatan">Silahkan login terlebih dahulu untuk melanjutkan ke aplikasi</p>
     
    
-    <button type="submit" class="login-btn" onclick="window.location.href='loginn.php'">Login</button>
+    <button type="submit" class="login-btn" onclick="window.location.href='login.php'">Login</button>
     
   </section>
 </main>
