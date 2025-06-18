@@ -30,9 +30,12 @@
     <div>
       <div class="logo">iCuti</div>
       <div class="menu">
-        <a href="#"><strong>Submission</strong><br></a>
-        <a href="#"><strong>Agreement</strong><br></a>
-        <a href="#"><strong>Tracking</strong><br></a>
+        <a href="#">
+          <i class="bi bi-envelope-paper"></i>
+          <strong>Submission</strong><br></a>
+        <a href="#">
+          <i class="bi bi-envelope-paper-fill"></i>
+          <strong>Agreement</strong><br></a>
       </div>
     </div>
       <div class="logout">
@@ -49,7 +52,11 @@
   <div class="main">
     <!-- Top Navbar -->
     <div class="topbar">
-      Dashboard
+      <div class="title">Dashboard</div>
+      <div class="user-info">
+        <i class="bi bi-person-circle custom-icon"></i>
+        <span class="username">Boss</span>  
+      </div>
     </div>
 
     <!-- Card Content -->

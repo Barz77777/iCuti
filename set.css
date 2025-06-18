@@ -8,7 +8,11 @@
 body,
 html {
   font-family: "Bai Jamjuree", sans-serif !important;
-  background: linear-gradient(335deg,rgba(248, 151, 40, 1) 0%, rgba(135, 64, 0, 1) 99%);
+  background: linear-gradient(
+    335deg,
+    rgba(248, 151, 40, 1) 0%,
+    rgba(135, 64, 0, 1) 99%
+  );
   height: 100%;
   width: 100%;
   overflow: hidden;
@@ -40,6 +44,15 @@ main {
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+
+.form-image {
+  flex: 1 1 50%;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px;
 }
 
 a {

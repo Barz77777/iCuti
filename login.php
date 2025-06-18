@@ -80,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <main>
         <!-- text welcome -->
         <section class="login-card" role="main" aria-labelledby="login-heading">
+            <!-- <img src="asset/Chill-Time.png" alt="" class="form-image" /> -->
             <h1 id="login-heading">
                 Welcome back to <span class="highlight">iCuti</span>
             </h1>
