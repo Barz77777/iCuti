@@ -2,11 +2,12 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: "Bai Jamjuree", sans-serif !important;
     }
 
     body {
       display: flex;
+      background-color: #D8DBE2;
     }
     /* sidebar */
     .sidebar {
@@ -18,6 +19,7 @@
       flex-direction: column;
       justify-content: space-between;
       position: fixed;
+      padding: 30px 20px;
     }
 
     .logo {
@@ -49,12 +51,6 @@
       border-left: 4px solid #F89728;
     }
 
-    .menu small {
-      display: block;
-      font-size: 12px;
-      color: #D8DBE2;
-    }
-
 
     .logout-link {
       display: flex;
@@ -68,7 +64,8 @@
     }
 
     .logout {
-      margin: 35px;
+      margin: 30px;
+      margin-bottom: 10px;
       
     }
 
@@ -81,4 +78,106 @@
       font-size: 20px;
     }
 
-    
+    .logout a {
+        padding: 10px;
+    }
+
+     /* Main Area */
+    .main {
+      flex: 1;
+      background-color: #D8DBE2;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navbar */
+    .topbar {
+      background-color: white;
+      padding: 15px 25px;
+      font-weight: bold;
+      font-size: 20px;
+      border-bottom: 1px solid #ccc;
+      margin-left: 220px;
+    }
+
+    /* Content Card */
+    .content {
+      flex: 1;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: start;
+      margin-left: 220px;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      width: 1000px;
+    }
+
+    .card h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #300000;
+    }
+
+    .btn-add {
+      display: block;
+      margin: 0 auto 30px auto;
+      background-color: orange;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-add:hover {
+      background-color: #d48806;
+    }
+
+    /* Table Style */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    /* Status Badges */
+    .badge {
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      display: inline-block;
+    }
+
+    .rejected {
+      background-color: #c62828;
+    }
+
+    .approved {
+      background-color: #2e7d32;
+    }
+
+    .waiting {
+      background-color: #fb8c00;
+    }
+
+    .finished {
+      background-color: #1e88e5;
+    }
+   
