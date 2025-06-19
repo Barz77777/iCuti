@@ -1,13 +1,13 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['user']) || !isset($_SESSION['domain'])) {
-    header("Location: index.php");
+if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
+    header("Location: login.php");
     exit();
 }
 
 $user = $_SESSION['user'];
-$domain = $_SESSION['domain'];
+$role = $_SESSION['role'];
 ?>
 
 
@@ -78,7 +78,7 @@ $domain = $_SESSION['domain'];
       <div class="title">Dashboard</div>
       <div class="user-info">
         <i class="bi bi-person-circle custom-icon"></i>
-        <span class="username"><?php echo htmlspecialchars($user); ?></span>
+        <span class="username"><?php echo htmlspecialchars($user); ?>  (<?= ($role) ?>)</span>
       </div>
     </div>
 
@@ -86,7 +86,6 @@ $domain = $_SESSION['domain'];
     <div class="content">
       <div class="card">
         <h2>Submission</h2>
-        <button class="btn-add">+ Add Submission</button>
         <table>
           <thead>
             <tr>
