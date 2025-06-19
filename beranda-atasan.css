@@ -136,10 +136,12 @@ body {
   transition: background 0.3s ease;
 }
 
-.menu a:hover {
+.menu a:hover,
+.menu a.active{
   background-color: #333;
   border-left: 4px solid #f89728;
 }
+
 
 .logout-link {
   display: flex;
