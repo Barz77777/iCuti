@@ -7,6 +7,8 @@ $ldap_port = 389;
 $domain = "training.local";
 $base_dn = "DC=training,DC=local";
 
+require 'db_connection.php'; // pastikan file ini ada
+
 $message = "";
 $message_type = "";
 
@@ -28,39 +30,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ldap_set_option($ldap_conn, LDAP_OPT_REFERRALS, 0);
 
             $ldap_user = $username . '@' . $domain;
+            // error_log("LDAP user: $ldap_user");
+            error_log("Trying to bind: $ldap_user");
 
-            // Autentikasi LDAP
             if (@ldap_bind($ldap_conn, $ldap_user, $password)) {
-                // Cari informasi user untuk mendapatkan atribut grup
-                $filter = "(sAMAccountName=$username)";
-                $attributes = ['memberOf'];
-                $result = ldap_search($ldap_conn, $base_dn, $filter, $attributes);
+                error_log("LDAP bind success: $username");
+            } else {
+                error_log("LDAP bind failed: " . ldap_error($ldap_conn));
+            }
+            // Cek apakah bind berhasil
+            if (@ldap_bind($ldap_conn, $ldap_user, $password)) {
+                // Cek user di database lokal
+                $username_clean = mysqli_real_escape_string($conn, $username);
+                $query = "SELECT * FROM users WHERE username = '$username_clean'";
+                $result = mysqli_query($conn, $query);
 
-                if ($result && ldap_count_entries($ldap_conn, $result) > 0) {
-                    $entries = ldap_get_entries($ldap_conn, $result);
-                    $groups = $entries[0]['memberof'] ?? [];
-
-                    $is_admin = false;
-
-                    // Periksa apakah user ada dalam grup PAM_ADMIN
-                    foreach ($groups as $group_dn) {
-                        if (stripos($group_dn, "CN=PAM_ADMIN") !== false) {
-                            $is_admin = true;
-                            break;
-                        }
-                    }
+                if ($result && mysqli_num_rows($result) > 0) {
+                    $user_data = mysqli_fetch_assoc($result);
 
                     $_SESSION['user'] = $username;
-                    $_SESSION['role'] = $is_admin ? 'admin' : 'user';
+                    $_SESSION['role'] = $user_data['role'];
+                    $_SESSION['user_id'] = $user_data['id']; // opsional untuk tracking user
 
-                    if ($is_admin) {
-                        header("Location: beranda-atasan.php");
-                    } else {
-                        header("Location: beranda-user-submission.php");
+                    switch ($user_data['role']) {
+                        case 'admin':
+                            header("Location: beranda-admin.php");
+                            break;
+                        case 'atasan':
+                            header("Location: beranda-atasan.php");
+                            break;
+                        case 'user':
+                        default:
+                            header("Location: beranda-user-submission.php");
+                            break;
                     }
                     exit();
                 } else {
-                    $message = "Tidak dapat menemukan informasi grup pengguna.";
+                    $message = "Akun Anda tidak terdaftar di sistem iCuti.";
                     $message_type = "danger";
                 }
             } else {
@@ -73,44 +79,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login iCuti</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login iCuti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <link rel="stylesheet" href="set.css" />
 </head>
+
 <body>
-  <main>
-    <div class="login-container">
-      <div class="image-side">
-        <img src="asset/Chill-Time.png" alt="Login Illustration" />
-      </div>
-      <div class="form-side">
-        <h1>Welcome back to <span class="highlight">iCuti</span></h1>
-        <p class="subtitle">Please enter your details to login to your account!</p>
-        <form method="POST" action="login.php">
-          <div class="form-group">
-            <label for="username">Username</label>
-            <div class="input-group">
-              <span class="material-icons">person</span>
-              <input type="text" id="username" name="username" required placeholder="Username" />
+    <main>
+        <div class="login-container">
+            <div class="image-side">
+                <img src="asset/Chill-Time.png" alt="Login Illustration" />
             </div>
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <div class="input-group">
-              <span class="material-icons">lock</span>
-              <input type="password" id="password" name="password" required placeholder="Password" />
+            <div class="form-side">
+                <h1>Welcome back to <span class="highlight">iCuti</span></h1>
+                <p class="subtitle">Please enter your details to login to your account!</p>
+                <form method="POST" action="login.php">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <div class="input-group">
+                            <span class="material-icons">person</span>
+                            <input type="text" id="username" name="username" required placeholder="Username" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-group">
+                            <span class="material-icons">lock</span>
+                            <input type="password" id="password" name="password" required placeholder="Password" />
+                        </div>
+                    </div>
+                    <button type="submit">Login</button>
+                </form>
             </div>
-          </div>
-          <button type="submit">Login</button>
-        </form>
-      </div>
-    </div>
-  </main>
+        </div>
+    </main>
 </body>
+
 </html>
