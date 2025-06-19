@@ -55,63 +55,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Login</title>
-
-    <!-- Google Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <!-- Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Stylesheet -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login iCuti</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     <link rel="stylesheet" href="set.css" />
-
-    <meta charset="UTF-8">
-    <title>Login GoCuti</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
 </head>
-
 <body>
-    <main>
-        <!-- text welcome -->
-        <section class="login-card" role="main" aria-labelledby="login-heading">
-            <!-- <img src="asset/Chill-Time.png" alt="" class="form-image" /> -->
-            <h1 id="login-heading">
-                Welcome back to <span class="highlight">iCuti</span>
-            </h1>
-            <p class="subtitle">please enter your details to login in your account!</p>
-            <?php if (!empty($message)): ?>
-                <div class="alert alert-<?= $message_type ?>"><?= htmlspecialchars($message) ?></div>
-                <?php endif; ?>
-                <!-- form login -->
-                <form method="post" action="" novalidate>
-                    <!-- Username -->
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <div class="input-group">
-                            <span class="material-icons">person</span>
-                            <input id="username" name="username" type="text" placeholder="Username" />
-                        </div>
-                    </div>
-                    <!-- Password -->
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <div class="input-group">
-                            <span class="material-icons">lock</span>
-                            <input id="password" name="password" type="password" placeholder="Password" />
-                        </div>
-                    </div>
-                    <!-- Tombol Login -->
-                    <button type="submit" aria-label="Login to your account">Login</button>
-                </form>
-            </section>
-            
-        </main>
-    </body>
-
+  <main>
+    <div class="login-container">
+      <div class="image-side">
+        <img src="asset/Chill-Time.png" alt="Login Illustration" />
+      </div>
+      <div class="form-side">
+        <h1>Welcome back to <span class="highlight">iCuti</span></h1>
+        <p class="subtitle">Please enter your details to login to your account!</p>
+        <form method="POST" action="login.php">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <div class="input-group">
+              <span class="material-icons">person</span>
+              <input type="text" id="username" name="username" required placeholder="Username" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-group">
+              <span class="material-icons">lock</span>
+              <input type="password" id="password" name="password" required placeholder="Password" />
+            </div>
+          </div>
+          <button type="submit">Login</button>
+        </form>
+      </div>
+    </div>
+  </main>
+</body>
 </html>
