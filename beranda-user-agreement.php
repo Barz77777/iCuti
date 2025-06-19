@@ -31,10 +31,10 @@ $role = $_SESSION['role'];
     <div>
       <div class="logo">iCuti</div>
       <div class="menu">
-        <a href="beranda-user-submission.php">
+        <a href="beranda-user-submission.php" class="<?= basename($_SERVER['PHP_SELF']) == 'beranda-user-submission.php' ? 'active' : '' ?>">
           <i class="bi bi-envelope-paper"></i>
           <strong>Submission</strong><br></a>
-        <a href="beranda-user-agreement">
+        <a href="beranda-user-agreement" class="<?= basename($_SERVER['PHP_SELF']) == 'beranda-user-agreement.php' ? 'active' : '' ?>">
           <i class="bi bi-envelope-paper-fill"></i>
           <strong>Agreement</strong><br></a>
       </div>
@@ -64,7 +64,6 @@ $role = $_SESSION['role'];
     <div class="content">
       <div class="card">
         <h2>Agreement</h2>
-        <button class="btn-add">+ Add Submission</button>
         <table>
           <thead>
             <tr>
@@ -89,13 +88,6 @@ $role = $_SESSION['role'];
               <td>2025-07-08</td>
               <td>2025-07-09</td>
               <td><span class="badge approved">Approved</span></td>
-            </tr>
-            <tr>
-              <td>Farzaliano</td>
-              <td>Maternity Leave</td>
-              <td>2025-06-08</td>
-              <td>2025-06-12</td>
-              <td><span class="badge waiting">Waiting For Approval</span></td>
             </tr>
             <tr>
               <td>Fajar Septiawan</td>
