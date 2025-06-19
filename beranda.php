@@ -1,14 +1,14 @@
 <?php
-//session_start();
+session_start();
 
-//if (!isset($_SESSION['user']) || !isset($_SESSION['domain'])) {
-    //header("Location: index.php");
-  //  exit();
-//}
+if (!isset($_SESSION['user']) || !isset($_SESSION['domain'])) {
+    header("Location: index.php");
+    exit();
+}
 
-//$user = $_SESSION['user'];
-//$domain = $_SESSION['domain'];
-//?>
+$user = $_SESSION['user'];
+$domain = $_SESSION['domain'];
+?>
 
 
 <!DOCTYPE html>
