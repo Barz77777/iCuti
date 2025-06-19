@@ -2,7 +2,8 @@
 session_start();
 session_unset();
 session_destroy();
-header("Location: login.php");
-exit();
-
 ?>
+<script>
+  localStorage.removeItem('popupShown');
+  window.location.href = 'login.php';
+</script>

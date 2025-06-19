@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     if ($is_admin) {
                         header("Location: beranda-atasan.php");
                     } else {
-                        header("Location: beranda-user.php");
+                        header("Location: beranda-user-submission.php");
                     }
                     exit();
                 } else {
