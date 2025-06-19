@@ -101,7 +101,7 @@ if ($result_cuti && mysqli_num_rows($result_cuti) > 0) {
     <div class="content">
       <div class="card">
         <h2>Agreement</h2>
-        <table>
+        <table class="table animated-table">
           <thead>
             <tr>
               <th>Name</th>
