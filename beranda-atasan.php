@@ -19,13 +19,36 @@ $domain = $_SESSION['domain'];
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="beranda.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="beranda-atasan.css">
+  <link rel="stylesheet" href="beranda-atasan.js">
   
   <title>iCuti</title>
   
+
 </head>
-<!-- sidebar -->
+
 <body>
+
+<!-- Checkbox kontrol popup -->
+<input type="checkbox" id="popup-toggle" checked />
+
+<!-- Popup -->
+<label for="popup-toggle" class="popup-overlay">
+  <div class="popup-box" onclick="event.stopPropagation()">
+    <a href="#" class="close-btn" onclick="document.getElementById('popup-toggle').checked = false"><i class="bi bi-x"></i></a>
+    <h2>Selamat Datang<img src="asset/tangan.png">!</h2>
+    <h4><?= ($user) ?></h4>
+  </div>
+</label>
+
+
+
+
+
+
+
+  <!-- sidebar -->
   <div class="sidebar">
     <div>
       <div class="logo">iCuti</div>

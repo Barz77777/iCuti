@@ -2,7 +2,7 @@
 session_start();
 //jika user suda login
 if (isset($_SESSION['user'])) {
-    header("Location: beranda.php");
+    header("Location: beranda-atasan.php");
     exit();
 }
 ?>
