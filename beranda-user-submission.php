@@ -93,13 +93,28 @@ $role = $_SESSION['role'];
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Farzaliano</td>
-              <td>Maternity Leave</td>
-              <td>2025-06-08</td>
-              <td>2025-06-12</td>
-              <td><span class="badge waiting">Waiting For Approval</span></td>
-            </tr>
+            <?php 
+            require 'db_connection.php';
+            $query = $conn->query("SELECT * FROM submission WHERE username = '$user' ORDER BY tanggal_pengajuan DESC");
+            while ($row = $query->fetch_assoc()):
+            ?>
+              <tr>
+                <td><?= htmlspecialchars($row['username']) ?></td>
+                <td><?= htmlspecialchars($row['jenis_cuti']) ?></td>
+                <td><?= htmlspecialchars($row['tanggal_mulai']) ?></td>
+                <td><?= htmlspecialchars($row['tanggal_akhir']) ?></td>
+                <td>
+                  <?php if ($row['approved_status'] === 'Approved'): ?>
+                    <span class="badge bg-success">Disetujui</span>
+                  <?php elseif ($row['approved_status'] === 'Rejected'): ?>
+                    <span class="badge bg-danger">Ditolak</span>
+                  <?php else: ?>
+                    <span class="badge bg-warning text-dark">Menunggu</span>
+                  <?php endif; ?>
+                </td>
+
+              </tr>
+              <?php endwhile; ?>
           </tbody>
         </table>
       </div>

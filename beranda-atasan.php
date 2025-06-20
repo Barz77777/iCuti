@@ -2,13 +2,13 @@
 session_start();
 require 'db_connection.php';
 
-// Role yang diperbolehkan mengakses halaman ini
-$allowed_role = 'atasan';
-
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== $allowed_role) {
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'atasan') {
   header("Location: login.php");
   exit();
 }
+
+$sql = "SELECT * FROM submission WHERE approved_status = 'Waiting For Approval' ORDER BY tanggal_pengajuan DESC";
+$result = $conn->query($sql);
 
 // Ambil data dari session
 $user_id = $_SESSION['user_id'];
@@ -105,6 +105,19 @@ if ($result_cuti && mysqli_num_rows($result_cuti) > 0) {
     </div>
 
 
+    <?php 
+
+    if (isset($_SESSION['sukses'])) {
+    echo "<p style='color: green'>" . $_SESSION['sukses'] . "</p>";
+    unset($_SESSION['sukses']);
+}
+if (isset($_SESSION['error'])) {
+    echo "<p style='color: red'>" . $_SESSION['error'] . "</p>";
+    unset($_SESSION['error']);
+}
+
+  ?>
+
     <!-- Card Content -->
     <div class="content">
       <div class="card">
@@ -121,44 +134,37 @@ if ($result_cuti && mysqli_num_rows($result_cuti) > 0) {
             </tr>
           </thead>
           <tbody>
-            <?php foreach ($cuti_data as $cuti): ?>
+            <?php while ($row = $result->fetch_assoc()): ?>
               <tr>
-                <td><?= htmlspecialchars($cuti['nama']) ?></td>
-                <td><?= htmlspecialchars($cuti['jenis_cuti']) ?></td>
-                <td><?= $cuti['tanggal_mulai'] ?></td>
-                <td><?= $cuti['tanggal_akhir'] ?></td>
+                <td><?= htmlspecialchars($row['username']) ?></td>
+                <td><?= htmlspecialchars($row['jenis_cuti']) ?></td>
+                <td><?= htmlspecialchars($row['tanggal_mulai']) ?></td>
+                <td><?= htmlspecialchars($row['tanggal_akhir']) ?></td>
+                <td><?= htmlspecialchars($row['catatan']) ?></td>
                 <td>
-                  <?php
-                  $status = $cuti['status'];
-                  if ($status == 'Disetujui') {
-                    echo '<span class="badge bg-success">Approved</span>';
-                  } elseif ($status == 'Ditolak') {
-                    echo '<span class="badge bg-danger">Rejected</span>';
-                  } elseif ($status == 'Selesai') {
-                    echo '<span class="badge bg-primary">Finished</span>';
-                  } else {
-                    echo '<span class="badge bg-warning text-dark">Waiting For Approval</span>';
-                  }
-                  ?>
+                  <?php if (!empty($row['dokumen'])): ?>
+                    <a href="uploads/<?= htmlspecialchars($row['dokumen']) ?>" target="_blank">Lihat</a>
+                    <?php else : ?>
+                      Tidak Ada
+                    <?php endif ; ?>
                 </td>
-                <td>
-                  <?php if ($cuti['status'] == 'Menunggu Persetujuan'): ?>
-                    <form method="post" action="approval_action.php" style="display:inline-block">
-                      <input type="hidden" name="cuti_id" value="<?= $cuti['id'] ?>">
-                      <input type="hidden" name="action" value="approve">
-                      <button type="submit" class="btn btn-sm btn-success">Approve</button>
-                    </form>
-                    <form method="post" action="approval_action.php" style="display:inline-block">
-                      <input type="hidden" name="cuti_id" value="<?= $cuti['id'] ?>">
-                      <input type="hidden" name="action" value="reject">
-                      <button type="submit" class="btn btn-sm btn-danger">Reject</button>
-                    </form>
-                  <?php else: ?>
-                    <em>-</em>
-                  <?php endif; ?>
+                <td class="action-button">
+                      <!-- tombol setuju -->
+                       <form action="persetujuan.php" method="POST">
+                        <input type="hidden" name="cuti_id" value="<?= $row['id'] ?>">
+                        <input type="hidden" name="action" value="approve">
+                        <button type="submit">Approve</button>
+                       </form>
+
+                       <!-- tombol tolak -->
+                        <form action="persetujuan.php" method="POST">
+                          <input type="hidden" name="cuti_id" value="<?= $row['id'] ?>">
+                          <input type="hidden" name="action" value="reject">
+                          <button type="submit" onclick="return confirm('Yakin ingin menolak?')">Rejected</button>
+                        </form>
                 </td>
               </tr>
-            <?php endforeach; ?>
+            <?php endwhile; ?>
           </tbody>
         </table>
       </div>

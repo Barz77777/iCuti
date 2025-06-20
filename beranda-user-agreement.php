@@ -75,27 +75,6 @@ $role = $_SESSION['role'];
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Zen Azura</td>
-              <td>Annual Leave</td>
-              <td>2025-05-01</td>
-              <td>2025-05-07</td>
-              <td><span class="badge rejected">Rejected</span></td>
-            </tr>
-            <tr>
-              <td>Akbar Hermawan</td>
-              <td>Sick Leave</td>
-              <td>2025-07-08</td>
-              <td>2025-07-09</td>
-              <td><span class="badge approved">Approved</span></td>
-            </tr>
-            <tr>
-              <td>Fajar Septiawan</td>
-              <td>Annual Leave</td>
-              <td>2024-03-10</td>
-              <td>2024-03-16</td>
-              <td><span class="badge finished">Finished</span></td>
-            </tr>
           </tbody>
         </table>
       </div>
