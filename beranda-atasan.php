@@ -54,6 +54,9 @@ if ($result_cuti && mysqli_num_rows($result_cuti) > 0) {
   <link rel="stylesheet" href="beranda-atasan.js">
   <title>iCuti</title>
 </head>
+<style>
+
+</style>
 
 <body>
 
@@ -92,10 +95,15 @@ if ($result_cuti && mysqli_num_rows($result_cuti) > 0) {
     <div class="topbar">
       <div class="title">Dashboard</div>
       <div class="user-info">
-        <i class="bi bi-person-circle custom-icon"></i>
-        <span class="username"><?php echo htmlspecialchars($user['nama']); ?> (<?= htmlspecialchars($role) ?>)</span>
+        <img src="asset/default-avatar.png" alt="Profile" class="profile-img" 
+        style="width: 42px; height: 42px; border:2px solid #ccc; border-radius: 50%; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+        <strong class="username">
+          <?php echo htmlspecialchars($user['nama']); ?>
+          <span class="role-text">(<?= htmlspecialchars($role) ?>)</span>
+        </strong>
       </div>
     </div>
+
 
     <!-- Card Content -->
     <div class="content">
@@ -156,20 +164,20 @@ if ($result_cuti && mysqli_num_rows($result_cuti) > 0) {
       </div>
     </div>
   </div>
-<!-- untuk menghilangkan popup -->
+  <!-- untuk menghilangkan popup -->
   <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    // Cek apakah popup sudah pernah ditampilkan di localStorage
-    if (localStorage.getItem("popupShown") === "true") {
-      // Jika sudah, popup tidak akan muncul
-      document.getElementById("popup-toggle").checked = false;
-    } else {
-      // Jika belum pernah tampil, tampilkan popup dan tandai sudah muncul
-      document.getElementById("popup-toggle").checked = true;
-      localStorage.setItem("popupShown", "true");
-    }
-  });
-</script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Cek apakah popup sudah pernah ditampilkan di localStorage
+      if (localStorage.getItem("popupShown") === "true") {
+        // Jika sudah, popup tidak akan muncul
+        document.getElementById("popup-toggle").checked = false;
+      } else {
+        // Jika belum pernah tampil, tampilkan popup dan tandai sudah muncul
+        document.getElementById("popup-toggle").checked = true;
+        localStorage.setItem("popupShown", "true");
+      }
+    });
+  </script>
 </body>
 
 </html>
