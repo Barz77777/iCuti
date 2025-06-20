@@ -105,18 +105,7 @@ if ($result_cuti && mysqli_num_rows($result_cuti) > 0) {
     </div>
 
 
-    <?php 
-
-    if (isset($_SESSION['sukses'])) {
-    echo "<p style='color: green'>" . $_SESSION['sukses'] . "</p>";
-    unset($_SESSION['sukses']);
-}
-if (isset($_SESSION['error'])) {
-    echo "<p style='color: red'>" . $_SESSION['error'] . "</p>";
-    unset($_SESSION['error']);
-}
-
-  ?>
+    
 
     <!-- Card Content -->
     <div class="content">
