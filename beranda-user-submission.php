@@ -45,9 +45,6 @@
           <i class="bi bi-envelope-paper"></i>
           <strong>Submission</strong><br></a>
           
-        <a href="beranda-user-agreement.php" class="<?= basename($_SERVER['PHP_SELF']) == 'beranda-user-agreement.php' ? 'active' : ''  ?>">
-          <i class="bi bi-envelope-paper-fill"></i>
-          <strong>Agreement</strong><br></a>
       </div>
     </div>
       <div class="logout">
@@ -57,8 +54,6 @@
         </a>
       </div>
   </div>
-
-
 
   <!-- Main Content -->
   <div class="main">
@@ -114,8 +109,6 @@
       </div>
     </div>
   </div>
-
-  
   
 <!-- Modal Add Submission -->
 <div class="modal fade" id="submissionModal" tabindex="-1" aria-labelledby="submissionModalLabel" aria-hidden="true">
@@ -214,11 +207,5 @@
     }
   });
 </script>
-
-
-
-
-
-  
 </body>
 </html>

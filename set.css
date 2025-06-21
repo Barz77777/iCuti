@@ -7,11 +7,7 @@
 html,
 body {
   font-family: "Bai Jamjuree", sans-serif;
-  background: linear-gradient(
-    335deg,
-    rgba(248, 151, 40, 1),
-    rgb(237, 110, 0)
-  );
+  background: linear-gradient(#9AD914, #8ABF17);
   height: 100%;
   width: 100%;
 }
@@ -66,7 +62,7 @@ h1 {
 }
 
 h1 .highlight {
-  color: #f59e0b;
+  color: #9AD914;
 }
 
 p.subtitle {
@@ -115,7 +111,7 @@ label {
 .input-group input:focus {
   background: #fff;
   outline: none;
-  box-shadow: 0 0 0 3px #f59e0b;
+  box-shadow: 0 0 0 3px #9AD914;
 }
 
 .material-icons {
@@ -129,7 +125,7 @@ label {
 
 button {
   padding: 10px;
-  background: #f59e0b;
+  background: #9AD914;
   border: none;
   border-radius: 8px;
   font-weight: bold;
@@ -137,11 +133,11 @@ button {
   color: #010001;
   cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 3px 7px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 3px 7px #9AD914;
 }
 
 button:hover {
-  background: #d97706;
+  background: #8ABF17;
   transform: translateY(-2px);
 }
 
