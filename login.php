@@ -89,7 +89,7 @@
     <title>Login iCuti</title>
     <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <link rel="stylesheet" href="set.css" />
+    <link rel="stylesheet" href="style/set.css" />
 </head>
 
 <body>
