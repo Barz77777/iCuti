@@ -1,0 +1,141 @@
+body {
+  margin: 0;
+  background-color: #f2f2f2;
+  font-family: "Bai Jamjuree", sans-serif;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* === SIDEBAR === */
+.sidebar {
+  width: 70px;
+  height: 90vh;
+  background: linear-gradient(#334036, #2d5938);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 30px;
+  border-radius: 25px;
+  transition: width 0.3s ease;
+  overflow: hidden;
+  padding: 10px 8px; /* spasi kanan-kiri agar isi masuk ke border */
+  box-sizing: border-box;
+}
+
+/* Saat hover atau expanded, lebar membesar */
+.sidebar:hover,
+.sidebar.expanded {
+  width: 200px;
+}
+
+/* === MENU ITEM === */
+.icon-button {
+  width: 100%;
+  height: 45px;
+  background-color: #3d4f46;
+  border-radius: 25px;
+  margin: 10px 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding-left: 12px;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.icon-button:hover {
+  background-color: #9ad914;
+}
+
+.icon-button.active {
+  background-color: #a7f142;
+  color: black;
+}
+
+/* === TEXT ICON === */
+.text-icon,
+.menu-text {
+  display: none;
+  opacity: 0;
+  margin-left: 5px;
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+  font-size: 16px;
+}
+
+/* Munculkan saat hover atau expanded */
+.sidebar:hover .text-icon,
+.sidebar.expanded .text-icon,
+.sidebar:hover .menu-text,
+.sidebar.expanded .menu-text {
+  display: inline;
+  opacity: 1;
+}
+
+/* Biar teks gak keluar batas */
+.text-icon,
+.menu-text {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* === ICON KHUSUS === */
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  background-color: #3a4a41;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.icon-btn.active {
+  background-color: #a7f142;
+  color: black;
+}
+
+/* Logo di atas */
+.top-icon {
+  background-color: #9ad914;
+  margin-bottom: 40px;
+}
+
+/* Toggle Light/Dark Mode */
+.toggle-container {
+  display: flex;
+  background-color: #3d4f46;
+  border-radius: 30px;
+  padding: 6px;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 40px;
+  margin-top: auto;
+  margin-bottom: 20px;
+}
+
+/* Avatar Image */
+.icon-button img {
+  width: 39px;
+  border-radius: 32px;
+}
+
+/* === MODE === */
+.dark-mode {
+  background-color: #121212;
+  color: #eee;
+}
+
+.light-mode {
+  background-color: #f4f4f4;
+  color: #222;
+}
