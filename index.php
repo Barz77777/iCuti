@@ -1,10 +1,10 @@
 <?php
-session_start();
-//jika user suda login
-if (isset($_SESSION['user'])) {
-    header("Location: beranda-atasan.php");
-    exit();
-}
+// session_start();
+// //jika user suda login
+// if (isset($_SESSION['user'])) {
+//     header("Location: beranda-atasan.php");
+//     exit();
+// }
 ?>
 
 <!DOCTYPE html>

@@ -1,12 +1,12 @@
 <?php
-session_start();
+// session_start();
 
-if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'user') {
-    header("Location: index.php");
-    exit();
-}
-$user = $_SESSION['user'];
-$role = $_SESSION['role'];
+// if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'user') {
+//     header("Location: index.php");
+//     exit();
+// }
+// $user = $_SESSION['user'];
+// $role = $_SESSION['role'];
 ?>
 
 
@@ -20,16 +20,10 @@ $role = $_SESSION['role'];
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="beranda-user-submission.css">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-  
+<!-- title -->
   <title>iCuti</title>
-  
 </head>
-
 <body>
-
-
-
 <!-- Checkbox kontrol popup -->
 <input type="checkbox" id="popup-toggle" />
 
@@ -73,7 +67,7 @@ $role = $_SESSION['role'];
       <div class="title">Dashboard</div>
       <div class="user-info">
         <i class="bi bi-person-circle custom-icon"></i>
-        <span class="username"><?= ($user) ?> (<?= ($role) ?>)</span>  
+        <!-- <span class="username"><?= ($user) ?> (<?= ($role) ?>)</span>   -->
       </div>
     </div>
 
@@ -93,11 +87,11 @@ $role = $_SESSION['role'];
             </tr>
           </thead>
           <tbody>
-            <?php 
+            <!-- <?php 
             require 'db_connection.php';
             $query = $conn->query("SELECT * FROM submission WHERE username = '$user' ORDER BY tanggal_pengajuan DESC");
             while ($row = $query->fetch_assoc()):
-            ?>
+            ?> -->
               <tr>
                 <td><?= htmlspecialchars($row['username']) ?></td>
                 <td><?= htmlspecialchars($row['jenis_cuti']) ?></td>
