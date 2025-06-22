@@ -21,7 +21,7 @@
         </div>
 
         <!-- Menu Icons -->
-        <div id="sidebarToggle" class="icon-button">
+        <div id="sidebarToggle" class="icon-button active" onclick="window.location.href='';">
             <i class="bi bi-grid-fill"></i>
             <span class="text-icon">Overview</span>
         </div>
