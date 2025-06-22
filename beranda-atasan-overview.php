@@ -83,15 +83,7 @@
   ];
   ?>
 
-  <div class="layout">
-    <div class="sidebar sticky top-10">
-        <!-- Logo -->
-        <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="asset/user-avatar.png" alt="User Avatar">
-            <span class="text-icon">Profile</span>
-            <i class="menu bi bi-list"></i>
-        </div>
-
-        <div class="profile-dropdown" id="profileDropdown">
+    <div class="profile-dropdown" id="profileDropdown">
             <div class="profile-content">
                 <div class="user-info">
             <p class="user-name">Zen Azura</p>
@@ -101,6 +93,16 @@
             <button class="logout-btn" onclick="window.location.href='logout.php';">Logout</button>
         </div>
 
+
+  <div class="layout">
+    <div class="sidebar sticky top-10">
+        <!-- Logo -->
+        <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="asset/user-avatar.png" alt="User Avatar">
+            <span class="text-icon">Profile</span>
+            <i class="menu bi bi-list"></i>
+        </div>
+
+        
         <!-- Menu Icons -->
         <div class="icon-button active sidebar-link" onclick="window.location.href='beranda-atasan-overview.php';">
             <i class="bi bi-grid-fill"></i>
