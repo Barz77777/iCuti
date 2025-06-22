@@ -71,7 +71,7 @@
 
             <header class="flex items-center justify-between space-x-4">
                 <div class="flex-grow relative max-w-lg">
-                    <input type="search" aria-label="Search anything here" placeholder="Search anything here" class="w-full rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2 pl-10 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-500" />
+                    <input type="search" aria-label="Search anything here" placeholder="Search anything here" class="w-full rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-2 pl-10 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-500" />
                     <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
                         <circle cx="11" cy="11" r="7" />
                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -91,7 +91,9 @@
                 <header class="mb-4 flex justify-between items-center">
                     <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Received data</h2>
                     <button
-                        onclick="window.location.href='form-user-submission.php';"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#submissionModal"
                         class="shadow-xl flex items-center gap-2 px-2 py-1 text-white rounded-md shadow transition-colors duration-200"
                         style="background-color: #2D5938;"
                         onmouseover="this.style.backgroundColor='#24482C';"
@@ -134,6 +136,68 @@
                     </table>
                 </div>
             </article>
+
+            <!-- Modal Add Submission -->
+            <div class="modal fade" id="submissionModal" tabindex="-1" aria-labelledby="submissionModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <form action="proses_submission.php" method="POST" enctype="multipart/form-data">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="submissionModalLabel">Add Leave Submission</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <label class="form-label">Type Of Leave</label>
+                        <select class="form-select" name="jenis_cuti" required>
+                          <option value="">-- Select Leave Type --</option>
+                          <option value="Annual Leave">Annual Leave</option>
+                          <option value="Sick Leave">Sick Leave</option>
+                          <option value="Maternity Leave">Maternity Leave</option>
+                          <option value="Unpaid Leave">Unpaid Leave</option>
+                        </select>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" class="form-control" name="tanggal_mulai" required>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">End Date</label>
+                        <input type="date" class="form-control" name="tanggal_akhir" required>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" name="catatan" rows="3"></textarea>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Upload Dokumen (PDF/JPG/PNG)</label>
+                        <input type="file" class="form-control" name="dokumen" accept=".pdf,.jpg,.jpeg,.png" required>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Template CSV (Opsional)</label><br>
+                        <a href="template-cuti.csv" class="btn btn-sm btn-outline-primary" download>
+                          <i class="bi bi-download"></i> Download Template CSV
+                        </a>
+                      </div>
+                    </div>
+
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bootstrap JS (required for modal) -->
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         </main>
 
 

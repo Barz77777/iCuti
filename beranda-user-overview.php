@@ -31,7 +31,7 @@
     'data' => [8, 4]
   ];
   ?>
-
+<!-- sidebar -->
   <div class="layout flex">
     <div class="sidebar sticky top-0 flex flex-col">
       <!-- Logo -->
