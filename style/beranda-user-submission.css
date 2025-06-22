@@ -21,7 +21,6 @@ body {
 .sidebar {
   width: 70px;
   height: 90vh;
-  position: fixed;
   background: linear-gradient(#334036, #2d5938);
   display: flex;
   flex-direction: column;
@@ -258,4 +257,86 @@ body {
 
 .logout-btn:hover {
   background-color: #c0392b;
+}
+
+/* tabel tambah */
+.tabel {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  margin-left: 220px;
+}
+
+.card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  width: 1000px;
+}
+
+.card h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #300000;
+}
+
+.btn-add {
+  display: block;
+  margin: 0 auto 30px auto;
+  background-color: orange;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-add:hover {
+  background-color: #d48806;
+}
+
+/* Table Style */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+
+/* Status Badges */
+.badge {
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.rejected {
+  background-color: #c62828;
+}
+
+.approved {
+  background-color: #2e7d32;
+}
+
+.waiting {
+  background-color: #fb8c00;
+}
+
+.finished {
+  background-color: #1e88e5;
 }

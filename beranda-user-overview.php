@@ -32,34 +32,45 @@
   ];
   ?>
 
-  <div class="layout">
-    <div class="sidebar">
+  <div class="layout flex">
+    <div class="sidebar sticky top-0 flex flex-col">
       <!-- Logo -->
-      <div class="icon-button top-icon"><img src="asset/user-avatar.png">
+      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="asset/user-avatar.png">
         <span class="text-icon">Profile</span>
       </div>
 
+      <div class="profile-dropdown" id="profileDropdown">
+        <div class="profile-content">
+          <div class="user-info">
+            <p class="user-name">Muhammad Akbar</p>
+            <p class="user-role">Employee</p>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="window.location.href='logout.php';">Logout</button>
+      </div>
+
       <!-- Menu Icons -->
-      <div id="sidebarToggle" class="icon-button">
+      <div class="icon-button active sidebar-link" onclick="window.location.href='beranda-user-overview.php';">
         <i class="bi bi-grid-fill"></i>
         <span class="text-icon">Overview</span>
       </div>
-      <div id="sidebarToggle" class="icon-button">
+      <div class="icon-button sidebar-link" onclick="window.location.href='beranda-user-submission.php';">
         <i class="bi bi-envelope-paper"></i>
         <span class="text-icon">Submission</span>
       </div>
-      <div id="sidebarToggle" class="icon-button">
+      <div class="icon-button" onclick="window.location.href='beranda-user-history.php';">
         <i class="bi bi-clock-history"></i>
         <span class="text-icon">History</span>
       </div>
 
       <!-- Bottom Icon -->
-      <div class="toggle-container" style="margin-top:auto;">
+      <div class="toggle-container mt-auto flex gap-2 justify-center pb-4">
         <div id="lightBtn" class="icon-btn active"><i class="bi bi-brightness-high"></i></div>
         <div id="darkBtn" class="icon-btn"><i class="bi bi-moon"></i></div>
       </div>
     </div>
 
+    <!-- Search icon -->
     <main class="main-content flex-grow max-w-7xl mx-auto flex flex-col gap-8">
       <header class="flex items-center justify-between space-x-4">
         <div class="flex-grow relative max-w-lg">
@@ -69,7 +80,9 @@
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
         </div>
-        <button aria-label="Notifications" class="relative p-2 rounded-full hover:bg-lime-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-lime-400">
+
+        <!-- icon Notif -->
+        <button aria-label="Notifications" class="border border-white bg-white relative p-2 rounded-full hover:bg-lime-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-lime-400">
           <i class="bi bi-bell text-2xl text-gray-600 dark:text-gray-300"></i>
           <span class="absolute top-1 right-1 inline-block w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
         </button>
@@ -78,6 +91,8 @@
         <h1 class="text-3xl font-bold mb-2">Hello, Muhammad Akbar!! <span class="inline-block animate-wave">👋</span></h1>
         <p class="text-lg font-light">How are you feeling about your leave today?</p>
       </section>
+
+      <!-- bagian received data -->
       <section class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl">
         <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between">
           <header class="flex justify-between items-center mb-4">
@@ -92,6 +107,8 @@
           </div>
           <p class="mt-3 text-right text-3xl font-bold text-lime-600">12 days</p>
         </article>
+
+        <!-- bagian Rejected data-->
         <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between">
           <header class="flex justify-between items-center mb-4">
             <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Rejected data</h2>
@@ -105,6 +122,8 @@
           </div>
           <p class="mt-3 text-right text-3xl font-bold text-lime-600">4 leaves</p>
         </article>
+
+        <!-- bagian leave data confirmation -->
         <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between">
           <header class="flex justify-between items-center mb-4">
             <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Leave data awaiting confirmation</h2>
@@ -112,6 +131,8 @@
               <option>Daily</option>
               <option>Weekly</option>
             </select>
+
+            <!-- bagian requires approval -->
           </header>
           <div class="relative h-36 w-full flex items-center justify-center">
             <span class="text-5xl font-extrabold text-red-500">3</span>
@@ -261,23 +282,50 @@
     // setInterval(() => { ...fetch data baru dan update chart... }, 5000);
   </script>
 
+  <!-- mode dark dan light -->
   <script>
     const body = document.body;
     const lightBtn = document.getElementById("lightBtn");
     const darkBtn = document.getElementById("darkBtn");
+    const sidebar = document.querySelector(".sidebar");
+    const toggleContainer = document.querySelector(".toggle-container");
+    const savedSidebar = localStorage.getItem("sidebar-expanded");
+
+
+
 
     lightBtn.addEventListener("click", () => {
       body.classList.remove("dark-mode");
-      body.classList.add("ligh-mode");
+      body.classList.add("light-mode");
       lightBtn.classList.add("active");
       darkBtn.classList.remove("active");
+      localStorage.setItem("theme", "light");
     });
 
     darkBtn.addEventListener("click", () => {
-      body.classList.remove("ligh-mode");
+      body.classList.remove("light-mode");
       body.classList.add("dark-mode");
       lightBtn.classList.remove("active");
       darkBtn.classList.add("active");
+      localStorage.setItem("theme", "dark");
+    });
+
+    function toggleProfileMenu() {
+      const dropdown = document.getElementById('profileDropdown');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function logout() {
+      alert('Anda Telah Logout');
+      window.location.href = 'logout.php';
+    }
+
+    document.addEventListener('click', function(event) {
+      const profile = document.querySelector('.profile-toggle');
+      const dropdown = document.getElementById('profileDropdown');
+      if (!profile.contains(event.target)) {
+        dropdown.style.display = 'none';
+      }
     });
   </script>
 
