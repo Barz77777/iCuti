@@ -41,7 +41,7 @@ body {
   font-size: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
-  padding-left: 12px;
+  padding-left: 17px;
   gap: 10px;
   box-sizing: border-box;
 }
@@ -107,6 +107,7 @@ body {
 .top-icon {
   background-color: #9ad914;
   margin-bottom: 40px;
+  padding-left: 7px;
 }
 
 /* Toggle Light/Dark Mode */

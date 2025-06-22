@@ -53,11 +53,8 @@
 //                     $_SESSION['user_id'] = $user_data['id']; // opsional untuk tracking user
 
 //                     switch ($user_data['role']) {
-//                         case 'admin':
-//                             header("Location: beranda-admin.php");
-//                             break;
 //                         case 'atasan':
-//                             header("Location: beranda-atasan.php");
+//                             header("Location: beranda-atasan-new.php");
 //                             break;
 //                         case 'user':
 //                         default:

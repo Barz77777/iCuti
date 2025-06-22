@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style/beranda-atasan-new.css" />
-    <title>Vertical Sidebar</title>
+    <title>iCuti</title>
     <style>
     </style>
 </head>
@@ -27,11 +27,11 @@
         </div>
         <div id="sidebarToggle" class="icon-button">
             <i class="bi bi-envelope-paper"></i>
-            <span class="text-icon">Overview</span>
+            <span class="text-icon">Submission</span>
         </div>
         <div id="sidebarToggle" class="icon-button">
             <i class="bi bi-clock-history"></i>
-            <span class="text-icon">Overview</span>
+            <span class="text-icon">History</span>
         </div>
 
         <!-- Bottom Icon -->
