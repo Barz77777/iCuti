@@ -110,7 +110,7 @@
         </div>
         <div class="icon-button sidebar-link" onclick="window.location.href='beranda-user-submission.php';">
             <i class="bi bi-envelope-paper"></i>
-            <span class="text-icon">Agreement</span>
+            <span class="text-icon">Submission</span>
         </div>
         <div class="icon-button" onclick="window.location.href='beranda-user-history.php';">
             <i class="bi bi-clock-history"></i>
@@ -172,10 +172,6 @@
         <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden" data-title="Leave data awaiting cofirmation">
           <header class="flex justify-between items-center mb-4">
             <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Leave data awaiting confirmation</h2>
-            <select aria-label="Select period" class="text-sm bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-lime-500">
-              <option>Daily</option>
-              <option>Weekly</option>
-            </select>
           </header>
           <div class="relative h-36 w-full flex items-center justify-center">
             <span class="text-5xl font-extrabold text-red-500">3</span>
