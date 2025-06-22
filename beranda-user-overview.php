@@ -82,6 +82,16 @@
     'data' => [8, 4, 3]
   ];
   ?>
+  <!-- Profile Card -->
+   <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-content">
+                <div class="user-info">
+            <p class="user-name">Muhammad Akbar</p>
+            <p class="user-role">Employee</p>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="window.location.href='logout.php';">Logout</button>
+        </div>
 
   <div class="layout">
     <div class="sidebar sticky top-10">
@@ -91,15 +101,7 @@
             <i class="menu bi bi-list"></i>
         </div>
 
-        <div class="profile-dropdown" id="profileDropdown">
-            <div class="profile-content">
-                <div class="user-info">
-            <p class="user-name">Zen Azura</p>
-            <p class="user-role">Admin</p>
-                </div>
-            </div>
-            <button class="logout-btn" onclick="window.location.href='logout.php';">Logout</button>
-        </div>
+       
 
         <!-- Menu Icons -->
         <div class="icon-button active sidebar-link" onclick="window.location.href='beranda-atasan-overview.php';">
