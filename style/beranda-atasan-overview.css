@@ -5,6 +5,11 @@ body {
   transition: background 0.3s, color 0.3s;
 }
 
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
 /* === SIDEBAR === */
 .sidebar {
   width: 70px;
@@ -66,9 +71,21 @@ body {
   font-size: 16px;
 }
 
+.menu,
+.menu-text {
+  display: none;
+  opacity: 0;
+  margin-left: 5px;
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+  font-size: 16px;
+}
+
 /* Munculkan saat hover atau expanded */
 .sidebar:hover .text-icon,
 .sidebar.expanded .text-icon,
+.sidebar:hover .menu,
+.sidebar.expanded .menu,
 .sidebar:hover .menu-text,
 .sidebar.expanded .menu-text {
   display: inline;
@@ -77,6 +94,13 @@ body {
 
 /* Biar teks gak keluar batas */
 .text-icon,
+.menu-text {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu,
 .menu-text {
   max-width: 100%;
   overflow: hidden;
@@ -144,6 +168,14 @@ body {
 .profile-toggle {
   position: relative;
   cursor: pointer;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px;
+  min-width: 0;
 }
 
 .profile-dropdown {

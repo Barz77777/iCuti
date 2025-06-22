@@ -54,11 +54,11 @@
 
 //                     switch ($user_data['role']) {
 //                         case 'atasan':
-//                             header("Location: beranda-atasan-new.php");
+//                             header("Location: beranda-atasan-overview.php");
 //                             break;
 //                         case 'user':
 //                         default:
-//                             header("Location: beranda-user-submission.php");
+//                             header("Location: beranda-user-overview.php");
 //                             break;
 //                     }
 //                     exit();
@@ -112,12 +112,15 @@
                             <span class="material-icons">lock</span>
                             <input type="password" id="password" name="password" required placeholder="Password" />
                         </div>
-                    </div>
+                    </div>      
                     <button type="submit">Login</button>
                 </form>
             </div>
         </div>
     </main>
+
+    
+
 </body>
 
 </html>

@@ -18,6 +18,7 @@
         <!-- Logo -->
         <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="asset/user-avatar.png" alt="User Avatar">
             <span class="text-icon">Profile</span>
+            <i class="menu bi bi-list"></i>
         </div>
 
         <div class="profile-dropdown" id="profileDropdown">
@@ -78,16 +79,7 @@
             localStorage.setItem("theme", "dark");
         });
 
-        if (savedSidebar === "true") {
-    sidebar.classList.add("expanded");
-}
-
-if (toggleContainer) {
-    toggleContainer.addEventListener("click", () => {
-        sidebar.classList.toggle("expanded");
-        localStorage.setItem("sidebar-expanded", sidebar.classList.contains("expanded"));
-    });
-}
+        
 
 function toggleProfileMenu() {
     const dropdown = document.getElementById('profileDropdown');

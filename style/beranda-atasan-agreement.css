@@ -66,9 +66,21 @@ body {
   font-size: 16px;
 }
 
+.menu,
+.menu-text {
+  display: none;
+  opacity: 0;
+  margin-left: 5px;
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+  font-size: 16px;
+}
+
 /* Munculkan saat hover atau expanded */
 .sidebar:hover .text-icon,
 .sidebar.expanded .text-icon,
+.sidebar:hover .menu,
+.sidebar.expanded .menu,
 .sidebar:hover .menu-text,
 .sidebar.expanded .menu-text {
   display: inline;
@@ -77,6 +89,13 @@ body {
 
 /* Biar teks gak keluar batas */
 .text-icon,
+.menu-text {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu,
 .menu-text {
   max-width: 100%;
   overflow: hidden;
