@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if(!isset($_SESSION['user']) || $_SESSION['role'] !== 'user') {
+if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'user') {
   header("Location: index.php");
   exit();
 }
@@ -11,40 +11,51 @@ $role = $_SESSION['role'];
 
 include 'db_connection.php';
 
-// 1. Received & Rejected monthly
+// 1. Labels bulan
 $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 $received = array_fill(0, 12, 0);
 $rejected = array_fill(0, 12, 0);
 
-// Replace 'status' with the actual status column name, e.g., 'approval_status'
-$query = "SELECT MONTH(tanggal_mulai) as bulan, status_pengajuan, COUNT(*) as jumlah
-FROM cuti
-WHERE YEAR(tanggal_mulai) = YEAR(CURDATE())
-GROUP BY bulan, status_pengajuan";
+// ✅ Query Received & Rejected per bulan berdasarkan username
+$query = "SELECT MONTH(tanggal_mulai) AS bulan, status_pengajuan, COUNT(*) AS jumlah
+          FROM cuti
+          WHERE YEAR(tanggal_mulai) = YEAR(CURDATE()) AND username = '$user'
+          GROUP BY MONTH(tanggal_mulai), status_pengajuan";
+
 $res = $conn->query($query);
 while ($row = $res->fetch_assoc()) {
-  $i = $row['bulan'] - 1;
-  if ($row['status_pengajuan'] === 'Disetujui') $received[$i] = $row['jumlah'];
-  elseif ($row['status_pengajuan'] === 'Ditolak') $rejected[$i] = $row['jumlah'];
+  $bulan = (int)$row['bulan'] - 1;
+  if ($row['status_pengajuan'] === 'Disetujui') {
+    $received[$bulan] += (int)$row['jumlah'];
+  } elseif ($row['status_pengajuan'] === 'Ditolak') {
+    $rejected[$bulan] += (int)$row['jumlah'];
+  }
 }
 
-// 2. Awaiting Confirmation
-$qWaiting = "SELECT COUNT(*) as total FROM cuti WHERE status_pengajuan = 'Menunggu'";
+// 2. Total "Menunggu" (khusus user)
+$qWaiting = "SELECT COUNT(*) AS total FROM cuti 
+             WHERE status_pengajuan = 'Menunggu' AND username = '$user'";
 $waitingTotal = $conn->query($qWaiting)->fetch_assoc()['total'] ?? 0;
 
-// 3. Leave Type
-$leaveTypeData = ['labels' => [], 'data' => []];
-$qLeaveType = "SELECT jenis_cuti, COUNT(*) as total
-FROM cuti
-GROUP BY jenis_cuti";
+// 3. Leave Limit
+// Total jatah
+$leaveLimitTotal = 0;
+$qLeaveLimit = "SELECT SUM(jatah) AS total FROM cuti_limit WHERE username = '$user'";
+$resLimit = $conn->query($qLeaveLimit);
+$row = $resLimit->fetch_assoc();
+$leaveLimitTotal = $row['total'] ?? 0;
 
-$resType = $conn->query($qLeaveType);
-while ($row = $resType->fetch_assoc()) {
-  $leaveTypeData['labels'][] = $row['jenis_cuti'];
-  $leaveTypeData['data'][] = $row['total'];
-}
+// Total yang sudah diambil (disetujui)
+$leaveTakenTotal = 0;
+$qTaken = "SELECT COUNT(*) AS total FROM cuti WHERE username = '$user' AND status_pengajuan = 'Disetujui'";
+$resTaken = $conn->query($qTaken);
+$rowTaken = $resTaken->fetch_assoc();
+$leaveTakenTotal = $rowTaken['total'] ?? 0;
 
+// Sisa cuti
+$leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -225,20 +236,16 @@ while ($row = $resType->fetch_assoc()) {
         <!-- Leave Type -->
         <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden">
           <header class="flex justify-between items-center mb-4">
-            <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Leave Data</h2>
-            <select class="text-sm bg-gray-100 dark:bg-gray-700 rounded-lg border px-2 py-1 focus:ring-lime-500">
-              <option>Monthly</option>
-              <option>Yearly</option>
-            </select>
+            <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Leave Limit</h2>
           </header>
-          <div class="relative h-36 w-full">
-            <canvas id="leaveTypeChart"></canvas>
+          <div class="relative h-36 w-full flex flex-col items-center justify-center">
+            <span class="text-5xl font-extrabold text-lime-600"><?= $leaveRemaining ?></span>
+            <p class="text-sm text-gray-500 mt-1">Remaining</p>
           </div>
-          <?php foreach ($leaveTypeData['labels'] as $i => $type): ?>
-            <p class="mt-1 text-right text-lime-600 text-sm italic">
-              <?= htmlspecialchars($type) ?>: <?= htmlspecialchars($leaveTypeData['data'][$i]) ?> Data
-            </p>
-          <?php endforeach; ?>
+          <div class="text-right text-sm text-gray-500 dark:text-gray-300 italic">
+            <p>Total: <?= $leaveLimitTotal ?> days</p>
+            <p>Taken: <?= $leaveTakenTotal ?> days</p>
+          </div>
         </article>
       </section>
     </main>
@@ -299,26 +306,8 @@ while ($row = $resType->fetch_assoc()) {
         }
       }
     });
-
-    const leaveTypeChart = new Chart(document.getElementById('leaveTypeChart'), {
-      type: 'doughnut',
-      data: {
-        labels: <?= json_encode($leaveTypeData['labels']) ?>,
-        datasets: [{
-          data: <?= json_encode($leaveTypeData['data']) ?>,
-          backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6']
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'right'
-          }
-        }
-      }
-    });
   </script>
+
 
   <script>
     const body = document.body;
