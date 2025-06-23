@@ -47,6 +47,7 @@ $role = $_SESSION['role'];
             <!-- Logo -->
             <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="asset/user-avatar.png">
                 <span class="text-icon">Profile</span>
+                <i class="menu bi bi-list"></i>
             </div>
 
             <div class="profile-dropdown" id="profileDropdown">
@@ -163,7 +164,7 @@ $role = $_SESSION['role'];
                                     }
 
                                     // status badge
-                                    $status = $row['status'];
+                                    $status = $row['status_pengajuan'];
                                     $statusClass = '';
                                     $statusText = '';
 
@@ -316,12 +317,21 @@ $role = $_SESSION['role'];
     </div>
   </div>
 </div>
+
 <script>
     window.addEventListener('DOMContentLoaded', function () {
         var successModal = new bootstrap.Modal(document.getElementById('successModal'));
         successModal.show();
+
+        // Hapus ?success=1 dari URL tanpa reload
+        const url = new URL(window.location);
+        url.searchParams.delete('success');
+        window.history.replaceState({}, document.title, url.toString());
     });
 </script>
+
+
+
 <?php endif; ?>
 
 

@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tanggal_mulai = $_POST['tanggal_mulai'] ?? '';
     $tanggal_akhir = $_POST['tanggal_akhir'] ?? '';
     $catatan = $_POST['catatan'] ?? '';
-    $status = 'Pending'; // default status awal
+    $status = 'Menunggu'; 
 
     // Upload dokumen
     $dokumen = $_FILES['dokumen']['name'];
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (move_uploaded_file($tmp_file, $upload_path)) {
         // Simpan ke database
         $sql = "INSERT INTO cuti 
-            (username, nip, jabatan, divisi, no_hp, pengganti, jenis_cuti, tanggal_mulai, tanggal_akhir, catatan, dokumen, status)
+            (username, nip, jabatan, divisi, no_hp, pengganti, jenis_cuti, tanggal_mulai, tanggal_akhir, catatan, dokumen, status_pengajuan)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = mysqli_prepare($conn, $sql);

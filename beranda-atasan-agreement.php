@@ -100,37 +100,18 @@ $role = $_SESSION['role'];
 
             <!-- Tabel  -->
             <?php
-            // Simulasi data cuti (seharusnya dari database)
-            $cuti = [
-                [
-                    'id' => 1,
-                    'nama' => 'Muhammad Akbar',
-                    'nip' => '123456',
-                    'jabatan' => 'Staff',
-                    'divisi' => 'IT',
-                    'jenis_cuti' => 'Cuti Tahunan',
-                    'tanggal_mulai' => '2024-06-01',
-                    'tanggal_akhir' => '2024-06-05',
-                    'status' => 'Menunggu Persetujuan'
-                ]
-            ];
+            // ambil data dari database
+            include 'db_connection.php'; // pastikan ini konek ke database
 
-            // Proses aksi atasan
-            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cuti_id'], $_POST['aksi'])) {
-                $id = $_POST['cuti_id'];
-                $aksi = $_POST['aksi'];
-                // Simulasi update status (seharusnya update ke database)
-                foreach ($cuti as &$c) {
-                    if ($c['id'] == $id) {
-                        if ($aksi === 'setujui') {
-                            $c['status'] = 'Disetujui';
-                        } elseif ($aksi === 'tolak') {
-                            $c['status'] = 'Ditolak';
-                        }
-                    }
-                }
-                unset($c);
+            $query = "SELECT * FROM cuti WHERE status_pengajuan = 'Menunggu'";
+            $result = mysqli_query($conn, $query);
+
+            $cuti = [];
+                while ($row = mysqli_fetch_assoc($result)) {
+            $cuti[] = $row;
             }
+
+
             ?>
 
             <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md h-fit animate__animated animate__fadeIn" style="--animate-duration: 1.2s;">
@@ -139,6 +120,13 @@ $role = $_SESSION['role'];
                 </header>
 
                 <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
+                    <?php if (isset($_GET['notif'])): ?>
+    <div class="p-4 mb-4 text-sm text-white rounded-lg 
+        <?= $_GET['notif'] === 'Disetujui' ? 'bg-green-500' : 'bg-red-500' ?>">
+        Permohonan berhasil <?= htmlspecialchars($_GET['notif']) ?>.
+    </div>
+<?php endif; ?>
+
                     <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg">
                         <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914;">
                             <tr>
@@ -146,49 +134,46 @@ $role = $_SESSION['role'];
                                 <th class="px-5 py-3">NIP/ID Karyawan</th>
                                 <th class="px-5 py-3">Jabatan</th>
                                 <th class="px-5 py-3">Divisi</th>
+                                <th class="px-5 py-3">Nomor HP</th>
+                                <th class="px-5 py-3">Tugas Dialihkan Kepada</th>
                                 <th class="px-5 py-3">Jenis Cuti</th>
                                 <th class="px-5 py-3">Tanggal Mulai</th>
                                 <th class="px-5 py-3">Tanggal Akhir</th>
+                                <th class="px-5 py-3">Catatan</th>
+                                <th class="px-5 py-3">Dokumen</th>
                                 <th class="px-5 py-3">Status</th>
-                                <th class="px-5 py-3">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            
                             <?php foreach ($cuti as $c): ?>
                                 <tr>
-                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['nama']) ?></td>
+                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['username']) ?></td>
                                     <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['nip']) ?></td>
                                     <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['jabatan']) ?></td>
                                     <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['divisi']) ?></td>
+                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['no_hp']) ?></td>
+                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['pengganti']) ?></td>
                                     <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['jenis_cuti']) ?></td>
                                     <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_mulai']) ?></td>
                                     <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_akhir']) ?></td>
+                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['catatan']) ?></td>
+                                    <?php if (!empty($c['dokumen'])): ?>
+                                    <?php $dokumen_path = 'uploads/' . urlencode($c['dokumen']); ?>
                                     <td class="px-5 py-3 whitespace-nowrap">
-                                        <?php if ($c['status'] === 'Disetujui'): ?>
-                                            <span class="inline-block px-3 py-1 border border-green-400 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 rounded-full text-xs font-semibold">
-                                                Disetujui
-                                            </span>
-                                        <?php elseif ($c['status'] === 'Ditolak'): ?>
-                                            <span class="inline-block px-3 py-1 border border-red-400 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 rounded-full text-xs font-semibold">
-                                                Ditolak
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="inline-block px-3 py-1 border border-yellow-400 bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400 rounded-full text-xs font-semibold">
-                                                Menunggu Persetujuan
-                                            </span>
-                                        <?php endif; ?>
+                                        <a href="<?= $dokumen_path ?>" target="_blank">📄 Buka</a>
                                     </td>
-                                    <td class="px-5 py-3 whitespace-nowrap">
-                                        <?php if ($c['status'] === 'Menunggu Persetujuan'): ?>
-                                            <form method="post" action="" class="flex gap-2">
+                                    <?php else: ?>
+                                        <td class="px-5 py-3 whitespace-nowrap"><em>Tidak ada</em></td>
+                                    <?php endif; ?>
+                                        <td class="px-5 py-3 whitespace-nowrap">
+                                            <form method="post" action="proses_approval.php" class="flex gap-2">
                                                 <input type="hidden" name="cuti_id" value="<?= $c['id'] ?>">
                                                 <button type="submit" name="aksi" value="setujui" class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-full text-xs font-semibold">Setujui</button>
                                                 <button type="submit" name="aksi" value="tolak" class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs font-semibold">Tolak</button>
                                             </form>
-                                        <?php else: ?>
-                                            <span class="text-gray-400 text-xs">Selesai</span>
-                                        <?php endif; ?>
                                     </td>
+                                    
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>

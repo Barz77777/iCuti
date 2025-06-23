@@ -8,6 +8,23 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
 
 $user = $_SESSION['user'];
 $role = $_SESSION['role'];
+
+require 'db_connection.php';
+
+// Ambil history cuti yang sudah disetujui atau ditolak
+$sql = "SELECT username, nip, jabatan, divisi, no_hp, pengganti, jenis_cuti, tanggal_mulai, tanggal_akhir, catatan, dokumen, status_pengajuan
+        FROM cuti 
+        WHERE status_pengajuan = 'Ditolak' OR status_pengajuan = 'Disetujui'
+        ORDER BY created_at DESC";
+
+$result = mysqli_query($conn, $sql);
+$history = [];
+
+if ($result && mysqli_num_rows($result) > 0) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $history[] = $row;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -86,39 +103,6 @@ $role = $_SESSION['role'];
                 </button>
             </header>
 
-            <!-- Tabel History -->
-            <?php
-            // Simulasi data cuti (seharusnya dari database)
-            $cuti = [
-                [
-                    'id' => 1,
-                    'nama' => 'Muhammad Akbar',
-                    'nip' => '123456',
-                    'jabatan' => 'Staff',
-                    'divisi' => 'IT',
-                    'jenis_cuti' => 'Cuti Tahunan',
-                    'tanggal_mulai' => '2024-06-01',
-                    'tanggal_akhir' => '2024-06-05',
-                    'status' => 'Disetujui'
-                ],
-                [
-                    'id' => 2,
-                    'nama' => 'Zen azura',
-                    'nip' => '654321',
-                    'jabatan' => 'HR',
-                    'divisi' => 'HRD',
-                    'jenis_cuti' => 'Cuti Sakit',
-                    'tanggal_mulai' => '2024-05-10',
-                    'tanggal_akhir' => '2024-05-12',
-                    'status' => 'Ditolak'
-                ]
-            ];
-
-            // Filter hanya yang sudah selesai (Disetujui/Ditolak)
-            $history = array_filter($cuti, function($c) {
-                return $c['status'] === 'Disetujui' || $c['status'] === 'Ditolak';
-            });
-            ?>
 
             <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md h-fit animate__animated animate__fadeIn" style="--animate-duration: 1.2s;">
                 <header class="mb-4 flex justify-between items-center">
@@ -133,9 +117,13 @@ $role = $_SESSION['role'];
                                 <th class="px-5 py-3">NIP/ID Karyawan</th>
                                 <th class="px-5 py-3">Jabatan</th>
                                 <th class="px-5 py-3">Divisi</th>
+                                <th class="px-5 py-3">No HP</th>
+                                <th class="px-5 py-3">Pengganti</th>
                                 <th class="px-5 py-3">Jenis Cuti</th>
                                 <th class="px-5 py-3">Tanggal Mulai</th>
                                 <th class="px-5 py-3">Tanggal Akhir</th>
+                                <th class="px-5 py-3">Catatan</th>
+                                <th class="px-5 py-3">Dokumen</th>
                                 <th class="px-5 py-3">Status</th>
                             </tr>
                         </thead>
@@ -147,18 +135,35 @@ $role = $_SESSION['role'];
                             <?php else: ?>
                                 <?php foreach ($history as $c): ?>
                                     <tr>
-                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['nama']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['username']) ?></td>
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['nip']) ?></td>
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['jabatan']) ?></td>
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['divisi']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['no_hp']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['pengganti']) ?></td>
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['jenis_cuti']) ?></td>
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_mulai']) ?></td>
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_akhir']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['catatan']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['dokumen']) ?></td>
                                         <td class="px-5 py-3 whitespace-nowrap">
-                                            <span class="inline-block px-3 py-1 border border-blue-400 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full text-xs font-semibold">
-                                                Finish
-                                            </span>
+                                            <?php
+                                                $status = $c['status_pengajuan'];
+                                                $statusClass = '';
+                                                $statusText = '';
+
+                                                if ($status === 'Disetujui') {
+                                                    $statusClass = 'border-green-400 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300';
+                                                    $statusText = 'Disetujui';
+                                                } elseif ($status === 'Ditolak') {
+                                                    $statusClass = 'border-red-400 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300';
+                                                    $statusText = 'Ditolak';
+                                                }
+
+                                                echo "<span class='inline-block px-3 py-1 border $statusClass rounded-full text-xs font-semibold'>$statusText</span>";
+                                            ?>
                                         </td>
+
                                     </tr>
                                 <?php endforeach; ?>
                             <?php endif; ?>
