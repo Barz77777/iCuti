@@ -1,3 +1,15 @@
+<?php
+session_start();
+
+if(!isset($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
+  header("Location: index.php");
+  exit();
+}
+
+$user = $_SESSION['user'];
+$role = $_SESSION['role'];
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -24,8 +36,8 @@
         <div class="profile-dropdown" id="profileDropdown">
             <div class="profile-content">
                 <div class="user-info">
-            <p class="user-name">Zen Azura</p>
-            <p class="user-role">Admin</p>
+            <p class="user-name"><?= ($user) ?></p>
+            <p class="user-role"><?= ($role) ?></p>
                 </div>
             </div>
             <button class="logout-btn" onclick="window.location.href='logout.php';">Logout</button>

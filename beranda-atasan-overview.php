@@ -1,3 +1,14 @@
+<?php
+session_start();
+
+if(!isset($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
+  header("Location: index.php");
+  exit();
+}
+
+$user = $_SESSION['user'];
+$role = $_SESSION['role'];
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -86,8 +97,8 @@
     <div class="profile-dropdown" id="profileDropdown">
             <div class="profile-content">
                 <div class="user-info">
-            <p class="user-name">Zen Azura</p>
-            <p class="user-role">Admin</p>
+            <p class="user-name"><?= ($user) ?></p>
+            <p class="user-role"><?= ($role) ?></p>
                 </div>
             </div>
             <button class="logout-btn" onclick="window.location.href='logout.php';">Logout</button>
@@ -139,7 +150,7 @@
         </button>
       </header>
       <section class="rounded-3xl p-6 shadow-md text-white max-w-4xl" style="background: linear-gradient(135deg, #2D5938 0%, #334036 100%);">
-        <h1 class="text-3xl font-bold mb-2 animate-text delay-1">Hello, Zen Azura! <span class="inline-block animate-wave"></span></h1>
+        <h1 class="text-3xl font-bold mb-2 animate-text delay-1">Hello, <?= ($user) ?>! <span class="inline-block animate-wave"></span></h1>
         <p class="text-lg font-light animate-text delay-2">How are you feeling about your leave today?</p>
         </section>
       <section class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl">

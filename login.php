@@ -1,80 +1,77 @@
 <?php
-// session_start();
+ session_start();
 
-// // Konfigurasi LDAP
-// $ldap_server = "ldap://172.10.10.70";
-// $ldap_port = 389;
-// $domain = "training.local";
-// $base_dn = "DC=training,DC=local";
+// Konfigurasi LDAP
+$ldap_server = "ldap://172.10.10.70";
+$ldap_port = 389;
+$domain = "training.local";
+$base_dn = "DC=training,DC=local";
 
-// require 'db_connection.php'; // pastikan file ini ada
+$message = "";
+$message_type = "";
 
-// $message = "";
-// $message_type = "";
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $username = trim($_POST['username'] ?? '');
+    $password = $_POST['password'] ?? '';
 
-// if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-//     $username = trim($_POST['username'] ?? '');
-//     $password = $_POST['password'] ?? '';
+    if (empty($username) || empty($password)) {
+        $message = "Username dan Password wajib diisi";
+        $message_type = "danger";
+    } else {
+        $ldap_conn = ldap_connect($ldap_server, $ldap_port);
 
-//     if (empty($username) || empty($password)) {
-//         $message = "Username dan Password wajib diisi";
-//         $message_type = "danger";
-//     } else {
-//         $ldap_conn = ldap_connect($ldap_server, $ldap_port);
+        if (!$ldap_conn) {
+            $message = "Gagal terhubung ke LDAP.";
+            $message_type = "danger";
+        } else {
+            ldap_set_option($ldap_conn, LDAP_OPT_PROTOCOL_VERSION, 3);
+            ldap_set_option($ldap_conn, LDAP_OPT_REFERRALS, 0);
 
-//         if (!$ldap_conn) {
-//             $message = "Gagal terhubung ke LDAP.";
-//             $message_type = "danger";
-//         } else {
-//             ldap_set_option($ldap_conn, LDAP_OPT_PROTOCOL_VERSION, 3);
-//             ldap_set_option($ldap_conn, LDAP_OPT_REFERRALS, 0);
+            $ldap_user = $username . '@' . $domain;
 
-//             $ldap_user = $username . '@' . $domain;
-//             // error_log("LDAP user: $ldap_user");
-//             error_log("Trying to bind: $ldap_user");
+            // Autentikasi LDAP
+            if (@ldap_bind($ldap_conn, $ldap_user, $password)) {
+                // Cari informasi user untuk mendapatkan atribut grup
+                $filter = "(sAMAccountName=$username)";
+                $attributes = ['memberOf'];
+                $result = ldap_search($ldap_conn, $base_dn, $filter, $attributes);
 
-//             if (@ldap_bind($ldap_conn, $ldap_user, $password)) {
-//                 error_log("LDAP bind success: $username");
-//             } else {
-//                 error_log("LDAP bind failed: " . ldap_error($ldap_conn));
-//             }
-//             // Cek apakah bind berhasil
-//             if (@ldap_bind($ldap_conn, $ldap_user, $password)) {
-//                 // Cek user di database lokal
-//                 $username_clean = mysqli_real_escape_string($conn, $username);
-//                 $query = "SELECT * FROM users WHERE username = '$username_clean'";
-//                 $result = mysqli_query($conn, $query);
+                if ($result && ldap_count_entries($ldap_conn, $result) > 0) {
+                    $entries = ldap_get_entries($ldap_conn, $result);
+                    $groups = $entries[0]['memberof'] ?? [];
 
-//                 if ($result && mysqli_num_rows($result) > 0) {
-//                     $user_data = mysqli_fetch_assoc($result);
+                    $is_admin = false;
 
-//                     $_SESSION['user'] = $username;
-//                     $_SESSION['role'] = $user_data['role'];
-//                     $_SESSION['user_id'] = $user_data['id']; // opsional untuk tracking user
+                    // Periksa apakah user ada dalam grup PAM_ADMIN
+                    foreach ($groups as $group_dn) {
+                        if (stripos($group_dn, "CN=PAM_ADMIN") !== false) {
+                            $is_admin = true;
+                            break;
+                        }
+                    }
 
-//                     switch ($user_data['role']) {
-//                         case 'atasan':
-//                             header("Location: beranda-atasan-overview.php");
-//                             break;
-//                         case 'user':
-//                         default:
-//                             header("Location: beranda-user-overview.php");
-//                             break;
-//                     }
-//                     exit();
-//                 } else {
-//                     $message = "Akun Anda tidak terdaftar di sistem iCuti.";
-//                     $message_type = "danger";
-//                 }
-//             } else {
-//                 $message = "Login gagal: " . ldap_error($ldap_conn);
-//                 $message_type = "danger";
-//             }
+                    $_SESSION['user'] = $username;
+                    $_SESSION['role'] = $is_admin ? 'admin' : 'user';
 
-//             ldap_unbind($ldap_conn);
-//         }
-//     }
-// }
+                    if ($is_admin) {
+                        header("Location: beranda-atasan-overview.php");
+                    } else {
+                        header("Location: beranda-user-overview.php");
+                    }
+                    exit();
+                } else {
+                    $message = "Tidak dapat menemukan informasi grup pengguna.";
+                    $message_type = "danger";
+                }
+            } else {
+                $message = "Login gagal: " . ldap_error($ldap_conn);
+                $message_type = "danger";
+            }
+
+            ldap_unbind($ldap_conn);
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
