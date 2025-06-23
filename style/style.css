@@ -43,7 +43,7 @@
     }
 
      .judul {
-        color: #e9b321;
+        color: #9AD914;
         text-align: center;
         font-size: 30px;
         user-select: text;
@@ -91,14 +91,14 @@
     }
     input[type="text"]:focus,
     input[type="password"]:focus {
-      border-color: #e9b321;
+      border-color: #9AD914;
       outline: none;
-      box-shadow: 0 0 8px rgba(233,179,33,0.4);
+      box-shadow: 0 0 8px #9AD914;
     }
 
     /* Login button */
     button.login-btn {
-      background-color: #e9b321;
+      background-color: #9AD914;
       color: white;
       font-weight: 700;
       font-size: 1.25rem;
@@ -111,7 +111,7 @@
     }
     button.login-btn:hover,
     button.login-btn:focus {
-      background-color: #c48e1f;
+      background-color: #8ABF17;
       outline: none;
     }
 
