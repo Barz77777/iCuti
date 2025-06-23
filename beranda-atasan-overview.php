@@ -10,13 +10,13 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
 $user = $_SESSION['user'];
 $role = $_SESSION['role'];
 
-// Ambil notifikasi untuk role 'atasan'
-$sqlNotif = "SELECT * FROM notifications WHERE penerima_role = 'atasan' ORDER BY created_at DESC LIMIT 10";
+// Ambil notifikasi untuk role 'admin'
+$sqlNotif = "SELECT * FROM notifications WHERE penerima_role = 'admin' ORDER BY created_at DESC LIMIT 10";
 $resNotif = $conn->query($sqlNotif);
 $notifs = $resNotif->fetch_all(MYSQLI_ASSOC);
 
 // Hitung jumlah notifikasi belum dibaca
-$sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = 'atasan' AND status = 'unread'";
+$sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = 'admin' AND status = 'unread'";
 $resJumlah = $conn->query($sqlJumlah);
 $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 ?>
@@ -170,6 +170,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
         </div>
+
         <!-- Container relatif agar dropdown tidak ganggu layout -->
         <div class="relative">
           <!-- Tombol lonceng -->
@@ -466,6 +467,8 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
     });
   </script>
 
+
+<!-- Notif -->
   <script>
     document.getElementById('notifBtn').addEventListener('click', function() {
       const panel = document.getElementById('notifPanel');

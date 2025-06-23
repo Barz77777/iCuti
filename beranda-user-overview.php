@@ -54,6 +54,16 @@ $leaveTakenTotal = $rowTaken['total'] ?? 0;
 
 // Sisa cuti
 $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
+
+// Ambil notifikasi untuk role 'admin'
+$sqlNotif = "SELECT * FROM notifications WHERE penerima_role = 'admin' ORDER BY created_at DESC LIMIT 10";
+$resNotif = $conn->query($sqlNotif);
+$notifs = $resNotif->fetch_all(MYSQLI_ASSOC);
+
+// Hitung jumlah notifikasi belum dibaca
+$sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = 'admin' AND status = 'unread'";
+$resJumlah = $conn->query($sqlJumlah);
+$jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 ?>
 
 

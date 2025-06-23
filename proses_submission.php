@@ -54,10 +54,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
         mysqli_stmt_execute($stmt);
 
-        // ✅ Kirim notifikasi ke atasan
+        // ✅ Kirim notifikasi ke admin
         $judul_notif = "Pengajuan Cuti Baru";
         $pesan_notif = "Karyawan $username mengajukan cuti dari $tanggal_mulai sampai $tanggal_akhir.";
-        $penerima = 'atasan';
+        $penerima = 'admin';
         $status_notif = 'baru';
         $created_at = date('Y-m-d H:i:s');
 
