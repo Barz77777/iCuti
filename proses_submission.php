@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tanggal_mulai = $_POST['tanggal_mulai'] ?? '';
     $tanggal_akhir = $_POST['tanggal_akhir'] ?? '';
     $catatan = $_POST['catatan'] ?? '';
-    $status = 'Menunggu'; 
+    $status = 'Menunggu';
 
     // Upload dokumen
     $dokumen = $_FILES['dokumen']['name'];
@@ -30,21 +30,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $upload_path = 'uploads/' . basename($dokumen);
 
     if (move_uploaded_file($tmp_file, $upload_path)) {
-        // Simpan ke database
+        // Simpan ke tabel cuti
         $sql = "INSERT INTO cuti 
             (username, nip, jabatan, divisi, no_hp, pengganti, jenis_cuti, tanggal_mulai, tanggal_akhir, catatan, dokumen, status_pengajuan)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = mysqli_prepare($conn, $sql);
-        mysqli_stmt_bind_param($stmt, 'ssssssssssss', 
-            $username, $nip, $jabatan, $divisi, $no_hp, $pengganti, 
-            $jenis_cuti, $tanggal_mulai, $tanggal_akhir, $catatan, $dokumen, $status
+        mysqli_stmt_bind_param(
+            $stmt,
+            'ssssssssssss',
+            $username,
+            $nip,
+            $jabatan,
+            $divisi,
+            $no_hp,
+            $pengganti,
+            $jenis_cuti,
+            $tanggal_mulai,
+            $tanggal_akhir,
+            $catatan,
+            $dokumen,
+            $status
         );
         mysqli_stmt_execute($stmt);
 
-        // Berhasil, kembali ke halaman dashboard
+        // ✅ Kirim notifikasi ke atasan
+        $judul_notif = "Pengajuan Cuti Baru";
+        $pesan_notif = "Karyawan $username mengajukan cuti dari $tanggal_mulai sampai $tanggal_akhir.";
+        $penerima = 'atasan';
+        $status_notif = 'baru';
+        $created_at = date('Y-m-d H:i:s');
+
+        $sql_notif = "INSERT INTO notifications (judul, pesan, penerima_role, status, created_at) 
+                      VALUES (?, ?, ?, ?, ?)";
+        $stmt_notif = $conn->prepare($sql_notif);
+        $stmt_notif->bind_param("sssss", $judul_notif, $pesan_notif, $penerima, $status_notif, $created_at);
+        $stmt_notif->execute();
+
+        // ✅ Redirect setelah berhasil
         header("Location: beranda-user-submission.php?success=1");
         exit();
-    } 
+    } else {
+        echo "Upload dokumen gagal.";
+    }
 }
-?>
