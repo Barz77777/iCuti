@@ -1,54 +1,50 @@
 <?php
-// session_start();
+session_start();
+require 'db_connection.php';
 
-// Cek apakah user sudah login
-if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'user') {
+// Cek jika user sudah login
+if (!isset($_SESSION['user'])) {
     header("Location: login.php");
     exit();
 }
 
-require 'db_connection.php'; // pastikan ini file koneksi ke database kamu
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Data dari session login
+    $username = $_SESSION['user'];
+    $nip = $_POST['nip'] ?? '';
+    $jabatan = $_POST['jabatan'] ?? '';
+    $divisi = $_POST['divisi'] ?? '';
+    $no_hp = $_POST['no_hp'] ?? '';
+    $pengganti = $_POST['pengganti'] ?? '';
 
-$user = $_SESSION['user'];
-$jenis_cuti = $_POST['jenis_cuti'];
-$tanggal_mulai = $_POST['tanggal_mulai'];
-$tanggal_akhir = $_POST['tanggal_akhir'];
-$catatan = $_POST['catatan'] ?? '';
-$status = 'Waiting For Approval';
+    // Data dari form
+    $jenis_cuti = $_POST['jenis_cuti'] ?? '';
+    $tanggal_mulai = $_POST['tanggal_mulai'] ?? '';
+    $tanggal_akhir = $_POST['tanggal_akhir'] ?? '';
+    $catatan = $_POST['catatan'] ?? '';
+    $status = 'Pending'; // default status awal
 
-// File Upload Handling
-$uploadDir = 'uploads/';
-$allowedTypes = ['pdf', 'jpg', 'jpeg', 'png'];
-$fileName = $_FILES['dokumen']['name'];
-$fileTmp = $_FILES['dokumen']['tmp_name'];
-$fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    // Upload dokumen
+    $dokumen = $_FILES['dokumen']['name'];
+    $tmp_file = $_FILES['dokumen']['tmp_name'];
+    $upload_path = 'uploads/' . basename($dokumen);
 
-if (!in_array($fileExt, $allowedTypes)) {
-    $_SESSION['sukses'] = 'Format dokumen tidak diizinkan.';
-    header('Location: beranda-user-submission.php');
-    exit();
+    if (move_uploaded_file($tmp_file, $upload_path)) {
+        // Simpan ke database
+        $sql = "INSERT INTO cuti 
+            (username, nip, jabatan, divisi, no_hp, pengganti, jenis_cuti, tanggal_mulai, tanggal_akhir, catatan, dokumen, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        $stmt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmt, 'ssssssssssss', 
+            $username, $nip, $jabatan, $divisi, $no_hp, $pengganti, 
+            $jenis_cuti, $tanggal_mulai, $tanggal_akhir, $catatan, $dokumen, $status
+        );
+        mysqli_stmt_execute($stmt);
+
+        // Berhasil, kembali ke halaman dashboard
+        header("Location: beranda-user-submission.php?success=1");
+        exit();
+    } 
 }
-
-$newFileName = uniqid() . '.' . $fileExt;
-$destination = $uploadDir . $newFileName;
-
-if (move_uploaded_file($fileTmp, $destination)) {
-    // Simpan ke database
-    $stmt = $conn->prepare("INSERT INTO submission 
-        (username, jenis_cuti, tanggal_mulai, tanggal_akhir, catatan, dokumen, status) 
-        VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssssss", $user, $jenis_cuti, $tanggal_mulai, $tanggal_akhir, $catatan, $newFileName, $status);
-
-    if ($stmt->execute()) {
-        $_SESSION['sukses'] = 'Pengajuan cuti Anda berhasil dikirim!';
-    } else {
-        $_SESSION['sukses'] = 'Gagal menyimpan data ke database.';
-    }
-    $stmt->close();
-} else {
-    $_SESSION['sukses'] = 'Gagal mengunggah dokumen.';
-}
-
-header('Location: beranda-user-submission.php');
-exit();
 ?>

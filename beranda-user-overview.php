@@ -1,3 +1,15 @@
+<?php
+session_start();
+
+if(!isset($_SESSION['user']) || $_SESSION['role'] !== 'user') {
+  header("Location: index.php");
+  exit();
+}
+
+$user = $_SESSION['user'];
+$role = $_SESSION['role'];
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -86,8 +98,8 @@
    <div class="profile-dropdown" id="profileDropdown">
             <div class="profile-content">
                 <div class="user-info">
-            <p class="user-name">Muhammad Akbar</p>
-            <p class="user-role">Employee</p>
+            <p class="user-name"><?= ($user) ?></p>
+            <p class="user-role"><?= ($role) ?></p>
                 </div>
             </div>
             <button class="logout-btn" onclick="window.location.href='logout.php';">Logout</button>
@@ -139,7 +151,7 @@
         </button>
       </header>
       <section class="rounded-3xl p-6 shadow-md text-white max-w-4xl" style="background: linear-gradient(135deg, #2D5938 0%, #334036 100%);">
-        <h1 class="text-3xl font-bold mb-2 animate-text delay-1">Hello, Muhammad Akbar! <span class="inline-block animate-wave"></span></h1>
+        <h1 class="text-3xl font-bold mb-2 animate-text delay-1">Hello, <?= ($user) ?>! <span class="inline-block animate-wave"></span></h1>
         <p class="text-lg font-light animate-text delay-2">How are you feeling about your leave today?</p>
         </section>
       <section class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl">
@@ -178,22 +190,14 @@
           </div>
           <p class="mt-3 text-right text-gray-500 dark:text-gray-300 italic">Requires approval</p>
         </article>
-        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden" data-title="Leave Data">
+        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden" data-title="Leave data awaiting cofirmation">
           <header class="flex justify-between items-center mb-4">
-            <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Leave Data</h2>
-            <select aria-label="Select period" class="text-sm bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-lime-500">
-              <option>Monthly</option>
-              <option>Yearly</option>
-            </select>
+            <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Leave Limit</h2>
           </header>
-          <div class="relative h-36 w-full">
-            <canvas id="leaveTypeChart"></canvas>
+          <div class="relative h-36 w-full flex items-center justify-center">
+            <span class="text-5xl font-extrabold " style="color: #8abf17;">7</span>
           </div>
-          <?php foreach ($leaveTypeData['labels'] as $idx => $type): ?>
-            <p style="color: #b3b2b2;" class="mt-1 text-right text-lime-600">
-              <?php echo htmlspecialchars($type); ?>: <?php echo htmlspecialchars($leaveTypeData['data'][$idx]); ?> Data 
-            </p>
-          <?php endforeach; ?>
+          <p class="mt-3 text-right text-gray-500 dark:text-gray-300 italic">Leave Limit</p>
         </article>
       </section>
     </main>

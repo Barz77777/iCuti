@@ -1,3 +1,18 @@
+<?php
+session_start();
+
+$success = isset($_GET['success']) && $_GET['success'] == 1;
+
+if(!isset($_SESSION['user']) || $_SESSION['role'] !== 'user') {
+  header("Location: index.php");
+  exit();
+}
+
+require 'db_connection.php';
+
+$user = $_SESSION['user'];
+$role = $_SESSION['role'];
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -37,8 +52,8 @@
             <div class="profile-dropdown" id="profileDropdown">
                 <div class="profile-content">
                     <div class="user-info">
-                        <p class="user-name">Muhammad Akbar</p>
-                        <p class="user-role">Employee</p>
+                        <p class="user-name"><?= ($user) ?></p>
+                        <p class="user-role"><?= ($role) ?></p>
                     </div>
                 </div>
                 <button class="logout-btn" onclick="window.location.href='logout.php';">Logout</button>
@@ -111,27 +126,74 @@
                                 <th class="px-5 py-3">NIP/ID Karyawan</th>
                                 <th class="px-5 py-3">Jabatan</th>
                                 <th class="px-5 py-3">Divisi</th>
+                                <th class="px-5 py-3">Nomor HP</th>
+                                <th class="px-5 py-3">Tugas Dialihkan Kepada</th>
                                 <th class="px-5 py-3">Jenis Cuti</th>
                                 <th class="px-5 py-3">Tanggal Mulai</th>
                                 <th class="px-5 py-3">Tanggal Akhir</th>
+                                <th class="px-5 py-3">Catatan</th>
+                                <th class="px-5 py-3">Dokumen</th>
                                 <th class="px-5 py-3">Status</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            <tr>
-                                <td class="px-5 py-3 whitespace-nowrap">Muhammad Akbar</td>
-                                <td class="px-5 py-3 whitespace-nowrap">123456</td>
-                                <td class="px-5 py-3 whitespace-nowrap">Staff</td>
-                                <td class="px-5 py-3 whitespace-nowrap">IT</td>
-                                <td class="px-5 py-3 whitespace-nowrap">Cuti Tahunan</td>
-                                <td class="px-5 py-3 whitespace-nowrap">2024-06-01</td>
-                                <td class="px-5 py-3 whitespace-nowrap">2024-06-05</td>
-                                <td class="px-5 py-3 whitespace-nowrap">
-                                    <span class="inline-block px-3 py-1 border border-green-400 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 rounded-full text-xs font-semibold">
-                                        Disetujui
-                                    </span>
-                                </td>
-                            </tr>
+                            <?php 
+                            $query = "SELECT * FROM cuti WHERE username = '$user' ORDER BY created_at DESC";
+                            $result = mysqli_query($conn, $query);
+
+                            if($result && mysqli_num_rows($result) > 0) {
+                                while ($row = mysqli_fetch_assoc($result)) {
+                                    echo "<tr>";
+                                    echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['username']) . "</td>";
+                                    echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['nip']) . "</td>";
+                                    echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['jabatan']) . "</td>";
+                                    echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['divisi']) . "</td>";
+                                    echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['no_hp']) . "</td>";
+                                    echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['pengganti']) . "</td>";
+                                    echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['jenis_cuti']) . "</td>";
+                                    echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['tanggal_mulai']) . "</td>";
+                                    echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['tanggal_akhir']) . "</td>";
+                                    echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['catatan']) . "</td>";
+                                     // Link buka dokumen
+                                    if (!empty($row['dokumen'])) {
+                                    $dokumen_path = 'uploads/' . urlencode($row['dokumen']);
+                                    echo "<td><a href='$dokumen_path' target='_blank'>📄 Buka</a></td>";
+                                        } else {
+                                        echo "<td><em>Tidak ada</em></td>";
+                                    }
+
+                                    // status badge
+                                    $status = $row['status'];
+                                    $statusClass = '';
+                                    $statusText = '';
+
+                                    switch (strtolower($status)) {
+                                        case 'disetujui':
+                                            $statusClass = 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 border-green-400';
+                                            $statusText = 'Disetujui';
+                                            break;
+                                        case 'ditolak':
+                                            $statusClass = 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 border-red-400';
+                                            $statusText = 'Ditolak';
+                                            break;
+                                        case 'menunggu':
+                                        default:
+                                            $statusClass = 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400 border-yellow-400';
+                                            $statusText = 'Menunggu';
+                                            break;
+                                    }
+
+                                echo "<td class='px-5 py-3 whitespace-nowrap'>
+                                        <span class='inline-block px-3 py-1 border $statusClass rounded-full text-xs font-semibold'>
+                                        $statusText
+                                        </span>
+                                    </td>";
+                                 echo "</tr>";
+                                    }
+                                } else {
+                                    echo "<tr><td colspan='10' class='px-5 py-3 text-center text-gray-500'>Belum ada data cuti.</td></tr>";
+                                }
+                                ?>
                         </tbody>
                     </table>
                 </div>
@@ -139,7 +201,7 @@
             <!-- Animate.css CDN -->
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
             <script>
-                // Optional: re-trigger animation if needed
+                // animasi table
                 document.addEventListener('DOMContentLoaded', function() {
                     const article = document.querySelector('article.animate__animated');
                     if(article) {
@@ -152,66 +214,126 @@
 
             <!-- Modal Add Submission -->
             <div class="modal fade" id="submissionModal" tabindex="-1" aria-labelledby="submissionModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <form action="proses_submission.php" method="POST" enctype="multipart/form-data">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="submissionModalLabel">Add Leave Submission</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="mb-3">
-                                    <label class="form-label">Type Of Leave</label>
-                                    <select class="form-select" name="jenis_cuti" required>
-                                        <option value="">-- Select Leave Type --</option>
-                                        <option value="Annual Leave">Annual Leave</option>
-                                        <option value="Sick Leave">Sick Leave</option>
-                                        <option value="Maternity Leave">Maternity Leave</option>
-                                        <option value="Unpaid Leave">Unpaid Leave</option>
-                                    </select>
-                                </div>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form action="proses_submission.php" method="POST" enctype="multipart/form-data" id="leaveForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="submissionModalLabel">Add Leave Submission</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Start Date</label>
-                                    <input type="date" class="form-control" name="tanggal_mulai" required>
-                                </div>
+        <div class="modal-body">
 
-                                <div class="mb-3">
-                                    <label class="form-label">End Date</label>
-                                    <input type="date" class="form-control" name="tanggal_akhir" required>
-                                </div>
+          <!-- NIP -->
+          <div class="mb-3">
+            <label class="form-label">NIP</label>
+            <input type="text" class="form-control" name="nip" required>
+          </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Notes</label>
-                                    <textarea class="form-control" name="catatan" rows="3"></textarea>
-                                </div>
+          <!-- Jabatan -->
+          <div class="mb-3">
+            <label class="form-label">Jabatan</label>
+            <input type="text" class="form-control" name="jabatan" required>
+          </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Upload Dokumen (PDF/JPG/PNG)</label>
-                                    <input type="file" class="form-control" name="dokumen" accept=".pdf,.jpg,.jpeg,.png" required>
-                                </div>
+          <!-- Divisi -->
+          <div class="mb-3">
+            <label class="form-label">Divisi</label>
+            <input type="text" class="form-control" name="divisi" required>
+          </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Template CSV (Opsional)</label><br>
-                                    <a href="template-cuti.csv" class="btn btn-sm btn-outline-primary" download>
-                                        <i class="bi bi-download"></i> Download Template CSV
-                                    </a>
-                                </div>
-                            </div>
+          <!-- No HP -->
+          <div class="mb-3">
+            <label class="form-label">No. HP</label>
+            <input type="text" class="form-control" name="no_hp" required>
+          </div>
 
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Submit</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+          <!-- Pengganti -->
+          <div class="mb-3">
+            <label class="form-label">Pengganti (Selama Cuti)</label>
+            <input type="text" class="form-control" name="pengganti" required>
+          </div>
+
+          <!-- Jenis Cuti -->
+          <div class="mb-3">
+            <label class="form-label">Jenis Cuti</label>
+            <select class="form-select" name="jenis_cuti" required>
+              <option value="">-- Pilih Jenis Cuti --</option>
+              <option value="Annual Leave">Annual Leave</option>
+              <option value="Sick Leave">Sick Leave</option>
+              <option value="Maternity Leave">Maternity Leave</option>
+              <option value="Unpaid Leave">Unpaid Leave</option>
+            </select>
+          </div>
+
+          <!-- Tanggal Mulai -->
+          <div class="mb-3">
+            <label class="form-label">Tanggal Mulai</label>
+            <input type="date" class="form-control" name="tanggal_mulai" id="startDate" required>
+          </div>
+
+          <!-- Tanggal Akhir -->
+          <div class="mb-3">
+            <label class="form-label">Tanggal Akhir</label>
+            <input type="date" class="form-control" name="tanggal_akhir" id="endDate" required>
+          </div>
+
+          <!-- Catatan -->
+          <div class="mb-3">
+            <label class="form-label">Catatan</label>
+            <textarea class="form-control" name="catatan" rows="3" required></textarea>
+          </div>
+
+          <!-- Dokumen -->
+          <div class="mb-3">
+            <label class="form-label">Upload Dokumen (PDF/JPG/PNG)</label>
+            <input type="file" class="form-control" name="dokumen" accept=".pdf,.jpg,.jpeg,.png" required>
+          </div>
+
+          
+
+          <!-- created_at otomatis oleh database -->
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<?php if ($success): ?>
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <h5 class="modal-title mb-3">✅ Pengajuan Berhasil</h5>
+        <p>Data cuti berhasil dikirim!</p>
+        <button type="button" class="btn btn-success mt-2" data-bs-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+        var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+        successModal.show();
+    });
+</script>
+<?php endif; ?>
+
+
+            
 
             <!-- Bootstrap JS (required for modal) -->
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         </main>
+
+                
+
 
 
         <!-- mode dark dan light -->
@@ -265,6 +387,20 @@
                 }
             });
         </script>
+
+            <!-- Validasi tanggal -->
+        <script>
+  document.getElementById('leaveForm').addEventListener('submit', function (e) {
+    const start = new Date(document.getElementById('startDate').value);
+    const end = new Date(document.getElementById('endDate').value);
+    if (end < start) {
+      e.preventDefault();
+      alert("Tanggal akhir tidak boleh sebelum tanggal mulai.");
+    }
+  });
+</script>
+
+
 
 </body>
 
