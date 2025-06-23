@@ -71,6 +71,7 @@ $role = $_SESSION['role'];
   }
 </style>
 </head>
+
 <body>
 
      <?php
