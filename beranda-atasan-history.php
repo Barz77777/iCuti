@@ -109,6 +109,9 @@ if ($result && mysqli_num_rows($result) > 0) {
                     <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">History</h2>
                 </header>
 
+
+                
+
                 <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
                     <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg">
                         <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914;">
@@ -145,7 +148,14 @@ if ($result && mysqli_num_rows($result) > 0) {
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_mulai']) ?></td>
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_akhir']) ?></td>
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['catatan']) ?></td>
-                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['dokumen']) ?></td>
+                                        <?php if (!empty($c['dokumen'])): ?>
+                                        <?php $dokumen_path = 'uploads/' . urlencode($c['dokumen']); ?>
+                                            <td class="px-5 py-3 whitespace-nowrap">
+                                                <a href="<?= $dokumen_path ?>" target="_blank">📄 Buka</a>
+                                            </td>
+                                        <?php else: ?>
+                                            <td class="px-5 py-3 whitespace-nowrap"><em>Tidak ada</em></td>
+                                        <?php endif; ?>
                                         <td class="px-5 py-3 whitespace-nowrap">
                                             <?php
                                                 $status = $c['status_pengajuan'];

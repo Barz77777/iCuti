@@ -262,8 +262,7 @@ $role = $_SESSION['role'];
               <option value="">-- Pilih Jenis Cuti --</option>
               <option value="Annual Leave">Annual Leave</option>
               <option value="Sick Leave">Sick Leave</option>
-              <option value="Maternity Leave">Maternity Leave</option>
-              <option value="Unpaid Leave">Unpaid Leave</option>
+              <option value="Maternity Leave">Childbirth Leave</option>
             </select>
           </div>
 
