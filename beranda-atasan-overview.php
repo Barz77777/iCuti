@@ -1,80 +1,111 @@
 <?php
 session_start();
+require 'db_connection.php';
 
-if(!isset($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
   header("Location: index.php");
   exit();
 }
 
 $user = $_SESSION['user'];
 $role = $_SESSION['role'];
+
+// Ambil notifikasi untuk role 'atasan'
+$sqlNotif = "SELECT * FROM notifications WHERE penerima_role = 'atasan' ORDER BY created_at DESC LIMIT 10";
+$resNotif = $conn->query($sqlNotif);
+$notifs = $resNotif->fetch_all(MYSQLI_ASSOC);
+
+// Hitung jumlah notifikasi belum dibaca
+$sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = 'atasan' AND status = 'unread'";
+$resJumlah = $conn->query($sqlJumlah);
+$jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style/beranda-atasan-overview.css" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>iCuti</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style/beranda-atasan-overview.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>iCuti</title>
 
-    <!-- animasi box table -->
-    <style>
-  @keyframes fadeScaleIn {
-    0% {
+  <!-- animasi box table -->
+  <style>
+    @keyframes fadeScaleIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .animate-box {
+      animation: fadeScaleIn 0.5s ease-out forwards;
+    }
+
+    .initial-hidden {
       opacity: 0;
       transform: scale(0.95);
     }
-    100% {
-      opacity: 1;
-      transform: scale(1);
+  </style>
+  <!-- animasi text nama username -->
+  <style>
+    @keyframes fadeSlideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-  }
 
-  .animate-box {
-    animation: fadeScaleIn 0.5s ease-out forwards;
-  }
-
-  .initial-hidden {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-</style>
-<!-- animasi text nama username -->
-<style>
-  @keyframes fadeSlideUp {
-    0% {
+    .animate-text {
       opacity: 0;
-      transform: translateY(20px);
+      animation: fadeSlideUp 0.8s ease-out forwards;
     }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
+
+    .animate-text.delay-1 {
+      animation-delay: 0.3s;
     }
-  }
 
-  .animate-text {
-    opacity: 0;
-    animation: fadeSlideUp 0.8s ease-out forwards;
-  }
+    .animate-text.delay-2 {
+      animation-delay: 0.6s;
+    }
+  </style>
+  <style>
+    @keyframes notifSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+      }
 
-  .animate-text.delay-1 {
-    animation-delay: 0.3s;
-  }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
 
-  .animate-text.delay-2 {
-    animation-delay: 0.6s;
-  }
-</style>
+    .animate-notif {
+      animation: notifSlideIn 0.3s ease-out forwards;
+    }
+  </style>
 </head>
 
 <body>
 
-     <?php
+  <?php
   // Contoh data dari PHP (bisa diganti dengan query database)
   $receivedData = [
     'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -90,45 +121,44 @@ $role = $_SESSION['role'];
   ];
   ?>
 
-    <div class="profile-dropdown" id="profileDropdown">
-            <div class="profile-content">
-                <div class="user-info">
-            <p class="user-name"><?= ($user) ?></p>
-            <p class="user-role"><?= ($role) ?></p>
-                </div>
-            </div>
-            <button class="logout-btn" onclick="window.location.href='logout.php';">Logout</button>
-        </div>
+  <div class="profile-dropdown" id="profileDropdown">
+    <div class="profile-content">
+      <div class="user-info">
+        <p class="user-name"><?= ($user) ?></p>
+        <p class="user-role"><?= ($role) ?></p>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="window.location.href='logout.php';">Logout</button>
+  </div>
 
 
-  <div class="layout">
+  <div class="layout flex">
     <div class="sidebar sticky top-10">
-        <!-- Logo -->
-        <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="asset/user-avatar.png" alt="User Avatar">
-            <span class="text-icon">Profile</span>
-            <i class="menu bi bi-list"></i>
-        </div>
+      <!-- Logo -->
+      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="asset/user-avatar.png" alt="User Avatar">
+        <span class="text-icon">Profile</span>
+        <i class="menu bi bi-list"></i>
+      </div>
 
-        
-        <!-- Menu Icons -->
-        <div class="icon-button active sidebar-link" onclick="window.location.href='beranda-atasan-overview.php';">
-            <i class="bi bi-grid-fill"></i>
-            <span class="text-icon">Overview</span>
-        </div>
-        <div class="icon-button sidebar-link" onclick="window.location.href='beranda-atasan-agreement.php';">
-            <i class="bi bi-envelope-paper"></i>
-            <span class="text-icon">Agreement</span>
-        </div>
-        <div class="icon-button" onclick="window.location.href='beranda-atasan-history.php';">
-            <i class="bi bi-clock-history"></i>
-            <span class="text-icon">History</span>
-        </div>
+      <!-- Menu Icons -->
+      <div class="icon-button active sidebar-link" onclick="window.location.href='beranda-atasan-overview.php';">
+        <i class="bi bi-grid-fill"></i>
+        <span class="text-icon">Overview</span>
+      </div>
+      <div class="icon-button sidebar-link" onclick="window.location.href='beranda-atasan-agreement.php';">
+        <i class="bi bi-envelope-paper"></i>
+        <span class="text-icon">Agreement</span>
+      </div>
+      <div class="icon-button" onclick="window.location.href='beranda-atasan-history.php';">
+        <i class="bi bi-clock-history"></i>
+        <span class="text-icon">History</span>
+      </div>
 
-        <!-- Bottom Icon -->
-        <div class="toggle-container">
-            <div id="lightBtn" class="icon-btn active sidebar-link" ><i class="bi bi-brightness-high"></i></div>
-            <div id="darkBtn" class="icon-btn sidebar-link"><i class="bi bi-moon"></i></div>
-        </div>
+      <!-- Bottom Icon -->
+      <div class="toggle-container">
+        <div id="lightBtn" class="icon-btn active sidebar-link"><i class="bi bi-brightness-high"></i></div>
+        <div id="darkBtn" class="icon-btn sidebar-link"><i class="bi bi-moon"></i></div>
+      </div>
     </div>
 
     <main class="main-content flex-grow max-w-7xl mx-auto flex flex-col gap-8">
@@ -140,17 +170,42 @@ $role = $_SESSION['role'];
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
         </div>
-        <button aria-label="Notifications" class="bg-white relative p-2 rounded-full hover:bg-lime-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-lime-400">
-          <i class="bi bi-bell text-2xl text-gray-600 dark:text-gray-300"></i>
-          <span class="absolute top-1 right-1 inline-block w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-        </button>
+        <!-- Container relatif agar dropdown tidak ganggu layout -->
+        <div class="relative">
+          <!-- Tombol lonceng -->
+          <button id="notifBtn" aria-label="Notifications" class="bg-white relative p-2 rounded-full hover:bg-lime-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-lime-400">
+            <i class="bi bi-bell text-2xl text-gray-600 dark:text-gray-300"></i>
+            <?php if ($jumlahNotifBaru > 0): ?>
+              <span class="absolute top-1 right-1 inline-block w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+            <?php endif; ?>
+          </button>
+
+          <!-- Panel Dropdown Notifikasi -->
+          <div id="notifPanel" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto animate-fade-slide">
+            <div class="p-4 border-b font-semibold text-gray-700 dark:text-white">Notifications</div>
+            <?php if (count($notifs) > 0): ?>
+              <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+                <?php foreach ($notifs as $notif): ?>
+                  <li class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <p class="text-sm font-medium"><?= htmlspecialchars($notif['judul']) ?></p>
+                    <p class="text-xs text-gray-500"><?= htmlspecialchars($notif['pesan']) ?></p>
+                    <p class="text-xs text-gray-400 italic"><?= date("d M Y H:i", strtotime($notif['created_at'])) ?></p>
+                  </li>
+                <?php endforeach; ?>
+              </ul>
+            <?php else: ?>
+              <p class="p-3 text-sm text-gray-500">No new notifications.</p>
+            <?php endif; ?>
+          </div>
+        </div>
       </header>
+
       <section class="rounded-3xl p-6 shadow-md text-white max-w-4xl" style="background: linear-gradient(135deg, #2D5938 0%, #334036 100%);">
         <h1 class="text-3xl font-bold mb-2 animate-text delay-1">Hello, <?= ($user) ?>! <span class="inline-block animate-wave"></span></h1>
         <p class="text-lg font-light animate-text delay-2">How are you feeling about your leave today?</p>
-        </section>
+      </section>
       <section class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl">
-        <article  class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden" data-title="Received data">
+        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden" data-title="Received data">
           <header class="flex justify-between items-center mb-4">
             <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Received data</h2>
             <select id="receivedPeriod" aria-label="Select period" class="text-sm bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-lime-500">
@@ -174,7 +229,7 @@ $role = $_SESSION['role'];
           <div class="relative h-36 w-full">
             <canvas id="upcomingLeaveChart"></canvas>
           </div>
-          <p class="mt-3 text-right text-3xl font-bold text-lime-600" style="color: #ff4040;">7 days</p>
+          <p class="mt-3 text-right text-3xl font-bold" style="color: #ff4040;">7 days</p>
         </article>
         <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden" data-title="Leave data awaiting cofirmation">
           <header class="flex justify-between items-center mb-4">
@@ -202,14 +257,14 @@ $role = $_SESSION['role'];
           </div>
           <?php foreach ($leaveTypeData['labels'] as $idx => $type): ?>
             <p style="color: #b3b2b2;" class="mt-1 text-right text-lime-600">
-              <?php echo htmlspecialchars($type); ?>: <?php echo htmlspecialchars($leaveTypeData['data'][$idx]); ?> Data 
+              <?php echo htmlspecialchars($type); ?>: <?php echo htmlspecialchars($leaveTypeData['data'][$idx]); ?> Data
             </p>
           <?php endforeach; ?>
         </article>
       </section>
     </main>
-</div>
-    <!-- Chart.js CDN -->
+  </div>
+  <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     // Data dari PHP ke JS
@@ -334,83 +389,105 @@ $role = $_SESSION['role'];
     // setInterval(() => { ...fetch data baru dan update chart... }, 5000);
   </script>
 
-    <script>
-        const body = document.body;
-        const lightBtn = document.getElementById("lightBtn");
-        const darkBtn = document.getElementById("darkBtn");
-        const sidebar = document.querySelector(".sidebar");
-        const toggleContainer = document.querySelector(".toggle-container");
-        const savedSidebar = localStorage.getItem("sidebar-expanded");
+  <script>
+    const body = document.body;
+    const lightBtn = document.getElementById("lightBtn");
+    const darkBtn = document.getElementById("darkBtn");
+    const sidebar = document.querySelector(".sidebar");
+    const toggleContainer = document.querySelector(".toggle-container");
+    const savedSidebar = localStorage.getItem("sidebar-expanded");
 
 
-        
 
-        lightBtn.addEventListener("click", () => {
-            body.classList.remove("dark-mode");
-            body.classList.add("light-mode");
-            lightBtn.classList.add("active");
-            darkBtn.classList.remove("active");
-            localStorage.setItem("theme", "light");
-        });
 
-        darkBtn.addEventListener("click", () => {
-            body.classList.remove("light-mode");
-            body.classList.add("dark-mode");
-            lightBtn.classList.remove("active");
-            darkBtn.classList.add("active");
-            localStorage.setItem("theme", "dark");
-        });
+    lightBtn.addEventListener("click", () => {
+      body.classList.remove("dark-mode");
+      body.classList.add("light-mode");
+      lightBtn.classList.add("active");
+      darkBtn.classList.remove("active");
+      localStorage.setItem("theme", "light");
+    });
 
-function toggleProfileMenu() {
-    const dropdown = document.getElementById('profileDropdown');
-    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-}
+    darkBtn.addEventListener("click", () => {
+      body.classList.remove("light-mode");
+      body.classList.add("dark-mode");
+      lightBtn.classList.remove("active");
+      darkBtn.classList.add("active");
+      localStorage.setItem("theme", "dark");
+    });
 
-function logout() {
-    alert('Anda Telah Logout');
-    window.location.href = 'logout.php';
-}
-
-document.addEventListener('click', function(event) {
-    const profile = document.querySelector('.profile-toggle');
-    const dropdown = document.getElementById('profileDropdown');
-    if (!profile.contains(event.target)) {
-        dropdown.style.display = 'none';
+    function toggleProfileMenu() {
+      const dropdown = document.getElementById('profileDropdown');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
     }
-});
-    </script>
 
-<!-- search js -->
-    <script>
-  const searchInput = document.querySelector('input[type="search"]');
-  const articles = document.querySelectorAll('main .grid article');
+    function logout() {
+      alert('Anda Telah Logout');
+      window.location.href = 'logout.php';
+    }
 
-  searchInput.addEventListener('input', function () {
-    const keyword = this.value.toLowerCase();
-
-    articles.forEach(article => {
-      const title = article.getAttribute('data-title').toLowerCase();
-      if (title.includes(keyword)) {
-        article.style.display = 'block';
-      } else {
-        article.style.display = 'none';
+    document.addEventListener('click', function(event) {
+      const profile = document.querySelector('.profile-toggle');
+      const dropdown = document.getElementById('profileDropdown');
+      if (!profile.contains(event.target)) {
+        dropdown.style.display = 'none';
       }
     });
-  });
-</script>
+  </script>
 
-<script>
-  window.addEventListener('DOMContentLoaded', () => {
-    const boxes = document.querySelectorAll('main .grid article');
-    boxes.forEach((box, index) => {
-      setTimeout(() => {
-        box.classList.remove('initial-hidden');
-        box.classList.add('animate-box');
-      }, index * 150); // delay antar box untuk efek berurutan
+  <!-- search js -->
+  <script>
+    const searchInput = document.querySelector('input[type="search"]');
+    const articles = document.querySelectorAll('main .grid article');
+
+    searchInput.addEventListener('input', function() {
+      const keyword = this.value.toLowerCase();
+
+      articles.forEach(article => {
+        const title = article.getAttribute('data-title').toLowerCase();
+        if (title.includes(keyword)) {
+          article.style.display = 'block';
+        } else {
+          article.style.display = 'none';
+        }
+      });
     });
-  });
-</script>
+  </script>
 
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const boxes = document.querySelectorAll('main .grid article');
+      boxes.forEach((box, index) => {
+        setTimeout(() => {
+          box.classList.remove('initial-hidden');
+          box.classList.add('animate-box');
+        }, index * 150); // delay antar box untuk efek berurutan
+      });
+    });
+  </script>
+
+  <script>
+    document.getElementById('notifBtn').addEventListener('click', function() {
+      const panel = document.getElementById('notifPanel');
+      const audio = document.getElementById('notifSound');
+
+      panel.classList.toggle('hidden');
+
+      if (!panel.classList.contains('hidden')) {
+        panel.classList.remove('animate-notif');
+        void panel.offsetWidth; // restart animation
+        panel.classList.add('animate-notif');
+
+        if (audio) {
+          audio.play();
+        }
+      }
+    });
+  </script>
+
+  <?php if ($jumlahNotifBaru > 0): ?>
+    <audio id="notifSound" src="asset/notification.mp3" preload="auto"></audio>
+  <?php endif; ?>
 
 </body>
 
