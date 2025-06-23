@@ -70,12 +70,7 @@ $role = $_SESSION['role'];
     animation-delay: 0.6s;
   }
 </style>
-
-
-
-
 </head>
-
 <body>
 
      <?php

@@ -1,8 +1,20 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Bai Jamjuree", sans-serif !important;
+}
+
 body {
   margin: 0;
+  min-height: 100vh;
   background-color: #f2f2f2;
-  font-family: "Bai Jamjuree", sans-serif;
   transition: background 0.3s, color 0.3s;
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
 }
 
 /* === SIDEBAR === */
@@ -27,12 +39,20 @@ body {
   width: 200px;
 }
 
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px;
+  min-width: 0;
+}
+
 /* === MENU ITEM === */
 .icon-button {
   width: 100%;
   height: 45px;
   background-color: #3d4f46;
-  border-radius: 25px;
+  border-radius: 90px;
   margin: 10px 0;
   display: flex;
   justify-content: flex-start;
@@ -156,6 +176,186 @@ body {
 }
 
 .light-mode {
-  background-color: #f4f4f4;
+  background-color: #f2f2f2;
   color: #222;
+}
+
+.profile-toggle {
+  position: relative;
+  cursor: pointer;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 70px; /* sesuaikan jarak */
+  left: 0;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  padding: 15px;
+  display: none;
+  z-index: 999;
+  width: 220px;
+  animation: fadeIn 0.3s ease;
+  margin-left: 70px;
+}
+
+.profile-dropdown p.user-name {
+  margin: 0;
+  font-weight: bold;
+  font-family: "Popins", sans-serif;
+}
+
+.profile-dropdown button {
+  margin-top: 10px;
+  width: 100%;
+  padding: px;
+  border: none;
+  background-color: #2d5938;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.profile-dropdown button:hover {
+  background-color: #334036;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-content {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.profile-content .profile-pic {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.user-info .user-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d5938;
+  font-family: "Poppins", sans-serif;
+}
+
+.user-info .user-role {
+  margin: 0;
+  font-size: 13px;
+  color: #2d5938;
+  font-family: "Poppins", sans-serif;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 8px 0;
+  background-color: #9ad914;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
+}
+
+/* tabel tambah */
+.tabel {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  margin-left: 220px;
+}
+
+.card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  width: 1000px;
+}
+
+.card h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #300000;
+}
+
+.btn-add {
+  display: block;
+  margin: 0 auto 30px auto;
+  background-color: orange;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-add:hover {
+  background-color: #d48806;
+}
+
+/* Table Style */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+
+/* Status Badges */
+.badge {
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.rejected {
+  background-color: #c62828;
+}
+
+.approved {
+  background-color: #2e7d32;
+}
+
+.waiting {
+  background-color: #fb8c00;
+}
+
+.finished {
+  background-color: #1e88e5;
 }
