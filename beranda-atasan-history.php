@@ -29,7 +29,8 @@ if (!empty($search)) {
         tanggal_akhir LIKE '%$search%' OR
         pengganti LIKE '%$search%' OR
         no_hp LIKE '%$search%' OR
-        catatan LIKE '%$search%'
+        catatan LIKE '%$search%' OR
+        status_pengajuan LIKE '%$search%'
     )";
 }
 
@@ -137,15 +138,15 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
             <header class="flex items-center justify-between space-x-4">
                 <div class="flex-grow relative max-w-lg">
                     <form method="GET" action="" class="w-full relative max-w-lg">
-    <input type="search" name="q" value="<?= isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>" 
-        aria-label="Search anything here"
-        placeholder="Search anything here"
-        class="box-shadow w-full rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-2 pl-10 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-500" />
-    <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="11" cy="11" r="7" />
-        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-</form>
+                <input type="search" name="q" value="<?= isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>" 
+                    aria-label="Search anything here"
+                    placeholder="Search anything here"
+                    class="box-shadow w-full rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-2 pl-10 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-500" />
+                <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+            </form>
                 </div>
 
                 <!-- Container relatif agar dropdown tidak ganggu layout -->

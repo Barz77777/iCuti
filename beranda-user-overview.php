@@ -64,6 +64,8 @@ $notifs = $resNotif->fetch_all(MYSQLI_ASSOC);
 $sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = 'admin' AND status = 'unread'";
 $resJumlah = $conn->query($sqlJumlah);
 $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
+
+
 ?>
 
 
@@ -188,10 +190,34 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
         </div>
-        <button aria-label="Notifications" class="bg-white relative p-2 rounded-full hover:bg-lime-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-lime-400">
-          <i class="bi bi-bell text-2xl text-gray-600 dark:text-gray-300"></i>
-          <span class="absolute top-1 right-1 inline-block w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-        </button>
+         <!-- Container relatif agar dropdown tidak ganggu layout -->
+        <div class="relative">
+          <!-- Tombol lonceng -->
+          <button id="notifBtn" aria-label="Notifications" class="bg-white relative p-2 rounded-full hover:bg-lime-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-lime-400">
+            <i class="bi bi-bell text-2xl text-gray-600 dark:text-gray-300"></i>
+            <?php if ($jumlahNotifBaru > 0): ?>
+              <span class="absolute top-1 right-1 inline-block w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+            <?php endif; ?>
+          </button>
+
+          <!-- Panel Dropdown Notifikasi -->
+          <div id="notifPanel" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto animate-fade-slide">
+            <div class="p-4 border-b font-semibold text-gray-700 dark:text-white">Notifications</div>
+            <?php if (count($notifs) > 0): ?>
+              <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+                <?php foreach ($notifs as $notif): ?>
+                  <li class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <p class="text-sm font-medium"><?= htmlspecialchars($notif['judul']) ?></p>
+                    <p class="text-xs text-gray-500"><?= htmlspecialchars($notif['pesan']) ?></p>
+                    <p class="text-xs text-gray-400 italic"><?= date("d M Y H:i", strtotime($notif['created_at'])) ?></p>
+                  </li>
+                <?php endforeach; ?>
+              </ul>
+            <?php else: ?>
+              <p class="p-3 text-sm text-gray-500">No new notifications.</p>
+            <?php endif; ?>
+          </div>
+        </div>
       </header>
       <section class="rounded-3xl p-6 shadow-md text-white max-w-4xl" style="background: linear-gradient(135deg, #2D5938 0%, #334036 100%);">
         <h1 class="text-3xl font-bold mb-2 animate-text delay-1">Hello, <?= ($user) ?> <span class="inline-block animate-wave"></span></h1>
@@ -199,13 +225,9 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
       </section>
       <section class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl">
         <!-- Received -->
-        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden">
+        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden" data-title="Received data">
           <header class="flex justify-between items-center mb-4">
             <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Received data</h2>
-            <select id="receivedPeriod" class="text-sm bg-gray-100 dark:bg-gray-700 rounded-lg border px-2 py-1 focus:ring-lime-500">
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-            </select>
           </header>
           <div class="relative h-36 w-full">
             <canvas id="receivedChart"></canvas>
@@ -216,13 +238,9 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
         </article>
 
         <!-- Rejected -->
-        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden">
+        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden" data-title="Rejected data">
           <header class="flex justify-between items-center mb-4">
             <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Rejected data</h2>
-            <select id="rejectedPeriod" class="text-sm bg-gray-100 dark:bg-gray-700 rounded-lg border px-2 py-1 focus:ring-lime-500">
-              <option value="monthly">Monthly</option>
-              <option value="yearly">Yearly</option>
-            </select>
           </header>
           <div class="relative h-36 w-full">
             <canvas id="rejectedChart"></canvas>
@@ -233,7 +251,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
         </article>
 
         <!-- Awaiting Confirmation -->
-        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden">
+        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden" data-title="Leave data awaiting confitmation">
           <header class="flex justify-between items-center mb-4">
             <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Leave data awaiting confirmation</h2>
           </header>
@@ -244,8 +262,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
         </article>
 
         <!-- Leave Type -->
-        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden">
-          <header class="flex justify-between items-center mb-4">
+        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden" data-title="Leave Limit">
             <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Leave Limit</h2>
           </header>
           <div class="relative h-36 w-full flex flex-col items-center justify-center">
@@ -396,6 +413,29 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
     });
   </script>
 
+ <!-- Notif -->
+  <script>
+    document.getElementById('notifBtn').addEventListener('click', function() {
+      const panel = document.getElementById('notifPanel');
+      const audio = document.getElementById('notifSound');
+
+      panel.classList.toggle('hidden');
+
+      if (!panel.classList.contains('hidden')) {
+        panel.classList.remove('animate-notif');
+        void panel.offsetWidth; // restart animation
+        panel.classList.add('animate-notif');
+
+        if (audio) {
+          audio.play();
+        }
+      }
+    });
+  </script>
+
+  <?php if ($jumlahNotifBaru > 0): ?>
+    <audio id="notifSound" src="asset/notification.mp3" preload="auto"></audio>
+  <?php endif; ?>
 
 </body>
 

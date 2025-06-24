@@ -112,16 +112,16 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
             <header class="flex items-center justify-between space-x-4">
                 <div class="flex-grow relative max-w-lg">
                     <form method="GET" action="" class="w-full relative max-w-lg">
-    <input type="search" name="q" value="<?= isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>" 
-        aria-label="Search anything here"
-        placeholder="Search anything here"
-        class="box-shadow w-full rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-2 pl-10 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-500" />
-    <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="11" cy="11" r="7" />
-        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-</form>
-                </div>
+                        <input type="search" name="q" value="<?= isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>" 
+                            aria-label="Search anything here"
+                            placeholder="Search anything here"
+                            class="box-shadow w-full rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-2 pl-10 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-500" />
+                        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                    </form>
+                                    </div>
 
                  <!-- Container relatif agar dropdown tidak ganggu layout -->
         <div class="relative">
@@ -162,19 +162,19 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 
             $search = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
 
-$query = "SELECT * FROM cuti WHERE status_pengajuan = 'Menunggu'";
+            $query = "SELECT * FROM cuti WHERE status_pengajuan = 'Menunggu'";
 
-if (!empty($search)) {
-    $query .= " AND (
-        username LIKE '%$search%' OR
-        nip LIKE '%$search%' OR
-        jabatan LIKE '%$search%' OR
-        divisi LIKE '%$search%' OR
-        jenis_cuti LIKE '%$search%' OR
-        tanggal_mulai LIKE '%$search%' OR
-        tanggal_akhir LIKE '%$search%'
-    )";
-}
+            if (!empty($search)) {
+                $query .= " AND (
+                    username LIKE '%$search%' OR
+                    nip LIKE '%$search%' OR
+                    jabatan LIKE '%$search%' OR
+                    divisi LIKE '%$search%' OR
+                    jenis_cuti LIKE '%$search%' OR
+                    tanggal_mulai LIKE '%$search%' OR
+                    tanggal_akhir LIKE '%$search%'
+                )";
+            }
 
             $result = mysqli_query($conn, $query);
 
@@ -193,11 +193,11 @@ if (!empty($search)) {
 
                 <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
                     <?php if (isset($_GET['notif'])): ?>
-    <div class="p-4 mb-4 text-sm text-white rounded-lg 
-        <?= $_GET['notif'] === 'Disetujui' ? 'bg-green-500' : 'bg-red-500' ?>">
-        Permohonan berhasil <?= htmlspecialchars($_GET['notif']) ?>.
-    </div>
-<?php endif; ?>
+                <div class="p-4 mb-4 text-sm text-white rounded-lg 
+                    <?= $_GET['notif'] === 'Disetujui' ? 'bg-green-500' : 'bg-red-500' ?>">
+                    Permohonan berhasil <?= htmlspecialchars($_GET['notif']) ?>.
+                </div>
+            <?php endif; ?>
 
                     <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg">
                         <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914;">
@@ -254,6 +254,7 @@ if (!empty($search)) {
                     </table>
                 </div>
             </article>
+
             <!-- Animate.css CDN -->
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
             <script>
@@ -267,6 +268,7 @@ if (!empty($search)) {
                     }
                 });
             </script>
+            
             <!-- Bootstrap JS (required for modal) -->
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

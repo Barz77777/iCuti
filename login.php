@@ -87,6 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 
 <body>
+    <p>VistaTraining1@2025</p>
     <main>
         <div class="login-container">
             <div class="image-side">

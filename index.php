@@ -1,10 +1,20 @@
 <?php
 session_start();
-//jika user suda login
+//jika user suda login dan sesuai role nya
 if (isset($_SESSION['user'])) {
+  $role = $_SESSION['role'];
+
+  if ($role === 'admin') {
     header("Location: beranda-atasan-overview.php");
     exit();
-}
+  } elseif ($role === 'user') {
+    header("Location: beranda-user-overview.php");
+    exit();
+  } else {
+    header("Location: index.php");
+    exit();
+  }
+} 
 ?>
 
 <!DOCTYPE html>

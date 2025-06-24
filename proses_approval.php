@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'db_connection.php';
+date_default_timezone_set('Asia/Jakarta');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cuti_id'], $_POST['aksi'])) {
     $id = intval($_POST['cuti_id']);
@@ -14,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cuti_id'], $_POST['ak
         $status = 'Menunggu';
     }
 
-    $tanggal = date('Y-m-d');
+    $tanggal = date('Y-m-d H:i:s');
 
     $query = "UPDATE cuti SET status_pengajuan = ?, tanggal_disetujui = ? WHERE id = ?";
     $stmt = mysqli_prepare($conn, $query);

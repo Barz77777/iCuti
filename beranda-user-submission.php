@@ -12,6 +12,17 @@ require 'db_connection.php';
 
 $user = $_SESSION['user'];
 $role = $_SESSION['role'];
+
+// Ambil notifikasi untuk role 'admin'
+$sqlNotif = "SELECT * FROM notifications WHERE penerima_role = 'admin' ORDER BY created_at DESC LIMIT 10";
+$resNotif = $conn->query($sqlNotif);
+$notifs = $resNotif->fetch_all(MYSQLI_ASSOC);
+
+// Hitung jumlah notifikasi belum dibaca
+$sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = 'admin' AND status = 'unread'";
+$resJumlah = $conn->query($sqlJumlah);
+$jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -87,18 +98,43 @@ $role = $_SESSION['role'];
 
             <header class="flex items-center justify-between space-x-4">
                 <div class="flex-grow relative max-w-lg">
-                    <input type="search" aria-label="Search anything here" placeholder="Search anything here" class="box-shadow w-full rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-2 pl-10 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-500" />
+                    <form method="GET">
+                    <input type="text" name="search" aria-label="Search anything here" placeholder="Search anything here" class="box-shadow w-full rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-2 pl-10 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-500" value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>"/>
                     <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
                         <circle cx="11" cy="11" r="7" />
                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
+                     </form>
                 </div>
+               
+                <!-- Container relatif agar dropdown tidak ganggu layout -->
+        <div class="relative">
+          <!-- Tombol lonceng -->
+          <button id="notifBtn" aria-label="Notifications" class="bg-white relative p-2 rounded-full hover:bg-lime-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-lime-400">
+            <i class="bi bi-bell text-2xl text-gray-600 dark:text-gray-300"></i>
+            <?php if ($jumlahNotifBaru > 0): ?>
+              <span class="absolute top-1 right-1 inline-block w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+            <?php endif; ?>
+          </button>
 
-                <!-- Icon notif -->
-                <button aria-label="Notifications" class="border border-white bg-white dark:border-color: #334036 relative p-2 rounded-full hover:bg-lime-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-lime-400">
-                    <i class="bi bi-bell text-2xl text-gray-600 dark:text-gray-300"></i>
-                    <span class="absolute top-1 right-1 inline-block w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-                </button>
+          <!-- Panel Dropdown Notifikasi -->
+          <div id="notifPanel" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto animate-fade-slide">
+            <div class="p-4 border-b font-semibold text-gray-700 dark:text-white">Notifications</div>
+            <?php if (count($notifs) > 0): ?>
+              <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+                <?php foreach ($notifs as $notif): ?>
+                  <li class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <p class="text-sm font-medium"><?= htmlspecialchars($notif['judul']) ?></p>
+                    <p class="text-xs text-gray-500"><?= htmlspecialchars($notif['pesan']) ?></p>
+                    <p class="text-xs text-gray-400 italic"><?= date("d M Y H:i", strtotime($notif['created_at'])) ?></p>
+                  </li>
+                <?php endforeach; ?>
+              </ul>
+            <?php else: ?>
+              <p class="p-3 text-sm text-gray-500">No new notifications.</p>
+            <?php endif; ?>
+          </div>
+        </div>
             </header>
 
             <!-- Tabel  -->
@@ -119,6 +155,7 @@ $role = $_SESSION['role'];
                     </button>
                 </header>
 
+            
                 <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
                     <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg">
                         <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914;">
@@ -139,7 +176,20 @@ $role = $_SESSION['role'];
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             <?php 
-                            $query = "SELECT * FROM cuti WHERE username = '$user' ORDER BY created_at DESC";
+                            $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
+
+                            $query = "SELECT * FROM cuti WHERE username = '$user'";
+
+                            if (!empty($search)) {
+                                $query .= " AND (
+                                    pengganti LIKE '%$search%' OR 
+                                    jenis_cuti LIKE '%$search%' OR 
+                                    status_pengajuan LIKE '%$search%'
+                                )";
+                            }
+
+                            $query .= " ORDER BY created_at DESC";
+
                             $result = mysqli_query($conn, $query);
 
                             if($result && mysqli_num_rows($result) > 0) {
@@ -183,13 +233,12 @@ $role = $_SESSION['role'];
                                             $statusText = 'Menunggu';
                                             break;
                                     }
-
                                 echo "<td class='px-5 py-3 whitespace-nowrap'>
                                         <span class='inline-block px-3 py-1 border $statusClass rounded-full text-xs font-semibold'>
                                         $statusText
                                         </span>
-                                    </td>";
-                                 echo "</tr>";
+                                    </td>";   
+                                echo "</tr>";
                                     }
                                 } else {
                                     echo "<tr><td colspan='10' class='px-5 py-3 text-center text-gray-500'>Belum ada data cuti.</td></tr>";
@@ -228,7 +277,7 @@ $role = $_SESSION['role'];
           <!-- NIP -->
           <div class="mb-3">
             <label class="form-label">NIP</label>
-            <input type="text" class="form-control" name="nip" required>
+            <input type="text" class="form-control" name="nip" required pattern="[0-9]+" inputmode="numeric" title="Masukkan Hanya angka">
           </div>
 
           <!-- Jabatan -->
@@ -246,7 +295,7 @@ $role = $_SESSION['role'];
           <!-- No HP -->
           <div class="mb-3">
             <label class="form-label">No. HP</label>
-            <input type="text" class="form-control" name="no_hp" required>
+            <input type="text" class="form-control" name="no_hp" required pattern="[0-9]+" inputmode="numeric" title="Masukkan Hanya Angka">
           </div>
 
           <!-- Pengganti -->
@@ -409,6 +458,29 @@ $role = $_SESSION['role'];
   });
 </script>
 
+ <!-- Notif -->
+  <script>
+    document.getElementById('notifBtn').addEventListener('click', function() {
+      const panel = document.getElementById('notifPanel');
+      const audio = document.getElementById('notifSound');
+
+      panel.classList.toggle('hidden');
+
+      if (!panel.classList.contains('hidden')) {
+        panel.classList.remove('animate-notif');
+        void panel.offsetWidth; // restart animation
+        panel.classList.add('animate-notif');
+
+        if (audio) {
+          audio.play();
+        }
+      }
+    });
+  </script>
+
+  <?php if ($jumlahNotifBaru > 0): ?>
+    <audio id="notifSound" src="asset/notification.mp3" preload="auto"></audio>
+  <?php endif; ?>
 
 
 </body>

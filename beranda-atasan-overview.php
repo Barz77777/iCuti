@@ -268,7 +268,7 @@ while ($row = $resType->fetch_assoc()) {
 
         <!-- Received Data -->
 
-        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md initial-hidden">
+        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md initial-hidden" data-title="Received Data">
           <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100 mb-4">Received Data</h2>
           <div class="relative h-40 w-full">
             <canvas id="leaveBalanceChart"></canvas>
@@ -276,7 +276,7 @@ while ($row = $resType->fetch_assoc()) {
         </article>
 
         <!-- Rejected Data -->
-        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md initial-hidden">
+        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md initial-hidden" data-title="Rejected Data">
           <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100 mb-4">Rejected Data</h2>
           <div class="relative h-40 w-full">
             <canvas id="upcomingLeaveChart"></canvas>
@@ -284,7 +284,7 @@ while ($row = $resType->fetch_assoc()) {
         </article>
 
         <!-- Awaiting Confirmation -->
-        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md initial-hidden relative">
+        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md initial-hidden relative" data-title="Leave Data Awaiting Confirmation">
           <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100 mb-4">Leave Data Awaiting Confirmation</h2>
 
           <div class="flex justify-center items-center h-48">
