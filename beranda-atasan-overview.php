@@ -1,5 +1,6 @@
 <?php
 session_start();
+require 'db_connection.php';
 
 if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
   header("Location: index.php");
@@ -9,88 +10,15 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
 $user = $_SESSION['user'];
 $role = $_SESSION['role'];
 
-include 'db_connection.php';
-
-// Tombol "Tandai semua dibaca"
-if (isset($_GET['read_all'])) {
-  $conn->query("UPDATE notifications SET status = 'dibaca' WHERE penerima_role = 'atasan'");
-  header("Location: beranda-atasan-overview.php");
-  exit();
-}
-
-// Ambil notifikasi baru
-$notifQuery = "SELECT * FROM notifications WHERE penerima_role = 'atasan' AND status = 'baru' ORDER BY created_at DESC";
-$notifResult = $conn->query($notifQuery);
-
-require 'db_connection.php';
-
-// Cek otorisasi admin
-if (!isset($_SESSION['user']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-  header("Location: index.php");
-  exit();
-}
-
-$user = $_SESSION['user'];
-$role = $_SESSION['role'];
-
-// === 1. NOTIFIKASI UNTUK ATASAN ===
-$sqlNotif = "SELECT * FROM notifications WHERE penerima_role = 'atasan' ORDER BY created_at DESC LIMIT 10";
+// Ambil notifikasi untuk role 'admin'
+$sqlNotif = "SELECT * FROM notifications WHERE penerima_role = 'admin' ORDER BY created_at DESC LIMIT 10";
 $resNotif = $conn->query($sqlNotif);
-if ($resNotif === false) {
-  die("Error executing query: " . $conn->error);
-}
 $notifs = $resNotif->fetch_all(MYSQLI_ASSOC);
 
-$sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = 'atasan' AND status = 'unread'";
+// Hitung jumlah notifikasi belum dibaca
+$sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = 'admin' AND status = 'unread'";
 $resJumlah = $conn->query($sqlJumlah);
-if (!$resJumlah) {
-  die("Error executing query: " . $conn->error);
-}
 $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
-
-// === 2. RECEIVED & REJECTED BULANAN ===
-$labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-$received = array_fill(0, 12, 0);
-$rejected = array_fill(0, 12, 0);
-
-$query = "SELECT MONTH(tanggal_pengajuan) AS bulan, approved_status, COUNT(*) AS jumlah 
-          FROM submission 
-          WHERE YEAR(tanggal_pengajuan) = YEAR(CURDATE()) 
-          GROUP BY bulan, approved_status";
-
-$res = $conn->query($query);
-if ($res) {
-  while ($row = $res->fetch_assoc()) {
-    $i = $row['bulan'] - 1;
-    if ($row['approved_status'] === 'Approved') {
-      $received[$i] = $row['jumlah'];
-    } elseif ($row['approved_status'] === 'Rejected') {
-      $rejected[$i] = $row['jumlah'];
-    }
-  }
-}
-
-// === 3. YANG MASIH MENUNGGU PERSETUJUAN ===
-$qWaiting = "SELECT COUNT(*) as total FROM submission WHERE status = 'Waiting For Approval'";
-$resWaiting = $conn->query($qWaiting);
-if (!$resWaiting) {
-  die("Error executing query: " . $conn->error);
-}
-$waitingTotal = $resWaiting->fetch_assoc()['total'] ?? 0;
-
-// === 4. DATA JENIS CUTI ===
-$leaveTypeData = ['labels' => [], 'data' => []];
-$qLeaveType = "SELECT jenis_cuti, COUNT(*) as total FROM submission GROUP BY jenis_cuti";
-$resType = $conn->query($qLeaveType);
-if (!$resType) {
-  die("Error executing query: " . $conn->error);
-}
-while ($row = $resType->fetch_assoc()) {
-  $leaveTypeData['labels'][] = $row['jenis_cuti'];
-  $leaveTypeData['data'][] = $row['total'];
-}
-
-// Sekarang variabel $received, $rejected, $waitingTotal, dan $leaveTypeData bisa digunakan di HTML/chart
 ?>
 
 <!DOCTYPE html>
@@ -122,7 +50,6 @@ while ($row = $resType->fetch_assoc()) {
 
     .animate-box {
       animation: fadeScaleIn 0.5s ease-out forwards;
-      animation-delay: 0ms; /* Default delay, overridden by inline styles */
     }
 
     .initial-hidden {
@@ -157,9 +84,43 @@ while ($row = $resType->fetch_assoc()) {
       animation-delay: 0.6s;
     }
   </style>
+  <style>
+    @keyframes notifSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .animate-notif {
+      animation: notifSlideIn 0.3s ease-out forwards;
+    }
+  </style>
 </head>
 
 <body>
+
+  <?php
+  // Contoh data dari PHP (bisa diganti dengan query database)
+  $receivedData = [
+    'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    'data' => [2, 3, 1, 4, 2, 0]
+  ];
+  $rejectedData = [
+    'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    'data' => [0, 1, 0, 2, 1, 0]
+  ];
+  $leaveTypeData = [
+    'labels' => ['Annual', 'Sick', 'ChildBirth'],
+    'data' => [8, 4, 3]
+  ];
+  ?>
+
   <div class="profile-dropdown" id="profileDropdown">
     <div class="profile-content">
       <div class="user-info">
@@ -171,7 +132,7 @@ while ($row = $resType->fetch_assoc()) {
   </div>
 
 
-  <div class="layout">
+  <div class="layout flex">
     <div class="sidebar sticky top-10">
       <!-- Logo -->
       <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="asset/user-avatar.png" alt="User Avatar">
@@ -200,9 +161,7 @@ while ($row = $resType->fetch_assoc()) {
       </div>
     </div>
 
-    <!-- tabel, search, dan icon notif -->
     <main class="main-content flex-grow max-w-7xl mx-auto flex flex-col gap-8">
-      <!-- search -->
       <header class="flex items-center justify-between space-x-4">
         <div class="flex-grow relative max-w-lg">
           <input type="search" aria-label="Search anything here" placeholder="Search anything here" class="w-full rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2 pl-10 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-500" />
@@ -211,278 +170,328 @@ while ($row = $resType->fetch_assoc()) {
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
         </div>
-        <!-- notif -->
+
+        <!-- Container relatif agar dropdown tidak ganggu layout -->
         <div class="relative">
+          <!-- Tombol lonceng -->
           <button id="notifBtn" aria-label="Notifications" class="bg-white relative p-2 rounded-full hover:bg-lime-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-lime-400">
             <i class="bi bi-bell text-2xl text-gray-600 dark:text-gray-300"></i>
-            <?php if ($notifResult->num_rows > 0): ?>
-              <span id="notifDot" class="absolute top-2 right-2 inline-block w-3 h-3 bg-red-500 rounded-full"></span>
+            <?php if ($jumlahNotifBaru > 0): ?>
+              <span class="absolute top-1 right-1 inline-block w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
             <?php endif; ?>
           </button>
-          <div id="notifDropdown" class="notifikasi bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md absolute right-0 mt-2 w-96 z-50" style="display:none;">
-            <div class="flex justify-between items-center mb-4">
-              <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Notifikasi Pengajuan Cuti</h2>
-              <a href="?read_all=true" class="text-sm text-blue-600 hover:underline">Tandai semua dibaca</a>
-            </div>
-            <ul>
-              <?php if ($notifResult->num_rows > 0): ?>
-                <?php while ($row = $notifResult->fetch_assoc()): ?>
-                  <li class="mb-2 border-b pb-1 text-gray-700 dark:text-gray-300">
-                    <?= htmlspecialchars($row['pesan']) ?>
-                    <br><small class="text-gray-500"><?= $row['created_at'] ?></small>
+
+          <!-- Panel Dropdown Notifikasi -->
+          <div id="notifPanel" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto animate-fade-slide">
+            <div class="p-4 border-b font-semibold text-gray-700 dark:text-white">Notifications</div>
+            <?php if (count($notifs) > 0): ?>
+              <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+                <?php foreach ($notifs as $notif): ?>
+                  <li class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <p class="text-sm font-medium"><?= htmlspecialchars($notif['judul']) ?></p>
+                    <p class="text-xs text-gray-500"><?= htmlspecialchars($notif['pesan']) ?></p>
+                    <p class="text-xs text-gray-400 italic"><?= date("d M Y H:i", strtotime($notif['created_at'])) ?></p>
                   </li>
-                <?php endwhile; ?>
-              <?php else: ?>
-                <li class="text-gray-500 italic">Tidak ada notifikasi baru</li>
-              <?php endif; ?>
-            </ul>
+                <?php endforeach; ?>
+              </ul>
+            <?php else: ?>
+              <p class="p-3 text-sm text-gray-500">No new notifications.</p>
+            <?php endif; ?>
           </div>
         </div>
       </header>
-
-      <script>
-        // Toggle notification dropdown
-        const notifBtn = document.getElementById('notifBtn');
-        const notifDropdown = document.getElementById('notifDropdown');
-        notifBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          notifDropdown.style.display = notifDropdown.style.display === 'none' || notifDropdown.style.display === '' ? 'block' : 'none';
-          // Sembunyikan dot merah saat dropdown dibuka
-          const notifDot = document.getElementById('notifDot');
-          if (notifDropdown.style.display === 'block' && notifDot) {
-            notifDot.style.display = 'none';
-          }
-        });
-        document.addEventListener('click', function(e) {
-          if (!notifDropdown.contains(e.target) && e.target !== notifBtn) {
-            notifDropdown.style.display = 'none';
-          }
-        });
-      </script>
 
       <section class="rounded-3xl p-6 shadow-md text-white max-w-4xl" style="background: linear-gradient(135deg, #2D5938 0%, #334036 100%);">
         <h1 class="text-3xl font-bold mb-2 animate-text delay-1">Hello, <?= ($user) ?>! <span class="inline-block animate-wave"></span></h1>
         <p class="text-lg font-light animate-text delay-2">How are you feeling about your leave today?</p>
       </section>
       <section class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl">
-
-        <!-- Received Data -->
-
-        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md initial-hidden" data-title="Received Data">
-          <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100 mb-4">Received Data</h2>
-          <div class="relative h-40 w-full">
+        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden" data-title="Received data">
+          <header class="flex justify-between items-center mb-4">
+            <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Received data</h2>
+            <select id="receivedPeriod" aria-label="Select period" class="text-sm bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-lime-500">
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </header>
+          <div class="relative h-36 w-full">
             <canvas id="leaveBalanceChart"></canvas>
           </div>
+          <p class="mt-3 text-right text-3xl font-bold text-lime-600">12 days</p>
         </article>
-
-        <!-- Rejected Data -->
-        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md initial-hidden" data-title="Rejected Data">
-          <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100 mb-4">Rejected Data</h2>
-          <div class="relative h-40 w-full">
+        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden" data-title="Rejected data">
+          <header class="flex justify-between items-center mb-4">
+            <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Rejected data</h2>
+            <select id="rejectedPeriod" aria-label="Select period" class="text-sm bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-lime-500">
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </header>
+          <div class="relative h-36 w-full">
             <canvas id="upcomingLeaveChart"></canvas>
           </div>
+          <p class="mt-3 text-right text-3xl font-bold" style="color: #ff4040;">7 days</p>
         </article>
-
-        <!-- Awaiting Confirmation -->
-        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md initial-hidden relative" data-title="Leave Data Awaiting Confirmation">
-          <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100 mb-4">Leave Data Awaiting Confirmation</h2>
-
-          <div class="flex justify-center items-center h-48">
-            <p class="text-7xl font-extrabold text-red-500"><?= htmlspecialchars($waitingTotal) ?></p>
+        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden" data-title="Leave data awaiting cofirmation">
+          <header class="flex justify-between items-center mb-4">
+            <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Leave data awaiting confirmation</h2>
+            <select aria-label="Select period" class="text-sm bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-lime-500">
+              <option>Daily</option>
+              <option>Weekly</option>
+            </select>
+          </header>
+          <div class="relative h-36 w-full flex items-center justify-center">
+            <span class="text-5xl font-extrabold text-red-500">3</span>
           </div>
-
-          <div class="absolute right-6 bottom-6 text-gray-500 dark:text-gray-300 italic text-sm">
-            Requires approval
-          </div>
+          <p class="mt-3 text-right text-gray-500 dark:text-gray-300 italic">Requires approval</p>
         </article>
-
-
-        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md initial-hidden" data-title="Leave Data by Type">
-          <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100 mb-4">Leave Data by Type</h2>
-
-          <!-- Centered and sized canvas -->
-          <div class="flex justify-center items-center">
-            <div class="w-[220px] h-[220px] relative">
-              <canvas id="leaveTypeChart"></canvas>
-            </div>
+        <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden" data-title="Leave Data">
+          <header class="flex justify-between items-center mb-4">
+            <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Leave Data</h2>
+            <select aria-label="Select period" class="text-sm bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-lime-500">
+              <option>Monthly</option>
+              <option>Yearly</option>
+            </select>
+          </header>
+          <div class="relative h-36 w-full">
+            <canvas id="leaveTypeChart"></canvas>
           </div>
+          <?php foreach ($leaveTypeData['labels'] as $idx => $type): ?>
+            <p style="color: #b3b2b2;" class="mt-1 text-right text-lime-600">
+              <?php echo htmlspecialchars($type); ?>: <?php echo htmlspecialchars($leaveTypeData['data'][$idx]); ?> Data
+            </p>
+          <?php endforeach; ?>
         </article>
-
-
       </section>
-      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      <script>
-        // Pass PHP leaveTypeData to JS
-        const leaveTypeData = <?= json_encode($leaveTypeData) ?>;
+    </main>
+  </div>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Data dari PHP ke JS
+    const receivedData = <?php echo json_encode($receivedData); ?>;
+    const rejectedData = <?php echo json_encode($rejectedData); ?>;
+    const leaveTypeData = <?php echo json_encode($leaveTypeData); ?>;
 
-        const receivedChart = new Chart(document.getElementById('leaveBalanceChart'), {
-          type: 'line',
-          data: {
-            labels: <?= json_encode($labels) ?>,
-            datasets: [{
-              label: 'Received',
-              data: <?= json_encode($received) ?>,
-              backgroundColor: 'rgba(104, 192, 75, 0.2)',
-              borderColor: '#9AD914',
-              tension: 0.4
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: {
-                display: false
-              }
-            },
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            }
+    // Chart: Received Data
+    const ctxReceived = document.getElementById('leaveBalanceChart').getContext('2d');
+    let receivedChart = new Chart(ctxReceived, {
+      type: 'line',
+      data: {
+        labels: receivedData.labels,
+        datasets: [{
+          label: 'Received',
+          data: receivedData.data,
+          borderColor: '#9AD914',
+          backgroundColor: 'rgba(132,204,22,0.2)',
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false
           }
-        });
-
-        const rejectedChart = new Chart(document.getElementById('upcomingLeaveChart'), {
-          type: 'line',
-          data: {
-            labels: <?= json_encode($labels) ?>,
-            datasets: [{
-              label: 'Rejected',
-              data: <?= json_encode($rejected) ?>,
-              backgroundColor: 'rgba(255, 99, 132, 0.2)',
-              borderColor: '#ef4444',
-              tension: 0.4
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: {
-                display: false
-              }
-            },
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            }
+        },
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        scales: {
+          y: {
+            beginAtZero: true
           }
-        });
-
-
-        const ctx = document.getElementById('leaveTypeChart').getContext('2d');
-        new Chart(ctx, {
-          type: 'doughnut',
-          data: {
-            labels: ['Annual Leave', 'Maternity Leave', 'Sick Leave', 'Unpaid Leave'],
-            datasets: [{
-              data: [10, 5, 20, 3],
-              backgroundColor: ['#7CB342', '#FFEB3B', '#29B6F6', '#EF5350'],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '65%',
-            plugins: {
-              legend: {
-                position: 'bottom',
-                labels: {
-                  boxWidth: 14,
-                  padding: 12,
-                  usePointStyle: true,
-                  pointStyle: 'circle',
-                  font: {
-                    size: 13
-                  }
-                }
-              },
-              title: {
-                display: false
-              }
-            }
-          }
-        });
-      </script>
-
-      <script>
-        const body = document.body;
-        const lightBtn = document.getElementById("lightBtn");
-        const darkBtn = document.getElementById("darkBtn");
-        const sidebar = document.querySelector(".sidebar");
-        const toggleContainer = document.querySelector(".toggle-container");
-        const savedSidebar = localStorage.getItem("sidebar-expanded");
-
-
-
-
-        lightBtn.addEventListener("click", () => {
-          body.classList.remove("dark-mode");
-          body.classList.add("light-mode");
-          lightBtn.classList.add("active");
-          darkBtn.classList.remove("active");
-          localStorage.setItem("theme", "light");
-        });
-
-        darkBtn.addEventListener("click", () => {
-          body.classList.remove("light-mode");
-          body.classList.add("dark-mode");
-          lightBtn.classList.remove("active");
-          darkBtn.classList.add("active");
-          localStorage.setItem("theme", "dark");
-        });
-
-        function toggleProfileMenu() {
-          const dropdown = document.getElementById('profileDropdown');
-          dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
         }
+      }
+    });
 
-        function logout() {
-          alert('Anda Telah Logout');
-          window.location.href = 'logout.php';
-        }
-
-        document.addEventListener('click', function(event) {
-          const profile = document.querySelector('.profile-toggle');
-          const dropdown = document.getElementById('profileDropdown');
-          if (!profile.contains(event.target)) {
-            dropdown.style.display = 'none';
+    // Chart: Rejected Data
+    const ctxRejected = document.getElementById('upcomingLeaveChart').getContext('2d');
+    let rejectedChart = new Chart(ctxRejected, {
+      type: 'line',
+      data: {
+        labels: rejectedData.labels,
+        datasets: [{
+          label: 'Rejected',
+          data: rejectedData.data,
+          borderColor: '#ff4040',
+          backgroundColor: '#ff9797',
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false
           }
-        });
-      </script>
+        },
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
 
-      <!-- search js -->
-      <script>
-        const searchInput = document.querySelector('input[type="search"]');
-        const articles = document.querySelectorAll('main .grid article');
+    // Chart: Leave Type
+    const ctxType = document.getElementById('leaveTypeChart').getContext('2d');
+    let leaveTypeChart = new Chart(ctxType, {
+      type: 'doughnut',
+      data: {
+        labels: leaveTypeData.labels,
+        datasets: [{
+          data: leaveTypeData.data,
+          backgroundColor: ['#84cc16', '#facc15', '#38bdf8']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
 
-        searchInput.addEventListener('input', function() {
-          const keyword = this.value.toLowerCase();
+    // Contoh interaktif: Ganti data chart berdasarkan select period
+    document.getElementById('receivedPeriod').addEventListener('change', function() {
+      // AJAX fetch data sesuai period, contoh statis:
+      if (this.value === 'yearly') {
+        receivedChart.data.labels = ['2021', '2022', '2023', '2024'];
+        receivedChart.data.datasets[0].data = [12, 14, 10, 16];
+      } else {
+        receivedChart.data.labels = receivedData.labels;
+        receivedChart.data.datasets[0].data = receivedData.data;
+      }
+      receivedChart.update();
+    });
 
-          articles.forEach(article => {
-            const title = article.getAttribute('data-title').toLowerCase();
-            if (title.includes(keyword)) {
-              article.style.display = 'block';
-            } else {
-              article.style.display = 'none';
-            }
-          });
-        });
-      </script>
+    document.getElementById('rejectedPeriod').addEventListener('change', function() {
+      if (this.value === 'monthly') {
+        rejectedChart.data.labels = ['May', 'June', 'July', 'Agustus'];
+        rejectedChart.data.datasets[0].data = [2, 3, 7, 2];
+      } else {
+        rejectedChart.data.labels = ['2022', '2023', '2024', '2025'];
+        rejectedChart.data.datasets[0].data = [7, 11, 8, 5];
+      }
+      rejectedChart.update();
+    });
 
-      <script>
-        const ANIMATION_DELAY = 150; // Define delay as a constant for configurability
+    // Untuk realtime, polling AJAX bisa ditambahkan di sini
+    // setInterval(() => { ...fetch data baru dan update chart... }, 5000);
+  </script>
 
-        window.addEventListener('DOMContentLoaded', () => {
-          const boxes = document.querySelectorAll('main .grid article');
-          boxes.forEach((box, index) => {
-            box.style.animationDelay = `${index * ANIMATION_DELAY}ms`; // Use the constant for delay
-            box.classList.remove('initial-hidden');
-            box.classList.add('animate-box');
-          });
-        });
-      </script>
+  <script>
+    const body = document.body;
+    const lightBtn = document.getElementById("lightBtn");
+    const darkBtn = document.getElementById("darkBtn");
+    const sidebar = document.querySelector(".sidebar");
+    const toggleContainer = document.querySelector(".toggle-container");
+    const savedSidebar = localStorage.getItem("sidebar-expanded");
+
+
+
+
+    lightBtn.addEventListener("click", () => {
+      body.classList.remove("dark-mode");
+      body.classList.add("light-mode");
+      lightBtn.classList.add("active");
+      darkBtn.classList.remove("active");
+      localStorage.setItem("theme", "light");
+    });
+
+    darkBtn.addEventListener("click", () => {
+      body.classList.remove("light-mode");
+      body.classList.add("dark-mode");
+      lightBtn.classList.remove("active");
+      darkBtn.classList.add("active");
+      localStorage.setItem("theme", "dark");
+    });
+
+    function toggleProfileMenu() {
+      const dropdown = document.getElementById('profileDropdown');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function logout() {
+      alert('Anda Telah Logout');
+      window.location.href = 'logout.php';
+    }
+
+    document.addEventListener('click', function(event) {
+      const profile = document.querySelector('.profile-toggle');
+      const dropdown = document.getElementById('profileDropdown');
+      if (!profile.contains(event.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+  </script>
+
+  <!-- search js -->
+  <script>
+    const searchInput = document.querySelector('input[type="search"]');
+    const articles = document.querySelectorAll('main .grid article');
+
+    searchInput.addEventListener('input', function() {
+      const keyword = this.value.toLowerCase();
+
+      articles.forEach(article => {
+        const title = article.getAttribute('data-title').toLowerCase();
+        if (title.includes(keyword)) {
+          article.style.display = 'block';
+        } else {
+          article.style.display = 'none';
+        }
+      });
+    });
+  </script>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const boxes = document.querySelectorAll('main .grid article');
+      boxes.forEach((box, index) => {
+        setTimeout(() => {
+          box.classList.remove('initial-hidden');
+          box.classList.add('animate-box');
+        }, index * 150); // delay antar box untuk efek berurutan
+      });
+    });
+  </script>
+
+
+<!-- Notif -->
+  <script>
+    document.getElementById('notifBtn').addEventListener('click', function() {
+      const panel = document.getElementById('notifPanel');
+      const audio = document.getElementById('notifSound');
+
+      panel.classList.toggle('hidden');
+
+      if (!panel.classList.contains('hidden')) {
+        panel.classList.remove('animate-notif');
+        void panel.offsetWidth; // restart animation
+        panel.classList.add('animate-notif');
+
+        if (audio) {
+          audio.play();
+        }
+      }
+    });
+  </script>
+
+  <?php if ($jumlahNotifBaru > 0): ?>
+    <audio id="notifSound" src="asset/notification.mp3" preload="auto"></audio>
+  <?php endif; ?>
+
 </body>
 
 </html>
