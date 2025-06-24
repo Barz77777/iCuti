@@ -6,7 +6,7 @@
       margin: 0;
       font-family: 'Inter', sans-serif;
       background: #f9fafb;
-      color: #111827;
+      color: #2d5938;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       min-height: 100vh;
@@ -117,7 +117,7 @@
 
     /* Footer */
     footer {
-      background-color: #010001;
+      background-color: #2d5938;
       color: #d8dbe2;
       font-size: 0.9rem;
       padding: 20px 24px;
