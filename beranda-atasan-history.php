@@ -56,7 +56,12 @@ $sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = 
 $resJumlah = $conn->query($sqlJumlah);
 $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 
-
+// Otomatis update status cuti
+mysqli_query($conn, "
+    UPDATE cuti 
+    SET status_pengajuan = 'Selesai' 
+    WHERE tanggal_selesai < CURDATE() AND status_pengajuan != 'Selesai'
+");
 
 ?>
 
@@ -245,7 +250,15 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                                                 } elseif ($status === 'Ditolak') {
                                                     $statusClass = 'border-red-400 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300';
                                                     $statusText = 'Ditolak';
+                                                } elseif ($status === 'Selesai') {
+                                                    $statusClass = 'border-blue-400 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300';
+                                                    $statusText = 'Selesai';
+                                                } else {
+                                                    // fallback jika status tidak dikenali
+                                                    $statusClass = 'border-gray-300 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-300';
+                                                    $statusText = htmlspecialchars($status);
                                                 }
+
 
                                                 echo "<span class='inline-block px-3 py-1 border $statusClass rounded-full text-xs font-semibold'>$statusText</span>";
                                             ?>

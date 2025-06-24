@@ -311,7 +311,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
               <option value="">-- Pilih Jenis Cuti --</option>
               <option value="Annual Leave">Annual Leave</option>
               <option value="Sick Leave">Sick Leave</option>
-              <option value="Maternity Leave">Childbirth Leave</option>
+              <option value="Maternity Leave">Maternity Leave</option>
             </select>
           </div>
 

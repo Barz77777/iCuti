@@ -172,7 +172,8 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                     divisi LIKE '%$search%' OR
                     jenis_cuti LIKE '%$search%' OR
                     tanggal_mulai LIKE '%$search%' OR
-                    tanggal_akhir LIKE '%$search%'
+                    tanggal_akhir LIKE '%$search%'OR
+                    pengganti LIKE '%$search%'
                 )";
             }
 
