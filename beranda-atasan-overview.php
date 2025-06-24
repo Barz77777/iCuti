@@ -10,38 +10,30 @@ $user = $_SESSION['user'];
 $role = $_SESSION['role'];
 
 include 'db_connection.php';
+require 'db_connection.php';
 
 // Tombol "Tandai semua dibaca"
 if (isset($_GET['read_all'])) {
-  $conn->query("UPDATE notifications SET status = 'dibaca' WHERE penerima_role = 'atasan'");
+  $conn->query("UPDATE notifications SET status = 'dibaca' WHERE penerima_role = 'admin'");
   header("Location: beranda-atasan-overview.php");
   exit();
 }
 
-// Ambil notifikasi baru
-$notifQuery = "SELECT * FROM notifications WHERE penerima_role = 'atasan' AND status = 'baru' ORDER BY created_at DESC";
+// Ambil notifikasi baruz
+$notifQuery = "SELECT * FROM notifications WHERE penerima_role = 'admin' AND status = 'baru' ORDER BY created_at DESC";
 $notifResult = $conn->query($notifQuery);
 
-require 'db_connection.php';
-
-// Cek otorisasi admin
-if (!isset($_SESSION['user']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-  header("Location: index.php");
-  exit();
-}
-
-$user = $_SESSION['user'];
-$role = $_SESSION['role'];
 
 // === 1. NOTIFIKASI UNTUK ATASAN ===
-$sqlNotif = "SELECT * FROM notifications WHERE penerima_role = 'atasan' ORDER BY created_at DESC LIMIT 10";
+$sqlNotif = "SELECT * FROM notifications WHERE penerima_role = 'admin' ORDER BY created_at DESC LIMIT 10";
 $resNotif = $conn->query($sqlNotif);
 if ($resNotif === false) {
   die("Error executing query: " . $conn->error);
 }
 $notifs = $resNotif->fetch_all(MYSQLI_ASSOC);
 
-$sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = 'atasan' AND status = 'unread'";
+// Pastikan status konsisten: gunakan 'baru' untuk jumlah notifikasi baru
+$sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = 'atasan' AND status = 'baru'";
 $resJumlah = $conn->query($sqlJumlah);
 if (!$resJumlah) {
   die("Error executing query: " . $conn->error);
@@ -53,25 +45,25 @@ $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct',
 $received = array_fill(0, 12, 0);
 $rejected = array_fill(0, 12, 0);
 
-$query = "SELECT MONTH(tanggal_pengajuan) AS bulan, approved_status, COUNT(*) AS jumlah 
-          FROM submission 
-          WHERE YEAR(tanggal_pengajuan) = YEAR(CURDATE()) 
-          GROUP BY bulan, approved_status";
+$query = "SELECT MONTH(tanggal_disetujui) AS bulan, status_pengajuan, COUNT(*) AS jumlah 
+          FROM cuti 
+          WHERE YEAR(tanggal_disetujui) = YEAR(CURDATE()) 
+          GROUP BY bulan, status_pengajuan";
 
 $res = $conn->query($query);
 if ($res) {
   while ($row = $res->fetch_assoc()) {
     $i = $row['bulan'] - 1;
-    if ($row['approved_status'] === 'Approved') {
+    if ($row['status_pengajuan'] === 'Disetujui') {
       $received[$i] = $row['jumlah'];
-    } elseif ($row['approved_status'] === 'Rejected') {
+    } elseif ($row['status_pengajuan'] === 'Ditolak') {
       $rejected[$i] = $row['jumlah'];
     }
   }
 }
 
 // === 3. YANG MASIH MENUNGGU PERSETUJUAN ===
-$qWaiting = "SELECT COUNT(*) as total FROM submission WHERE status = 'Waiting For Approval'";
+$qWaiting = "SELECT COUNT(*) as total FROM cuti WHERE status_pengajuan = 'Menunggu'";
 $resWaiting = $conn->query($qWaiting);
 if (!$resWaiting) {
   die("Error executing query: " . $conn->error);
@@ -80,7 +72,7 @@ $waitingTotal = $resWaiting->fetch_assoc()['total'] ?? 0;
 
 // === 4. DATA JENIS CUTI ===
 $leaveTypeData = ['labels' => [], 'data' => []];
-$qLeaveType = "SELECT jenis_cuti, COUNT(*) as total FROM submission GROUP BY jenis_cuti";
+$qLeaveType = "SELECT jenis_cuti, COUNT(*) as total FROM cuti GROUP BY jenis_cuti";
 $resType = $conn->query($qLeaveType);
 if (!$resType) {
   die("Error executing query: " . $conn->error);
@@ -122,7 +114,8 @@ while ($row = $resType->fetch_assoc()) {
 
     .animate-box {
       animation: fadeScaleIn 0.5s ease-out forwards;
-      animation-delay: 0ms; /* Default delay, overridden by inline styles */
+      animation-delay: 0ms;
+      /* Default delay, overridden by inline styles */
     }
 
     .initial-hidden {
@@ -371,12 +364,12 @@ while ($row = $resType->fetch_assoc()) {
 
 
         const ctx = document.getElementById('leaveTypeChart').getContext('2d');
-        new Chart(ctx, {
+        const leaveChart = new Chart(ctx, {
           type: 'doughnut',
           data: {
-            labels: ['Annual Leave', 'Maternity Leave', 'Sick Leave', 'Unpaid Leave'],
+            labels: <?= json_encode($leaveTypeData['labels']) ?>,
             datasets: [{
-              data: [10, 5, 20, 3],
+              data: <?= json_encode($leaveTypeData['data']) ?>,
               backgroundColor: ['#7CB342', '#FFEB3B', '#29B6F6', '#EF5350'],
               borderWidth: 1
             }]
