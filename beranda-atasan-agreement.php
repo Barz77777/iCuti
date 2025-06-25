@@ -149,7 +149,6 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                         <i class="bi bi-bell text-2xl text-gray-600 dark:text-gray-300"></i>
                         <?php if ($notifResult->num_rows > 0): ?>
                             <span id="notifDot" class="absolute top-2 right-2 inline-block w-3 h-3 bg-red-500 rounded-full"></span>
-                        <?php endif; ?>
                     </button>
                     <div id="notifDropdown" class="notifikasi bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md absolute right-0 mt-2 w-96 z-50" style="display:none;">
                         <div class="flex justify-between items-center mb-4">
@@ -193,15 +192,15 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 
             <!-- Tabel  -->
             <?php
-            // ambil data dari database
-            include 'db_connection.php'; // pastikan ini konek ke database
+                            // ambil data dari database
+                            include 'db_connection.php'; // pastikan ini konek ke database
 
-            $search = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
+                            $search = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
 
-            $query = "SELECT * FROM cuti WHERE status_pengajuan = 'Menunggu'";
+                            $query = "SELECT * FROM cuti WHERE status_pengajuan = 'Menunggu'";
 
-            if (!empty($search)) {
-                $query .= " AND (
+                            if (!empty($search)) {
+                                $query .= " AND (
                     username LIKE '%$search%' OR
                     nip LIKE '%$search%' OR
                     jabatan LIKE '%$search%' OR
@@ -211,16 +210,26 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                     tanggal_akhir LIKE '%$search%'OR
                     pengganti LIKE '%$search%'
                 )";
-            }
+                            }
 
-            $result = mysqli_query($conn, $query);
+                            $result = mysqli_query($conn, $query);
 
-            $cuti = [];
-            while ($row = mysqli_fetch_assoc($result)) {
-                $cuti[] = $row;
-            }
+                            $cuti = [];
+                            while ($row = mysqli_fetch_assoc($result)) {
+                                $cuti[] = $row;
+                            }
 
 
+            ?>
+
+            <?php
+                            // Pagination logic
+                            $perPage = 5;
+                            $totalRows = count($cuti);
+                            $totalPages = ceil($totalRows / $perPage);
+                            $page = isset($_GET['page']) && is_numeric($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+                            $start = ($page - 1) * $perPage;
+                            $cutiPage = array_slice($cuti, $start, $perPage);
             ?>
 
             <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md h-fit animate__animated animate__fadeIn" style="--animate-duration: 1.2s;">
@@ -255,61 +264,118 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                             </tr>
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            <?php if(empty($cuti)): ?>
+                            <?php if (empty($cutiPage)): ?>
                                 <tr>
-                                    <td colspan="12" class="text-center py-4 text-gray-400">Belum ada data pengajuan.</td>
+                                    <td colspan="13" class="text-center py-4 text-gray-400">Belum ada data pengajuan.</td>
                                 </tr>
                             <?php else: ?>
-                            <?php foreach ($cuti as $c): ?>
-                                <tr>
-                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['username']) ?></td>
-                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['nip']) ?></td>
-                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['jabatan']) ?></td>
-                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['divisi']) ?></td>
-                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['no_hp']) ?></td>
-                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['pengganti']) ?></td>
-                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['jenis_cuti']) ?></td>
-                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_mulai']) ?></td>
-                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_akhir']) ?></td>
-                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['catatan']) ?></td>
-                                    <?php
-                                    $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-                                    $dokumen = $c['dokumen'] ?? '';
-                                    $dokumen_path = 'uploads/' . urlencode($dokumen);
-                                    $file_ext = strtolower(pathinfo($dokumen, PATHINFO_EXTENSION));
-                                    $is_image = in_array($file_ext, $allowed_extensions);
-                                    ?>
+                                <?php foreach ($cutiPage as $c): ?>
+                                    <tr>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['username']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['nip']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['jabatan']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['divisi']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['no_hp']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['pengganti']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['jenis_cuti']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_mulai']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_akhir']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['catatan']) ?></td>
+                                        <?php
+                                        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                                        $dokumen = $c['dokumen'] ?? '';
+                                        $dokumen_path = 'uploads/' . urlencode($dokumen);
+                                        $file_ext = strtolower(pathinfo($dokumen, PATHINFO_EXTENSION));
+                                        $is_image = in_array($file_ext, $allowed_extensions);
+                                        ?>
 
-                                    <?php if (!empty($dokumen) && file_exists($dokumen_path)): ?>
+                                        <?php if (!empty($dokumen) && file_exists($dokumen_path)): ?>
+                                            <td class="px-5 py-3 whitespace-nowrap">
+                                                <?php if ($is_image): ?>
+                                                    <button type="button" onclick="openModal('<?= $dokumen_path ?>')" class="text-blue-600 hover:underline">
+                                                        🖼️ Lihat
+                                                    </button>
+                                                <?php else: ?>
+                                                    <a href="<?= $dokumen_path ?>" target="_blank" class="text-blue-600 hover:underline">
+                                                        📄 Buka
+                                                    </a>
+                                                <?php endif; ?>
+                                            </td>
+                                        <?php else: ?>
+                                            <td class="px-5 py-3 whitespace-nowrap"><em>Tidak ada</em></td>
+                                        <?php endif; ?>
                                         <td class="px-5 py-3 whitespace-nowrap">
-                                            <?php if ($is_image): ?>
-                                                <button type="button" onclick="openModal('<?= $dokumen_path ?>')" class="text-blue-600 hover:underline">
-                                                    🖼️ Lihat
-                                                </button>
-                                            <?php else: ?>
-                                                <a href="<?= $dokumen_path ?>" target="_blank" class="text-blue-600 hover:underline">
-                                                    📄 Buka
-                                                </a>
-                                            <?php endif; ?>
+                                            <form method="post" action="proses_approval.php" class="flex gap-2">
+                                                <input type="hidden" name="cuti_id" value="<?= $c['id'] ?>">
+                                                <button type="submit" name="aksi" value="setujui" class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-full text-xs font-semibold">Setujui</button>
+                                                <button type="submit" name="aksi" value="tolak" class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs font-semibold">Tolak</button>
+                                            </form>
                                         </td>
-                                    <?php else: ?>
-                                        <td class="px-5 py-3 whitespace-nowrap"><em>Tidak ada</em></td>
-                                    <?php endif; ?>
-                                    <td class="px-5 py-3 whitespace-nowrap">
-                                        <form method="post" action="proses_approval.php" class="flex gap-2">
-                                            <input type="hidden" name="cuti_id" value="<?= $c['id'] ?>">
-                                            <button type="submit" name="aksi" value="setujui" class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-full text-xs font-semibold">Setujui</button>
-                                            <button type="submit" name="aksi" value="tolak" class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs font-semibold">Tolak</button>
-                                        </form>
-                                    </td>
-                                    <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['created_at']) ?></td>
-
-                                </tr>
-                            <?php endforeach; ?>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['created_at']) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
                             <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
+
+                <nav class="flex justify-center mt-4">
+                    <ul class="inline-flex -space-x-px">
+                        <?php
+                            $queryString = $_GET;
+                            // Tombol prev
+                            if ($page > 1) {
+                                $queryString['page'] = $page - 1;
+                                $urlPrev = '?' . http_build_query($queryString);
+                                echo "<li>
+          <a href=\"$urlPrev\" class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100 rounded-l-lg flex items-center gap-1 font-semibold transition-all\">
+        <svg class=\"w-4 h-4 mr-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15 19l-7-7 7-7\"/></svg>
+        Prev
+          </a>
+        </li>";
+                            } else {
+                                echo "<li>
+          <span class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-400 rounded-l-lg flex items-center gap-1 cursor-not-allowed\">
+        <svg class=\"w-4 h-4 mr-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15 19l-7-7 7-7\"/></svg>
+        Prev
+          </span>
+        </li>";
+                            }
+
+                            // Nomor halaman
+                            for ($i = 1; $i <= $totalPages; $i++) {
+                                $queryString['page'] = $i;
+                                $url = '?' . http_build_query($queryString);
+                                $activeClass = $i == $page
+                                    ? 'bg-lime-500 text-white border-lime-500 shadow font-bold scale-110'
+                                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100';
+                                echo "<li>
+          <a href=\"$url\" class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 $activeClass rounded transition-all mx-1\">$i</a>
+        </li>";
+                            }
+
+                            // Tombol next
+                            if ($page < $totalPages) {
+                                $queryString['page'] = $page + 1;
+                                $urlNext = '?' . http_build_query($queryString);
+                                echo "<li>
+          <a href=\"$urlNext\" class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100 rounded-r-lg flex items-center gap-1 font-semibold transition-all\">
+        Next
+        <svg class=\"w-4 h-4 ml-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M9 5l7 7-7 7\"/></svg>
+          </a>
+        </li>";
+                            } else {
+                                echo "<li>
+          <span class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-400 rounded-r-lg flex items-center gap-1 cursor-not-allowed\">
+        Next
+        <svg class=\"w-4 h-4 ml-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M9 5l7 7-7 7\"/></svg>
+          </span>
+        </li>";
+                            }
+                        ?>
+                    </ul>
+                </nav>
+            <?php endif; ?>
             </article>
 
             <!-- Animate.css CDN -->
@@ -338,28 +404,29 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
         </div>
         <script>
             function openModal(src) {
-            const modal = document.getElementById('imageModal');
-            const img = document.getElementById('modalImg');
-            img.src = src;
-            modal.style.display = 'flex';
-            setTimeout(() => {
-                img.style.opacity = '1';
-                img.style.transform = 'scale(1)';
-            }, 10);
+                const modal = document.getElementById('imageModal');
+                const img = document.getElementById('modalImg');
+                img.src = src;
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    img.style.opacity = '1';
+                    img.style.transform = 'scale(1)';
+                }, 10);
             }
+
             function closeModal() {
-            const modal = document.getElementById('imageModal');
-            const img = document.getElementById('modalImg');
-            img.style.opacity = '0';
-            img.style.transform = 'scale(0.85)';
-            setTimeout(() => {
-                modal.style.display = 'none';
-                img.src = '';
-            }, 350);
+                const modal = document.getElementById('imageModal');
+                const img = document.getElementById('modalImg');
+                img.style.opacity = '0';
+                img.style.transform = 'scale(0.85)';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    img.src = '';
+                }, 350);
             }
             // Close modal on outside click
             document.getElementById('imageModal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
+                if (e.target === this) closeModal();
             });
         </script>
 

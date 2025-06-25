@@ -222,14 +222,65 @@ mysqli_query($conn, "
             </script>
 
 
+            <?php
+            // PAGINATION LOGIC
+            $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+            $perPage = 5;
+
+            // Count total data
+            $countSql = "SELECT COUNT(*) as total FROM cuti WHERE (status_pengajuan = 'Ditolak' OR status_pengajuan = 'Disetujui')";
+            if (!empty($search)) {
+                $countSql .= " AND (
+                    nip LIKE '%$search%' OR
+                    jabatan LIKE '%$search%' OR
+                    divisi LIKE '%$search%' OR
+                    jenis_cuti LIKE '%$search%' OR
+                    tanggal_mulai LIKE '%$search%' OR
+                    tanggal_akhir LIKE '%$search%' OR
+                    pengganti LIKE '%$search%' OR
+                    no_hp LIKE '%$search%' OR
+                    catatan LIKE '%$search%' OR
+                    status_pengajuan LIKE '%$search%'
+                )";
+            }
+            $countResult = mysqli_query($conn, $countSql);
+            $totalRows = ($countResult && $row = mysqli_fetch_assoc($countResult)) ? (int)$row['total'] : 0;
+            $totalPages = ceil($totalRows / $perPage);
+            $offset = ($page - 1) * $perPage;
+
+            // Query with LIMIT for pagination
+            $sql = "SELECT username, nip, jabatan, divisi, no_hp, pengganti, jenis_cuti, tanggal_mulai, tanggal_akhir, catatan, dokumen, status_pengajuan, tanggal_disetujui
+                    FROM cuti 
+                    WHERE (status_pengajuan = 'Ditolak' OR status_pengajuan = 'Disetujui')";
+            if (!empty($search)) {
+                $sql .= " AND (
+                    nip LIKE '%$search%' OR
+                    jabatan LIKE '%$search%' OR
+                    divisi LIKE '%$search%' OR
+                    jenis_cuti LIKE '%$search%' OR
+                    tanggal_mulai LIKE '%$search%' OR
+                    tanggal_akhir LIKE '%$search%' OR
+                    pengganti LIKE '%$search%' OR
+                    no_hp LIKE '%$search%' OR
+                    catatan LIKE '%$search%' OR
+                    status_pengajuan LIKE '%$search%'
+                )";
+            }
+            $sql .= " ORDER BY created_at DESC LIMIT $perPage OFFSET $offset";
+
+            $result = mysqli_query($conn, $sql);
+            $history = [];
+            if ($result && mysqli_num_rows($result) > 0) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $history[] = $row;
+                }
+            }
+            ?>
+
             <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md h-fit animate__animated animate__fadeIn" style="--animate-duration: 1.2s;">
                 <header class="mb-4 flex justify-between items-center">
                     <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">History</h2>
                 </header>
-
-
-
-
                 <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
                     <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg">
                         <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914;">
@@ -245,7 +296,6 @@ mysqli_query($conn, "
                                 <th class="px-5 py-3">Tanggal Akhir</th>
                                 <th class="px-5 py-3">Catatan</th>
                                 <th class="px-5 py-3">Dokumen</th>
-                                <th class="px-5 py-3">CSV</th>
                                 <th class="px-5 py-3">Status</th>
                                 <th class="px-5 py-3">Tanggal Konfirmasi</th>
                             </tr>
@@ -253,7 +303,7 @@ mysqli_query($conn, "
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             <?php if (empty($history)): ?>
                                 <tr>
-                                    <td colspan="12" class="text-center py-4 text-gray-400">Belum ada data history.</td>
+                                    <td colspan="13" class="text-center py-4 text-gray-400">Belum ada data history.</td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($history as $c): ?>
@@ -275,7 +325,6 @@ mysqli_query($conn, "
                                         $file_ext = strtolower(pathinfo($dokumen, PATHINFO_EXTENSION));
                                         $is_image = in_array($file_ext, $allowed_extensions);
                                         ?>
-
                                         <?php if (!empty($dokumen) && file_exists($dokumen_path)): ?>
                                             <td class="px-5 py-3 whitespace-nowrap">
                                                 <?php if ($is_image): ?>
@@ -307,12 +356,9 @@ mysqli_query($conn, "
                                                 $statusClass = 'border-blue-400 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300';
                                                 $statusText = 'Selesai';
                                             } else {
-                                                // fallback jika status tidak dikenali
                                                 $statusClass = 'border-gray-300 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-300';
                                                 $statusText = htmlspecialchars($status);
                                             }
-
-
                                             echo "<span class='inline-block px-3 py-1 border $statusClass rounded-full text-xs font-semibold'>$statusText</span>";
                                             ?>
                                         </td>
@@ -323,6 +369,65 @@ mysqli_query($conn, "
                         </tbody>
                     </table>
                 </div>
+
+                <?php if ($totalPages > 1): ?>
+                    <nav class="flex justify-center mt-4">
+                        <ul class="inline-flex -space-x-px">
+                            <?php
+                            $queryString = $_GET;
+                            // Tombol prev
+                            if ($page > 1) {
+                                $queryString['page'] = $page - 1;
+                                $urlPrev = '?' . http_build_query($queryString);
+                                echo "<li>
+                                    <a href=\"$urlPrev\" class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100 rounded-l-lg flex items-center gap-1 font-semibold transition-all\">
+                                        <svg class=\"w-4 h-4 mr-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15 19l-7-7 7-7\"/></svg>
+                                        Prev
+                                    </a>
+                                </li>";
+                            } else {
+                                echo "<li>
+                                    <span class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-400 rounded-l-lg flex items-center gap-1 cursor-not-allowed\">
+                                        <svg class=\"w-4 h-4 mr-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15 19l-7-7 7-7\"/></svg>
+                                        Prev
+                                    </span>
+                                </li>";
+                            }
+
+                            // Nomor halaman
+                            for ($i = 1; $i <= $totalPages; $i++) {
+                                $queryString['page'] = $i;
+                                $url = '?' . http_build_query($queryString);
+                                $activeClass = $i == $page
+                                    ? 'bg-lime-500 text-white border-lime-500 shadow font-bold scale-110'
+                                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100';
+                                echo "<li>
+                                    <a href=\"$url\" class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 $activeClass rounded transition-all mx-1\">$i</a>
+                                </li>";
+                            }
+
+                            // Tombol next
+                            if ($page < $totalPages) {
+                                $queryString['page'] = $page + 1;
+                                $urlNext = '?' . http_build_query($queryString);
+                                echo "<li>
+                                    <a href=\"$urlNext\" class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100 rounded-r-lg flex items-center gap-1 font-semibold transition-all\">
+                                        Next
+                                        <svg class=\"w-4 h-4 ml-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M9 5l7 7-7 7\"/></svg>
+                                    </a>
+                                </li>";
+                            } else {
+                                echo "<li>
+                                    <span class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-400 rounded-r-lg flex items-center gap-1 cursor-not-allowed\">
+                                        Next
+                                        <svg class=\"w-4 h-4 ml-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M9 5l7 7-7 7\"/></svg>
+                                    </span>
+                                </li>";
+                            }
+                            ?>
+                        </ul>
+                    </nav>
+                <?php endif; ?>
             </article>
             <!-- Animate.css CDN -->
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />

@@ -232,14 +232,38 @@ mysqli_query($conn, "
                 });
             </script>
 
+            <?php
+            // Pagination setup
+            $perPage = 5;
+            $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+            if ($page < 1) $page = 1;
+            $offset = ($page - 1) * $perPage;
+
+            $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
+
+            $baseQuery = "FROM cuti WHERE username = '$user'";
+            if (!empty($search)) {
+                $baseQuery .= " AND (
+                    pengganti LIKE '%$search%' OR 
+                    jenis_cuti LIKE '%$search%' OR 
+                    status_pengajuan LIKE '%$search%'
+                )";
+            }
+
+            // Get total rows for pagination
+            $countResult = mysqli_query($conn, "SELECT COUNT(*) as total $baseQuery");
+            $totalRows = $countResult ? (int)mysqli_fetch_assoc($countResult)['total'] : 0;
+            $totalPages = max(1, ceil($totalRows / $perPage));
+
+            // Get paginated data
+            $query = "SELECT pengganti, jenis_cuti, status_pengajuan, tanggal_mulai, tanggal_akhir $baseQuery ORDER BY created_at DESC LIMIT $perPage OFFSET $offset";
+            $result = mysqli_query($conn, $query);
+            ?>
+
             <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md h-fit animate__animated animate__fadeIn" style="--animate-duration: 1.2s;">
                 <header class="mb-4 flex justify-between items-center">
-                    <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">History</h2>
+                    <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Riwayat Cuti</h2>
                 </header>
-
-
-
-
                 <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
                     <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg">
                         <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914;">
@@ -256,53 +280,36 @@ mysqli_query($conn, "
                                 <th class="px-5 py-3">Catatan</th>
                                 <th class="px-5 py-3">Dokumen</th>
                                 <th class="px-5 py-3">Status</th>
-                                <th class="px-5 py-3">Tanggal Konfirmasi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            <?php if (empty($history)): ?>
+                            <?php if (!$history || count($history) === 0): ?>
                                 <tr>
-                                    <td colspan="12" class="text-center py-4 text-gray-400">Belum ada data history.</td>
+                                    <td colspan="12" class="text-center py-4 text-gray-400">Tidak ada data cuti.</td>
                                 </tr>
                             <?php else: ?>
-                                <?php foreach ($history as $c): ?>
+                                <?php foreach ($history as $row): ?>
                                     <tr>
-                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['username']) ?></td>
-                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['nip']) ?></td>
-                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['jabatan']) ?></td>
-                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['divisi']) ?></td>
-                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['no_hp']) ?></td>
-                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['pengganti']) ?></td>
-                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['jenis_cuti']) ?></td>
-                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_mulai']) ?></td>
-                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_akhir']) ?></td>
-                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['catatan']) ?></td>
-                                        <?php
-                                        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-                                        $dokumen = $c['dokumen'] ?? '';
-                                        $dokumen_path = 'uploads/' . urlencode($dokumen);
-                                        $file_ext = strtolower(pathinfo($dokumen, PATHINFO_EXTENSION));
-                                        $is_image = in_array($file_ext, $allowed_extensions);
-                                        ?>
-
-                                        <?php if (!empty($dokumen) && file_exists($dokumen_path)): ?>
-                                            <td class="px-5 py-3 whitespace-nowrap">
-                                                <?php if ($is_image): ?>
-                                                    <button type="button" onclick="openModal('<?= $dokumen_path ?>')" class="text-blue-600 hover:underline">
-                                                        🖼️ Lihat
-                                                    </button>
-                                                <?php else: ?>
-                                                    <a href="<?= $dokumen_path ?>" target="_blank" class="text-blue-600 hover:underline">
-                                                        📄 Buka
-                                                    </a>
-                                                <?php endif; ?>
-                                            </td>
-                                        <?php else: ?>
-                                            <td class="px-5 py-3 whitespace-nowrap"><em>Tidak ada</em></td>
-                                        <?php endif; ?>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($row['username']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($row['nip']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($row['jabatan']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($row['divisi']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($row['no_hp']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($row['pengganti']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($row['jenis_cuti']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($row['tanggal_mulai']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($row['tanggal_akhir']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($row['catatan']) ?></td>
+                                        <td class="px-5 py-3 whitespace-nowrap">
+                                            <?php if (!empty($row['dokumen'])): ?>
+                                                <a href="#" onclick="openModal('<?= htmlspecialchars($row['dokumen']) ?>'); return false;" class="text-blue-600 hover:underline">Lihat</a>
+                                            <?php else: ?>
+                                                <span class="text-gray-400">-</span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td class="px-5 py-3 whitespace-nowrap">
                                             <?php
-                                            $status = $c['status_pengajuan'];
+                                            $status = $row['status_pengajuan'];
                                             $statusClass = '';
                                             $statusText = '';
 
@@ -316,16 +323,12 @@ mysqli_query($conn, "
                                                 $statusClass = 'border-blue-400 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300';
                                                 $statusText = 'Selesai';
                                             } else {
-                                                // fallback jika status tidak dikenali
                                                 $statusClass = 'border-gray-300 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-300';
                                                 $statusText = htmlspecialchars($status);
                                             }
-
-
                                             echo "<span class='inline-block px-3 py-1 border $statusClass rounded-full text-xs font-semibold'>$statusText</span>";
                                             ?>
                                         </td>
-                                        <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_disetujui']) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php endif; ?>

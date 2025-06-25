@@ -183,130 +183,221 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
         });
       </script>
 
-      <!-- Tabel  -->
+      <!-- Tabel dengan Pagination dan 5 Kolom -->
 
       <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md h-fit animate__animated animate__fadeIn" style="--animate-duration: 1.2s;">
         <header class="mb-4 flex justify-between items-center">
           <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Received data</h2>
-
           <!-- Tombol untuk buka modal -->
           <button
-            type="button"
-            data-bs-toggle="modal"
-            data-bs-target="#submissionModal"
-            class="shadow-xl flex items-center gap-2 px-2 py-1 text-white rounded-md shadow transition-colors duration-200"
-            style="background-color: #2D5938;"
-            onmouseover="this.style.backgroundColor='#24482C';"
-            onmouseout="this.style.backgroundColor='#2D5938';">
-            <i class="bi bi-plus text-lg"></i>
-            <span>Add Submission</span>
+        type="button"
+        data-bs-toggle="modal"
+        data-bs-target="#submissionModal"
+        class="shadow-xl flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all duration-200 font-semibold text-base group"
+        style="background: #2D5938; box-shadow: 0 4px 16px 0 #2D593844;"
+        onmouseover="this.style.background='#24482d';"
+        onmouseout="this.style.background='#2D5938';">
+        <span class="flex items-center gap-1">
+          <i class="bi bi-plus-circle-fill text-lg"></i>
+          Add Submission
+          <svg class="ml-2 w-5 h-5 text-white group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        </span>
           </button>
         </header>
 
+        <?php
+        // Pagination setup
+        $perPage = 5;
+        $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+        if ($page < 1) $page = 1;
+        $offset = ($page - 1) * $perPage;
+
+        $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
+
+        $baseQuery = "FROM cuti WHERE username = '$user'";
+        if (!empty($search)) {
+          $baseQuery .= " AND (
+        pengganti LIKE '%$search%' OR 
+        jenis_cuti LIKE '%$search%' OR 
+        status_pengajuan LIKE '%$search%' OR
+        nip LIKE '%$search%' OR
+        jabatan LIKE '%$search%' OR
+        divisi LIKE '%$search%' OR
+        no_hp LIKE '%$search%' OR
+        catatan LIKE '%$search%'
+          )";
+        }
+
+        // Get total rows for pagination
+        $countResult = mysqli_query($conn, "SELECT COUNT(*) as total $baseQuery");
+        $totalRows = $countResult ? (int)mysqli_fetch_assoc($countResult)['total'] : 0;
+        $totalPages = ceil($totalRows / $perPage);
+
+        // Get paginated data
+        $query = "SELECT * $baseQuery ORDER BY created_at DESC LIMIT $perPage OFFSET $offset";
+        $result = mysqli_query($conn, $query);
+        ?>
 
         <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
           <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg">
-            <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914;">
-              <tr>
-                <th class="px-5 py-3">Name</th>
-                <th class="px-5 py-3">NIP/ID Karyawan</th>
-                <th class="px-5 py-3">Jabatan</th>
-                <th class="px-5 py-3">Divisi</th>
-                <th class="px-5 py-3">Nomor HP</th>
-                <th class="px-5 py-3">Tugas Dialihkan Kepada</th>
-                <th class="px-5 py-3">Jenis Cuti</th>
-                <th class="px-5 py-3">Tanggal Mulai</th>
-                <th class="px-5 py-3">Tanggal Akhir</th>
-                <th class="px-5 py-3">Catatan</th>
-                <th class="px-5 py-3">Dokumen</th>
-                <th class="px-5 py-3">Status</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              <?php
-              $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
+        <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914;">
+          <tr>
+        <th class="px-5 py-3">Name</th>
+        <th class="px-5 py-3">NIP/ID Karyawan</th>
+        <th class="px-5 py-3">Jabatan</th>
+        <th class="px-5 py-3">Divisi</th>
+        <th class="px-5 py-3">No HP</th>
+        <th class="px-5 py-3">Pengganti</th>
+        <th class="px-5 py-3">Jenis Cuti</th>
+        <th class="px-5 py-3">Tanggal Mulai</th>
+        <th class="px-5 py-3">Tanggal Akhir</th>
+        <th class="px-5 py-3">Catatan</th>
+        <th class="px-5 py-3">Dokumen</th>
+        <th class="px-5 py-3">Status</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <?php
+          if ($result && mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+          echo "<tr>";
+          // Name
+          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['username']) . "</td>";
+          // NIP/ID Karyawan
+          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['nip'] ?? '-') . "</td>";
+          // Jabatan
+          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['jabatan'] ?? '-') . "</td>";
+          // Divisi
+          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['divisi'] ?? '-') . "</td>";
+          // No HP
+          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['no_hp'] ?? '-') . "</td>";
+          // Pengganti
+          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['pengganti'] ?? '-') . "</td>";
+          // Jenis Cuti
+          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['jenis_cuti'] ?? '-') . "</td>";
+          // Tanggal Mulai
+          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['tanggal_mulai'] ?? '-') . "</td>";
+          // Tanggal Akhir
+          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['tanggal_akhir'] ?? '-') . "</td>";
+          // Catatan
+          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['catatan'] ?? '-') . "</td>";
 
-              $query = "SELECT * FROM cuti WHERE username = '$user'";
+          // Dokumen
+          $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+          $dokumen = $row['dokumen'] ?? '';
+          $dokumen_path = 'uploads/' . urlencode($dokumen);
+          $file_ext = strtolower(pathinfo($dokumen, PATHINFO_EXTENSION));
+          $is_image = in_array($file_ext, $allowed_extensions);
 
-              if (!empty($search)) {
-                $query .= " AND (
-                                    pengganti LIKE '%$search%' OR 
-                                    jenis_cuti LIKE '%$search%' OR 
-                                    status_pengajuan LIKE '%$search%'
-                                )";
-              }
+          if (!empty($dokumen) && file_exists($dokumen_path)) {
+        echo "<td class='px-5 py-3 whitespace-nowrap'>";
+        if ($is_image) {
+          echo "<button type=\"button\" onclick=\"openModal('$dokumen_path')\" class=\"text-blue-600 hover:underline\">🖼️ Lihat</button>";
+        } else {
+          echo "<a href=\"$dokumen_path\" target=\"_blank\" class=\"text-blue-600 hover:underline\">📄 Buka</a>";
+        }
+        echo "</td>";
+          } else {
+        echo "<td class='px-5 py-3 whitespace-nowrap text-gray-400'>-</td>";
+          }
 
-              $query .= " ORDER BY created_at DESC";
+          // Status badge
+          $status = $row['status_pengajuan'];
+          $statusClass = '';
+          $statusText = '';
 
-              $result = mysqli_query($conn, $query);
+          switch (strtolower($status)) {
+        case 'disetujui':
+          $statusClass = 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 border-green-400';
+          $statusText = 'Disetujui';
+          break;
+        case 'ditolak':
+          $statusClass = 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 border-red-400';
+          $statusText = 'Ditolak';
+          break;
+        case 'menunggu':
+        default:
+          $statusClass = 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400 border-yellow-400';
+          $statusText = 'Menunggu';
+          break;
+          }
+          echo "<td class='px-5 py-3 whitespace-nowrap'>
+        <span class='inline-block px-3 py-1 border $statusClass rounded-full text-xs font-semibold'>
+          $statusText
+        </span>
+          </td>";
 
-              if ($result && mysqli_num_rows($result) > 0) {
-                while ($row = mysqli_fetch_assoc($result)) {
-                  echo "<tr>";
-                  echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['username']) . "</td>";
-                  echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['nip']) . "</td>";
-                  echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['jabatan']) . "</td>";
-                  echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['divisi']) . "</td>";
-                  echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['no_hp']) . "</td>";
-                  echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['pengganti']) . "</td>";
-                  echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['jenis_cuti']) . "</td>";
-                  echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['tanggal_mulai']) . "</td>";
-                  echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['tanggal_akhir']) . "</td>";
-                  echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['catatan']) . "</td>";
-
-                  // Link buka dokumen
-                  $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-                  $dokumen = $row['dokumen'] ?? '';
-                  $dokumen_path = 'uploads/' . urlencode($dokumen);
-                  $file_ext = strtolower(pathinfo($dokumen, PATHINFO_EXTENSION));
-                  $is_image = in_array($file_ext, $allowed_extensions);
-
-                  if (!empty($dokumen) && file_exists($dokumen_path)) {
-                    echo "<td class='px-5 py-3 whitespace-nowrap'>";
-                    if ($is_image) {
-                      echo "<button type=\"button\" onclick=\"openModal('$dokumen_path')\" class=\"text-blue-600 hover:underline\">🖼️ Lihat</button>";
-                    } else {
-                      echo "<a href=\"$dokumen_path\" target=\"_blank\" class=\"text-blue-600 hover:underline\">📄 Buka</a>";
-                    }
-                    echo "</td>";
-                  } else {
-                    echo "<td class='px-5 py-3 whitespace-nowrap text-gray-400'>-</td>";
-                  }
-
-                  // status badge
-                  $status = $row['status_pengajuan'];
-                  $statusClass = '';
-                  $statusText = '';
-
-                  switch (strtolower($status)) {
-                    case 'disetujui':
-                      $statusClass = 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 border-green-400';
-                      $statusText = 'Disetujui';
-                      break;
-                    case 'ditolak':
-                      $statusClass = 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 border-red-400';
-                      $statusText = 'Ditolak';
-                      break;
-                    case 'menunggu':
-                    default:
-                      $statusClass = 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400 border-yellow-400';
-                      $statusText = 'Menunggu';
-                      break;
-                  }
-                  echo "<td class='px-5 py-3 whitespace-nowrap'>
-                                        <span class='inline-block px-3 py-1 border $statusClass rounded-full text-xs font-semibold'>
-                                        $statusText
-                                        </span>
-                                    </td>";
-                  echo "</tr>";
-                }
-              } else {
-                echo "<tr><td colspan='12' class='px-5 py-3 text-center text-gray-500'>Belum ada data cuti.</td></tr>";
-              }
-              ?>
-            </tbody>
+          echo "</tr>";
+        }
+          } else {
+        echo "<tr><td colspan='12' class='px-5 py-3 text-center text-gray-500'>Belum ada data cuti.</td></tr>";
+          }
+          ?>
+        </tbody>
           </table>
         </div>
+
+        <!-- Pagination -->
+        <?php if ($totalPages > 1): ?>
+          <nav class="flex justify-center mt-4">
+        <ul class="inline-flex -space-x-px">
+          <?php
+          $queryString = $_GET;
+          // Tombol prev
+          if ($page > 1) {
+        $queryString['page'] = $page - 1;
+        $urlPrev = '?' . http_build_query($queryString);
+        echo "<li>
+          <a href=\"$urlPrev\" class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100 rounded-l-lg flex items-center gap-1 font-semibold transition-all\">
+        <svg class=\"w-4 h-4 mr-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15 19l-7-7 7-7\"/></svg>
+        Prev
+          </a>
+        </li>";
+          } else {
+        echo "<li>
+          <span class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-400 rounded-l-lg flex items-center gap-1 cursor-not-allowed\">
+        <svg class=\"w-4 h-4 mr-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15 19l-7-7 7-7\"/></svg>
+        Prev
+          </span>
+        </li>";
+          }
+
+          // Nomor halaman
+          for ($i = 1; $i <= $totalPages; $i++) {
+        $queryString['page'] = $i;
+        $url = '?' . http_build_query($queryString);
+        $activeClass = $i == $page
+          ? 'bg-lime-500 text-white border-lime-500 shadow font-bold scale-110'
+          : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100';
+        echo "<li>
+          <a href=\"$url\" class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 $activeClass rounded transition-all mx-1\">$i</a>
+        </li>";
+          }
+
+          // Tombol next
+          if ($page < $totalPages) {
+        $queryString['page'] = $page + 1;
+        $urlNext = '?' . http_build_query($queryString);
+        echo "<li>
+          <a href=\"$urlNext\" class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100 rounded-r-lg flex items-center gap-1 font-semibold transition-all\">
+        Next
+        <svg class=\"w-4 h-4 ml-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M9 5l7 7-7 7\"/></svg>
+          </a>
+        </li>";
+          } else {
+        echo "<li>
+          <span class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-400 rounded-r-lg flex items-center gap-1 cursor-not-allowed\">
+        Next
+        <svg class=\"w-4 h-4 ml-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M9 5l7 7-7 7\"/></svg>
+          </span>
+        </li>";
+          }
+          ?>
+        </ul>
+          </nav>
+        <?php endif; ?>
       </article>
       <!-- Animate.css CDN -->
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
