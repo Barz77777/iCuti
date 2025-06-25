@@ -322,7 +322,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
         });
       </script>
 
-      
+
 
       <!-- Modal Add Submission -->
       <div class="modal fade" id="submissionModal" tabindex="-1" aria-labelledby="submissionModalLabel" aria-hidden="true">
@@ -336,250 +336,309 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 
               <div class="modal-body">
 
-                <!-- NIP -->
-                <div class="mb-3">
-                  <label class="form-label">NIP</label>
-                  <input type="text" class="form-control" name="nip" required pattern="[0-9]+" inputmode="numeric" title="Masukkan Hanya angka">
+                <!-- Tabs Header -->
+                <ul class="nav nav-tabs" id="submissionTab" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual" type="button" role="tab">Manual Submission</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="csv-tab" data-bs-toggle="tab" data-bs-target="#csv" type="button" role="tab">Upload CSV</button>
+                  </li>
+                </ul>
+
+                <!-- Tabs Content -->
+                <div class="tab-content pt-3" id="submissionTabContent">
+
+                  <!-- Manual Submission Tab -->
+                    <div class="tab-pane fade show active" id="manual" role="tabpanel">
+                    <form action="proses_submission.php" method="POST" enctype="multipart/form-data" id="leaveForm">
+
+                      <!-- NIP -->
+                      <div class="mb-3">
+                      <label class="form-label">NIP</label>
+                      <input type="text" class="form-control" name="nip" required pattern="[0-9]+" inputmode="numeric">
+                      </div>
+
+                      <!-- Jabatan -->
+                      <div class="mb-3">
+                      <label class="form-label">Jabatan</label>
+                      <input type="text" class="form-control" name="jabatan" required>
+                      </div>
+
+                      <!-- Divisi -->
+                      <div class="mb-3">
+                      <label class="form-label">Divisi</label>
+                      <input type="text" class="form-control" name="divisi" required>
+                      </div>
+
+                      <!-- No HP -->
+                      <div class="mb-3">
+                      <label class="form-label">No. HP</label>
+                      <input type="text" class="form-control" name="no_hp" required pattern="[0-9]+" inputmode="numeric" title="Masukkan Hanya Angka">
+                      </div>
+
+                      <!-- Pengganti -->
+                      <div class="mb-3">
+                      <label class="form-label">Pengganti (Selama Cuti)</label>
+                      <input type="text" class="form-control" name="pengganti" required>
+                      </div>
+
+                      <!-- Jenis Cuti -->
+                      <div class="mb-3">
+                      <label class="form-label">Jenis Cuti</label>
+                      <select class="form-select" name="jenis_cuti" required>
+                        <option value="">-- Pilih Jenis Cuti --</option>
+                        <option value="Annual Leave">Annual Leave</option>
+                        <option value="Sick Leave">Sick Leave</option>
+                        <option value="Maternity Leave">Maternity Leave</option>
+                      </select>
+                      </div>
+
+                      <!-- Tanggal Mulai -->
+                      <div class="mb-3">
+                      <label class="form-label">Tanggal Mulai</label>
+                      <input type="date" class="form-control" name="tanggal_mulai" id="startDate" required>
+                      </div>
+
+                      <!-- Tanggal Akhir -->
+                      <div class="mb-3">
+                      <label class="form-label">Tanggal Akhir</label>
+                      <input type="date" class="form-control" name="tanggal_akhir" id="endDate" required>
+                      </div>
+
+                      <!-- Catatan -->
+                      <div class="mb-3">
+                      <label class="form-label">Catatan</label>
+                      <textarea class="form-control" name="catatan" rows="3" required></textarea>
+                      </div>
+
+
+                      <!-- ... (SEMUA FIELD lainnya tetap seperti sebelumnya) -->
+
+                      <!-- Upload Dokumen -->
+                      <div class="mb-3">
+                      <label class="form-label">Upload Dokumen (PDF/JPG/PNG)</label>
+                      <input type="file" class="form-control" name="dokumen" accept=".pdf,.jpg,.jpeg,.png" required>
+                      </div>
+
+                      <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-primary" style="background-color: #9AD914; border-color: #9AD914;">Submit</button>
+                      </div>
+                    </form>
+                    </div>
+
+                  <!-- Upload CSV Tab -->
+                  <div class="tab-pane fade" id="csv" role="tabpanel">
+                    <form action="upload-csv-batch.php" method="POST" enctype="multipart/form-data">
+                      <div class="mb-3">
+                        <label class="form-label">Upload File CSV</label>
+                        <input type="file" class="form-control" name="csv_file" accept=".csv" required>
+                      </div>
+                      <div class="mb-3">
+                        <a href="asset/template/template_pengajuan_cuti.csv" class="btn btn-outline-secondary">📥 Download Template CSV</a>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">Upload CSV</button>
+                      </div>
+                    </form>
+                  </div>
+
                 </div>
-
-                <!-- Jabatan -->
-                <div class="mb-3">
-                  <label class="form-label">Jabatan</label>
-                  <input type="text" class="form-control" name="jabatan" required>
-                </div>
-
-                <!-- Divisi -->
-                <div class="mb-3">
-                  <label class="form-label">Divisi</label>
-                  <input type="text" class="form-control" name="divisi" required>
-                </div>
-
-                <!-- No HP -->
-                <div class="mb-3">
-                  <label class="form-label">No. HP</label>
-                  <input type="text" class="form-control" name="no_hp" required pattern="[0-9]+" inputmode="numeric" title="Masukkan Hanya Angka">
-                </div>
-
-                <!-- Pengganti -->
-                <div class="mb-3">
-                  <label class="form-label">Pengganti (Selama Cuti)</label>
-                  <input type="text" class="form-control" name="pengganti" required>
-                </div>
-
-                <!-- Jenis Cuti -->
-                <div class="mb-3">
-                  <label class="form-label">Jenis Cuti</label>
-                  <select class="form-select" name="jenis_cuti" required>
-                    <option value="">-- Pilih Jenis Cuti --</option>
-                    <option value="Annual Leave">Annual Leave</option>
-                    <option value="Sick Leave">Sick Leave</option>
-                    <option value="Maternity Leave">Maternity Leave</option>
-                  </select>
-                </div>
-
-                <!-- Tanggal Mulai -->
-                <div class="mb-3">
-                  <label class="form-label">Tanggal Mulai</label>
-                  <input type="date" class="form-control" name="tanggal_mulai" id="startDate" required>
-                </div>
-
-                <!-- Tanggal Akhir -->
-                <div class="mb-3">
-                  <label class="form-label">Tanggal Akhir</label>
-                  <input type="date" class="form-control" name="tanggal_akhir" id="endDate" required>
-                </div>
-
-                <!-- Catatan -->
-                <div class="mb-3">
-                  <label class="form-label">Catatan</label>
-                  <textarea class="form-control" name="catatan" rows="3" required></textarea>
-                </div>
-
-                <!-- Dokumen -->
-                <div class="mb-3">
-                  <label class="form-label">Upload Dokumen (PDF/JPG/PNG)</label>
-                  <input type="file" class="form-control" name="dokumen" accept=".pdf,.jpg,.jpeg,.png" required>
-                </div>
-
-                 
-
-                <!-- created_at otomatis oleh database -->
               </div>
+          </div> <!-- Close modal-body -->
+        </div> <!-- Close modal-content -->
+      </div> <!-- Close modal-dialog -->
+  </div> <!-- Close modal -->
 
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary">Submit</button>
-              </div>
-            </form>
+  <?php if ($success): ?>
+    <!-- Success Modal (should be outside the form/modal structure) -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body text-center">
+            <h5 class="modal-title mb-3">✅ Pengajuan Berhasil</h5>
+            <p>Data cuti berhasil dikirim!</p>
+            <button type="button" class="btn btn-success mt-2" data-bs-dismiss="modal">Tutup</button>
           </div>
         </div>
       </div>
-
-      
-
-      <?php if ($success): ?>
-        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-body text-center">
-                <h5 class="modal-title mb-3">✅ Pengajuan Berhasil</h5>
-                <p>Data cuti berhasil dikirim!</p>
-                <button type="button" class="btn btn-success mt-2" data-bs-dismiss="modal">Tutup</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        
-
-        <script>
-          window.addEventListener('DOMContentLoaded', function() {
-            var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-            successModal.show();
-
-            // Hapus ?success=1 dari URL tanpa reload
-            const url = new URL(window.location);
-            url.searchParams.delete('success');
-            window.history.replaceState({}, document.title, url.toString());
-          });
-        </script>
-
-
-
-      <?php endif; ?>
-
-
-
-
-      <!-- Bootstrap JS (required for modal) -->
-      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    </main>
-
-    <!-- image preview -->
-    <div id="imageModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; transition:background 0.3s;">
-      <span onclick="closeModal()" style="position:absolute; top:30px; right:40px; color:white; font-size:2rem; cursor:pointer; z-index:10001; transition:color 0.2s;">&times;</span>
-      <img id="modalImg" src="" alt="Dokumen" style="max-width:95vw; max-height:90vh; display:block; margin:auto; border-radius:8px; opacity:0; transform:scale(0.85); transition:opacity 0.35s cubic-bezier(.4,2,.6,1), transform 0.35s cubic-bezier(.4,2,.6,1);">
     </div>
     <script>
-      function openModal(src) {
-        const modal = document.getElementById('imageModal');
-        const img = document.getElementById('modalImg');
-        img.src = src;
-        modal.style.display = 'flex';
-        setTimeout(() => {
-          img.style.opacity = '1';
-          img.style.transform = 'scale(1)';
-        }, 10);
-      }
+      window.addEventListener('DOMContentLoaded', function() {
+        var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+        successModal.show();
 
-      function closeModal() {
-        const modal = document.getElementById('imageModal');
-        const img = document.getElementById('modalImg');
-        img.style.opacity = '0';
-        img.style.transform = 'scale(0.85)';
-        setTimeout(() => {
-          modal.style.display = 'none';
-          img.src = '';
-        }, 350);
-      }
-      // Close modal on outside click
-      document.getElementById('imageModal').addEventListener('click', function(e) {
-        if (e.target === this) closeModal();
+        // Hapus ?success=1 dari URL tanpa reload
+        const url = new URL(window.location);
+        url.searchParams.delete('success');
+        window.history.replaceState({}, document.title, url.toString());
       });
     </script>
+  <?php endif; ?>
 
 
 
 
+  <!-- Bootstrap JS (required for modal) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </main>
 
-    <!-- mode dark dan light -->
+  <!-- image preview -->
+  <div id="imageModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; transition:background 0.3s;">
+    <span onclick="closeModal()" style="position:absolute; top:30px; right:40px; color:white; font-size:2rem; cursor:pointer; z-index:10001; transition:color 0.2s;">&times;</span>
+    <img id="modalImg" src="" alt="Dokumen" style="max-width:95vw; max-height:90vh; display:block; margin:auto; border-radius:8px; opacity:0; transform:scale(0.85); transition:opacity 0.35s cubic-bezier(.4,2,.6,1), transform 0.35s cubic-bezier(.4,2,.6,1);">
+  </div>
+  <script>
+    function openModal(src) {
+      const modal = document.getElementById('imageModal');
+      const img = document.getElementById('modalImg');
+      img.src = src;
+      modal.style.display = 'flex';
+      setTimeout(() => {
+        img.style.opacity = '1';
+        img.style.transform = 'scale(1)';
+      }, 10);
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('imageModal');
+      const img = document.getElementById('modalImg');
+      img.style.opacity = '0';
+      img.style.transform = 'scale(0.85)';
+      setTimeout(() => {
+        modal.style.display = 'none';
+        img.src = '';
+      }, 350);
+    }
+    // Close modal on outside click
+    document.getElementById('imageModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+  </script>
+
+  <!-- SweetAlert2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- massage CSV berhasil atau gagal -->
+  <?php if (isset($_GET['status'])): ?>
     <script>
-      const body = document.body;
-      const lightBtn = document.getElementById("lightBtn");
-      const darkBtn = document.getElementById("darkBtn");
-      const sidebar = document.querySelector(".sidebar");
-      const toggleContainer = document.querySelector(".toggle-container");
-      const savedSidebar = localStorage.getItem("sidebar-expanded");
-      // Saat halaman dimuat, ambil mode dari localStorage
-      const savedMode = localStorage.getItem("mode");
-      if (savedMode) {
-        document.body.classList.add(savedMode);
-      } else {
-        document.body.classList.add("light-mode"); // default mode
-      }
+      const status = "<?= $_GET['status'] ?>";
+      const msg = "<?= isset($_GET['msg']) ? urldecode($_GET['msg']) : '' ?>";
 
-
-      lightBtn.addEventListener("click", () => {
-        body.classList.remove("dark-mode");
-        body.classList.add("light-mode");
-        lightBtn.classList.add("active");
-        darkBtn.classList.remove("active");
-        localStorage.setItem("theme", "light");
-      });
-
-      darkBtn.addEventListener("click", () => {
-        body.classList.remove("light-mode");
-        body.classList.add("dark-mode");
-        lightBtn.classList.remove("active");
-        darkBtn.classList.add("active");
-        localStorage.setItem("theme", "dark");
-      });
-
-      function toggleProfileMenu() {
-        const dropdown = document.getElementById('profileDropdown');
-        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-      }
-
-      function logout() {
-        alert('Anda Telah Logout');
-        window.location.href = 'logout.php';
-      }
-
-      document.addEventListener('click', function(event) {
-        const profile = document.querySelector('.profile-toggle');
-        const dropdown = document.getElementById('profileDropdown');
-        if (!profile.contains(event.target)) {
-          dropdown.style.display = 'none';
+      document.addEventListener("DOMContentLoaded", function() {
+        if (status === "success") {
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Upload CSV berhasil dikirimkan.',
+            confirmButtonColor: '#9AD914'
+          });
+        } else if (status === "error") {
+          Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            html: `<pre style="text-align:left; white-space:pre-wrap;">${msg}</pre>`,
+            confirmButtonColor: '#d33'
+          });
         }
+
+        // Hapus query string agar tidak muncul ulang saat refresh
+        window.history.replaceState({}, document.title, "beranda-user-submission.php");
       });
     </script>
+  <?php endif; ?>
 
-    <!-- Validasi tanggal -->
-    <script>
-      document.getElementById('leaveForm').addEventListener('submit', function(e) {
-        const start = new Date(document.getElementById('startDate').value);
-        const end = new Date(document.getElementById('endDate').value);
-        if (end < start) {
-          e.preventDefault();
-          alert("Tanggal akhir tidak boleh sebelum tanggal mulai.");
+
+
+  <!-- mode dark dan light -->
+  <script>
+    const body = document.body;
+    const lightBtn = document.getElementById("lightBtn");
+    const darkBtn = document.getElementById("darkBtn");
+    const sidebar = document.querySelector(".sidebar");
+    const toggleContainer = document.querySelector(".toggle-container");
+    const savedSidebar = localStorage.getItem("sidebar-expanded");
+    // Saat halaman dimuat, ambil mode dari localStorage
+    const savedMode = localStorage.getItem("mode");
+    if (savedMode) {
+      document.body.classList.add(savedMode);
+    } else {
+      document.body.classList.add("light-mode"); // default mode
+    }
+
+
+    lightBtn.addEventListener("click", () => {
+      body.classList.remove("dark-mode");
+      body.classList.add("light-mode");
+      lightBtn.classList.add("active");
+      darkBtn.classList.remove("active");
+      localStorage.setItem("theme", "light");
+    });
+
+    darkBtn.addEventListener("click", () => {
+      body.classList.remove("light-mode");
+      body.classList.add("dark-mode");
+      lightBtn.classList.remove("active");
+      darkBtn.classList.add("active");
+      localStorage.setItem("theme", "dark");
+    });
+
+    function toggleProfileMenu() {
+      const dropdown = document.getElementById('profileDropdown');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function logout() {
+      alert('Anda Telah Logout');
+      window.location.href = 'logout.php';
+    }
+
+    document.addEventListener('click', function(event) {
+      const profile = document.querySelector('.profile-toggle');
+      const dropdown = document.getElementById('profileDropdown');
+      if (!profile.contains(event.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+  </script>
+
+  <!-- Validasi tanggal -->
+  <script>
+    document.getElementById('leaveForm').addEventListener('submit', function(e) {
+      const start = new Date(document.getElementById('startDate').value);
+      const end = new Date(document.getElementById('endDate').value);
+      if (end < start) {
+        e.preventDefault();
+        alert("Tanggal akhir tidak boleh sebelum tanggal mulai.");
+      }
+    });
+  </script>
+
+  <!-- Notif -->
+  <script>
+    document.getElementById('notifBtn').addEventListener('click', function() {
+      const panel = document.getElementById('notifPanel');
+      const audio = document.getElementById('notifSound');
+
+      panel.classList.toggle('hidden');
+
+      if (!panel.classList.contains('hidden')) {
+        panel.classList.remove('animate-notif');
+        void panel.offsetWidth; // restart animation
+        panel.classList.add('animate-notif');
+
+        if (audio) {
+          audio.play();
         }
-      });
-    </script>
+      }
+    });
+  </script>
 
-    <!-- Notif -->
-    <script>
-      document.getElementById('notifBtn').addEventListener('click', function() {
-        const panel = document.getElementById('notifPanel');
-        const audio = document.getElementById('notifSound');
-
-        panel.classList.toggle('hidden');
-
-        if (!panel.classList.contains('hidden')) {
-          panel.classList.remove('animate-notif');
-          void panel.offsetWidth; // restart animation
-          panel.classList.add('animate-notif');
-
-          if (audio) {
-            audio.play();
-          }
-        }
-      });
-    </script>
-
-    <?php if ($jumlahNotifBaru > 0): ?>
-      <audio id="notifSound" src="asset/notification.mp3" preload="auto"></audio>
-    <?php endif; ?>
+  <?php if ($jumlahNotifBaru > 0): ?>
+    <audio id="notifSound" src="asset/notification.mp3" preload="auto"></audio>
+  <?php endif; ?>
 
 
 </body>
