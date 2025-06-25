@@ -55,17 +55,42 @@ $leaveTakenTotal = $rowTaken['total'] ?? 0;
 // Sisa cuti
 $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
 
-// Ambil notifikasi untuk role 'admin'
-$sqlNotif = "SELECT * FROM notifications WHERE penerima_role = 'admin' ORDER BY created_at DESC LIMIT 10";
-$resNotif = $conn->query($sqlNotif);
-$notifs = $resNotif->fetch_all(MYSQLI_ASSOC);
+// --- Notifikasi untuk User (Karyawan) ketika pengajuan cuti disetujui/ditolak oleh atasan ---
 
-// Hitung jumlah notifikasi belum dibaca
-$sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = 'admin' AND status = 'unread'";
+// Cek apakah ada perubahan status pengajuan cuti untuk user ini (Disetujui/Ditolak) yang belum diberi notifikasi
+// Asumsi: Ada kolom 'notified' (TINYINT 0/1) di tabel cuti untuk menandai sudah/notif
+$cekCuti = $conn->query("SELECT id, status_pengajuan FROM cuti WHERE username = '$user' AND status_pengajuan IN ('Disetujui', 'Ditolak') AND (notified IS NULL OR notified = 0)");
+while ($cuti = $cekCuti->fetch_assoc()) {
+  $pesan = "Pengajuan cuti Anda telah " . strtolower($cuti['status_pengajuan']) . " oleh atasan.";
+
+  // Hanya satu kali penerima_role
+  $stmt = $conn->prepare("INSERT INTO notifications (penerima_role, pesan, status, created_at) VALUES ('user', ?, 'baru', NOW())");
+  $stmt->bind_param('s', $pesan);
+  $stmt->execute();
+
+  // Update agar cuti tidak di-notify lagi
+  $conn->query("UPDATE cuti SET notified = 1 WHERE id = " . (int)$cuti['id']);
+}
+
+
+// Tombol "Tandai semua dibaca" untuk user
+if (isset($_GET['read_all'])) {
+  $conn->query("UPDATE notifications SET status = 'dibaca' WHERE penerima_username = '$user' AND penerima_role = 'user'");
+  header("Location: beranda-user-overview.php");
+  exit();
+}
+
+// Ambil notifikasi baru untuk user
+$notifQuery = "SELECT * FROM notifications WHERE penerima_role = 'user' AND status = 'baru' ORDER BY created_at DESC";
+$notifResult = $conn->query($notifQuery);
+
+// Jumlah notifikasi baru untuk user
+$sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = '$user' AND penerima_role = 'user' AND status = 'baru'";
 $resJumlah = $conn->query($sqlJumlah);
+if (!$resJumlah) {
+  die("Error executing query: " . $conn->error);
+}
 $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
-
-
 ?>
 
 
@@ -191,35 +216,55 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
         </div>
-         <!-- Container relatif agar dropdown tidak ganggu layout -->
+        <!-- notif -->
         <div class="relative">
-          <!-- Tombol lonceng -->
           <button id="notifBtn" aria-label="Notifications" class="bg-white relative p-2 rounded-full hover:bg-lime-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-lime-400">
             <i class="bi bi-bell text-2xl text-gray-600 dark:text-gray-300"></i>
-            <?php if ($jumlahNotifBaru > 0): ?>
-              <span class="absolute top-1 right-1 inline-block w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+            <?php if ($notifResult->num_rows > 0): ?>
+              <span id="notifDot" class="absolute top-2 right-2 inline-block w-3 h-3 bg-red-500 rounded-full"></span>
             <?php endif; ?>
           </button>
-
-          <!-- Panel Dropdown Notifikasi -->
-          <div id="notifPanel" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto animate-fade-slide">
-            <div class="p-4 border-b font-semibold text-gray-700 dark:text-white">Notifications</div>
-            <?php if (count($notifs) > 0): ?>
-              <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-                <?php foreach ($notifs as $notif): ?>
-                  <li class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <p class="text-sm font-medium"><?= htmlspecialchars($notif['judul']) ?></p>
-                    <p class="text-xs text-gray-500"><?= htmlspecialchars($notif['pesan']) ?></p>
-                    <p class="text-xs text-gray-400 italic"><?= date("d M Y H:i", strtotime($notif['created_at'])) ?></p>
+          <div id="notifDropdown" class="notifikasi bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md absolute right-0 mt-2 w-96 z-50" style="display:none;">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Notifikasi Pengajuan Cuti</h2>
+              <a href="?read_all=true" class="text-sm text-blue-600 hover:underline">Tandai semua dibaca</a>
+            </div>
+            <ul>
+              <?php if ($notifResult->num_rows > 0): ?>
+                <?php while ($row = $notifResult->fetch_assoc()): ?>
+                  <li class="mb-2 border-b pb-1 text-gray-700 dark:text-gray-300">
+                    <?= htmlspecialchars($row['pesan']) ?>
+                    <br><small class="text-gray-500"><?= $row['created_at'] ?></small>
                   </li>
-                <?php endforeach; ?>
-              </ul>
-            <?php else: ?>
-              <p class="p-3 text-sm text-gray-500">No new notifications.</p>
-            <?php endif; ?>
+                <?php endwhile; ?>
+              <?php else: ?>
+                <li class="text-gray-500 italic">Tidak ada notifikasi baru</li>
+              <?php endif; ?>
+            </ul>
           </div>
         </div>
       </header>
+
+      <script>
+        // Toggle notification dropdown
+        const notifBtn = document.getElementById('notifBtn');
+        const notifDropdown = document.getElementById('notifDropdown');
+        notifBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          notifDropdown.style.display = notifDropdown.style.display === 'none' || notifDropdown.style.display === '' ? 'block' : 'none';
+          // Sembunyikan dot merah saat dropdown dibuka
+          const notifDot = document.getElementById('notifDot');
+          if (notifDropdown.style.display === 'block' && notifDot) {
+            notifDot.style.display = 'none';
+          }
+        });
+        document.addEventListener('click', function(e) {
+          if (!notifDropdown.contains(e.target) && e.target !== notifBtn) {
+            notifDropdown.style.display = 'none';
+          }
+        });
+      </script>
+
       <section class="rounded-3xl p-6 shadow-md text-white max-w-4xl" style="background: linear-gradient(135deg, #2D5938 0%, #334036 100%);">
         <h1 class="text-3xl font-bold mb-2 animate-text delay-1">Hello, <?= ($user) ?> <span class="inline-block animate-wave"></span></h1>
         <p class="text-lg font-light animate-text delay-2">How are you feeling about your leave today?</p>
@@ -264,7 +309,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 
         <!-- Leave Type -->
         <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md flex flex-col justify-between initial-hidden" data-title="Leave Limit">
-            <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Leave Limit</h2>
+          <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Leave Limit</h2>
           </header>
           <div class="relative h-36 w-full flex flex-col items-center justify-center">
             <span class="text-5xl font-extrabold text-lime-600"><?= $leaveRemaining ?></span>
@@ -414,7 +459,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
     });
   </script>
 
- <!-- Notif -->
+  <!-- Notif -->
   <script>
     document.getElementById('notifBtn').addEventListener('click', function() {
       const panel = document.getElementById('notifPanel');

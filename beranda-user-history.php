@@ -47,14 +47,41 @@ if ($result && mysqli_num_rows($result) > 0) {
     }
 }
 
-// Ambil notifikasi untuk role 'admin'
-$sqlNotif = "SELECT * FROM notifications WHERE penerima_role = 'admin' ORDER BY created_at DESC LIMIT 10";
-$resNotif = $conn->query($sqlNotif);
-$notifs = $resNotif->fetch_all(MYSQLI_ASSOC);
+// --- Notifikasi untuk User (Karyawan) ketika pengajuan cuti disetujui/ditolak oleh atasan ---
 
-// Hitung jumlah notifikasi belum dibaca
-$sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = 'admin' AND status = 'unread'";
+// Cek apakah ada perubahan status pengajuan cuti untuk user ini (Disetujui/Ditolak) yang belum diberi notifikasi
+// Asumsi: Ada kolom 'notified' (TINYINT 0/1) di tabel cuti untuk menandai sudah/notif
+$cekCuti = $conn->query("SELECT id, status_pengajuan FROM cuti WHERE username = '$user' AND status_pengajuan IN ('Disetujui', 'Ditolak') AND (notified IS NULL OR notified = 0)");
+while ($cuti = $cekCuti->fetch_assoc()) {
+    $pesan = "Pengajuan cuti Anda telah " . strtolower($cuti['status_pengajuan']) . " oleh atasan.";
+
+    // Hanya satu kali penerima_role
+    $stmt = $conn->prepare("INSERT INTO notifications (penerima_role, pesan, status, created_at) VALUES ('user', ?, 'baru', NOW())");
+    $stmt->bind_param('s', $pesan);
+    $stmt->execute();
+
+    // Update agar cuti tidak di-notify lagi
+    $conn->query("UPDATE cuti SET notified = 1 WHERE id = " . (int)$cuti['id']);
+}
+
+
+// Tombol "Tandai semua dibaca" untuk user
+if (isset($_GET['read_all'])) {
+    $conn->query("UPDATE notifications SET status = 'dibaca' WHERE penerima_username = '$user' AND penerima_role = 'user'");
+    header("Location: beranda-user-overview.php");
+    exit();
+}
+
+// Ambil notifikasi baru untuk user
+$notifQuery = "SELECT * FROM notifications WHERE penerima_role = 'user' AND status = 'baru' ORDER BY created_at DESC";
+$notifResult = $conn->query($notifQuery);
+
+// Jumlah notifikasi baru untuk user
+$sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = '$user' AND penerima_role = 'user' AND status = 'baru'";
 $resJumlah = $conn->query($sqlJumlah);
+if (!$resJumlah) {
+    die("Error executing query: " . $conn->error);
+}
 $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 
 // Otomatis update status cuti
@@ -80,22 +107,22 @@ mysqli_query($conn, "
     <script src="https://cdn.tailwindcss.com"></script>
     <title>iCuti</title>
     <style>
-    @keyframes notifSlideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px) scale(0.95);
-      }
+        @keyframes notifSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
 
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
 
-    .animate-notif {
-      animation: notifSlideIn 0.3s ease-out forwards;
-    }
-  </style>
+        .animate-notif {
+            animation: notifSlideIn 0.3s ease-out forwards;
+        }
+    </style>
 </head>
 
 <body>
@@ -145,47 +172,65 @@ mysqli_query($conn, "
             <header class="flex items-center justify-between space-x-4">
                 <div class="flex-grow relative max-w-lg">
                     <form method="GET" action="" class="w-full relative max-w-lg">
-                <input type="search" name="q" value="<?= isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>" 
-                    aria-label="Search anything here"
-                    placeholder="Search anything here"
-                    class="box-shadow w-full rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-2 pl-10 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-500" />
-                <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
-                    <circle cx="11" cy="11" r="7" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-            </form>
+                        <input type="search" name="q" value="<?= isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>"
+                            aria-label="Search anything here"
+                            placeholder="Search anything here"
+                            class="box-shadow w-full rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-2 pl-10 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-500" />
+                        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                    </form>
                 </div>
 
-                <!-- Container relatif agar dropdown tidak ganggu layout -->
-        <div class="relative">
-          <!-- Tombol lonceng -->
-          <button id="notifBtn" aria-label="Notifications" class="bg-white relative p-2 rounded-full hover:bg-lime-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-lime-400">
-            <i class="bi bi-bell text-2xl text-gray-600 dark:text-gray-300"></i>
-            <?php if ($jumlahNotifBaru > 0): ?>
-              <span class="absolute top-1 right-1 inline-block w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-            <?php endif; ?>
-          </button>
-
-          <!-- Panel Dropdown Notifikasi -->
-          <div id="notifPanel" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto animate-fade-slide">
-            <div class="p-4 border-b font-semibold text-gray-700 dark:text-white">Notifications</div>
-            <?php if (count($notifs) > 0): ?>
-              <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-                <?php foreach ($notifs as $notif): ?>
-                  <li class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <p class="text-sm font-medium"><?= htmlspecialchars($notif['judul']) ?></p>
-                    <p class="text-xs text-gray-500"><?= htmlspecialchars($notif['pesan']) ?></p>
-                    <p class="text-xs text-gray-400 italic"><?= date("d M Y H:i", strtotime($notif['created_at'])) ?></p>
-                  </li>
-                <?php endforeach; ?>
-              </ul>
-            <?php else: ?>
-              <p class="p-3 text-sm text-gray-500">No new notifications.</p>
-            <?php endif; ?>
-          </div>
-        </div>
+                <!-- notif -->
+                <div class="relative">
+                    <button id="notifBtn" aria-label="Notifications" class="bg-white relative p-2 rounded-full hover:bg-lime-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-lime-400">
+                        <i class="bi bi-bell text-2xl text-gray-600 dark:text-gray-300"></i>
+                        <?php if ($notifResult->num_rows > 0): ?>
+                            <span id="notifDot" class="absolute top-2 right-2 inline-block w-3 h-3 bg-red-500 rounded-full"></span>
+                        <?php endif; ?>
+                    </button>
+                    <div id="notifDropdown" class="notifikasi bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md absolute right-0 mt-2 w-96 z-50" style="display:none;">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Notifikasi Pengajuan Cuti</h2>
+                            <a href="?read_all=true" class="text-sm text-blue-600 hover:underline">Tandai semua dibaca</a>
+                        </div>
+                        <ul>
+                            <?php if ($notifResult->num_rows > 0): ?>
+                                <?php while ($row = $notifResult->fetch_assoc()): ?>
+                                    <li class="mb-2 border-b pb-1 text-gray-700 dark:text-gray-300">
+                                        <?= htmlspecialchars($row['pesan']) ?>
+                                        <br><small class="text-gray-500"><?= $row['created_at'] ?></small>
+                                    </li>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <li class="text-gray-500 italic">Tidak ada notifikasi baru</li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                </div>
             </header>
 
+            <script>
+                // Toggle notification dropdown
+                const notifBtn = document.getElementById('notifBtn');
+                const notifDropdown = document.getElementById('notifDropdown');
+                notifBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    notifDropdown.style.display = notifDropdown.style.display === 'none' || notifDropdown.style.display === '' ? 'block' : 'none';
+                    // Sembunyikan dot merah saat dropdown dibuka
+                    const notifDot = document.getElementById('notifDot');
+                    if (notifDropdown.style.display === 'block' && notifDot) {
+                        notifDot.style.display = 'none';
+                    }
+                });
+                document.addEventListener('click', function(e) {
+                    if (!notifDropdown.contains(e.target) && e.target !== notifBtn) {
+                        notifDropdown.style.display = 'none';
+                    }
+                });
+            </script>
 
             <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md h-fit animate__animated animate__fadeIn" style="--animate-duration: 1.2s;">
                 <header class="mb-4 flex justify-between items-center">
@@ -193,7 +238,7 @@ mysqli_query($conn, "
                 </header>
 
 
-                
+
 
                 <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
                     <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -233,7 +278,7 @@ mysqli_query($conn, "
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_akhir']) ?></td>
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['catatan']) ?></td>
                                         <?php if (!empty($c['dokumen'])): ?>
-                                        <?php $dokumen_path = 'uploads/' . urlencode($c['dokumen']); ?>
+                                            <?php $dokumen_path = 'uploads/' . urlencode($c['dokumen']); ?>
                                             <td class="px-5 py-3 whitespace-nowrap">
                                                 <a href="<?= $dokumen_path ?>" target="_blank">📄 Buka</a>
                                             </td>
@@ -242,27 +287,27 @@ mysqli_query($conn, "
                                         <?php endif; ?>
                                         <td class="px-5 py-3 whitespace-nowrap">
                                             <?php
-                                                $status = $c['status_pengajuan'];
-                                                $statusClass = '';
-                                                $statusText = '';
+                                            $status = $c['status_pengajuan'];
+                                            $statusClass = '';
+                                            $statusText = '';
 
-                                                if ($status === 'Disetujui') {
-                                                    $statusClass = 'border-green-400 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300';
-                                                    $statusText = 'Disetujui';
-                                                } elseif ($status === 'Ditolak') {
-                                                    $statusClass = 'border-red-400 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300';
-                                                    $statusText = 'Ditolak';
-                                                } elseif ($status === 'Selesai') {
-                                                    $statusClass = 'border-blue-400 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300';
-                                                    $statusText = 'Selesai';
-                                                } else {
-                                                    // fallback jika status tidak dikenali
-                                                    $statusClass = 'border-gray-300 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-300';
-                                                    $statusText = htmlspecialchars($status);
-                                                }
+                                            if ($status === 'Disetujui') {
+                                                $statusClass = 'border-green-400 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300';
+                                                $statusText = 'Disetujui';
+                                            } elseif ($status === 'Ditolak') {
+                                                $statusClass = 'border-red-400 bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300';
+                                                $statusText = 'Ditolak';
+                                            } elseif ($status === 'Selesai') {
+                                                $statusClass = 'border-blue-400 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300';
+                                                $statusText = 'Selesai';
+                                            } else {
+                                                // fallback jika status tidak dikenali
+                                                $statusClass = 'border-gray-300 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-300';
+                                                $statusText = htmlspecialchars($status);
+                                            }
 
 
-                                                echo "<span class='inline-block px-3 py-1 border $statusClass rounded-full text-xs font-semibold'>$statusText</span>";
+                                            echo "<span class='inline-block px-3 py-1 border $statusClass rounded-full text-xs font-semibold'>$statusText</span>";
                                             ?>
                                         </td>
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_disetujui']) ?></td>
@@ -344,29 +389,29 @@ mysqli_query($conn, "
             });
         </script>
 
-         <!-- Notif -->
-  <script>
-    document.getElementById('notifBtn').addEventListener('click', function() {
-      const panel = document.getElementById('notifPanel');
-      const audio = document.getElementById('notifSound');
+        <!-- Notif -->
+        <script>
+            document.getElementById('notifBtn').addEventListener('click', function() {
+                const panel = document.getElementById('notifPanel');
+                const audio = document.getElementById('notifSound');
 
-      panel.classList.toggle('hidden');
+                panel.classList.toggle('hidden');
 
-      if (!panel.classList.contains('hidden')) {
-        panel.classList.remove('animate-notif');
-        void panel.offsetWidth; // restart animation
-        panel.classList.add('animate-notif');
+                if (!panel.classList.contains('hidden')) {
+                    panel.classList.remove('animate-notif');
+                    void panel.offsetWidth; // restart animation
+                    panel.classList.add('animate-notif');
 
-        if (audio) {
-          audio.play();
-        }
-      }
-    });
-  </script>
+                    if (audio) {
+                        audio.play();
+                    }
+                }
+            });
+        </script>
 
-  <?php if ($jumlahNotifBaru > 0): ?>
-    <audio id="notifSound" src="asset/notification.mp3" preload="auto"></audio>
-  <?php endif; ?>
+        <?php if ($jumlahNotifBaru > 0): ?>
+            <audio id="notifSound" src="asset/notification.mp3" preload="auto"></audio>
+        <?php endif; ?>
 
 </body>
 

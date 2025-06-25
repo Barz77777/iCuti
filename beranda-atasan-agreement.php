@@ -10,14 +10,32 @@ if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
 $user = $_SESSION['user'];
 $role = $_SESSION['role'];
 
-// Ambil notifikasi untuk role 'admin'
+// Tombol "Tandai semua dibaca"
+if (isset($_GET['read_all'])) {
+    $conn->query("UPDATE notifications SET status = 'dibaca' WHERE penerima_role = 'admin'");
+    header("Location: beranda-atasan-overview.php");
+    exit();
+}
+
+// Ambil notifikasi baruz
+$notifQuery = "SELECT * FROM notifications WHERE penerima_role = 'admin' AND status = 'baru' ORDER BY created_at DESC";
+$notifResult = $conn->query($notifQuery);
+
+
+// === 1. NOTIFIKASI UNTUK ATASAN ===
 $sqlNotif = "SELECT * FROM notifications WHERE penerima_role = 'admin' ORDER BY created_at DESC LIMIT 10";
 $resNotif = $conn->query($sqlNotif);
+if ($resNotif === false) {
+    die("Error executing query: " . $conn->error);
+}
 $notifs = $resNotif->fetch_all(MYSQLI_ASSOC);
 
-// Hitung jumlah notifikasi belum dibaca
-$sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = 'admin' AND status = 'unread'";
+// Pastikan status konsisten: gunakan 'baru' untuk jumlah notifikasi baru
+$sqlJumlah = "SELECT COUNT(*) as total FROM notifications WHERE penerima_role = 'atasan' AND status = 'baru'";
 $resJumlah = $conn->query($sqlJumlah);
+if (!$resJumlah) {
+    die("Error executing query: " . $conn->error);
+}
 $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 
 ?>
@@ -47,23 +65,23 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <title>iCuti</title>
-     <style>
-    @keyframes notifSlideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px) scale(0.95);
-      }
+    <style>
+        @keyframes notifSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
 
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
 
-    .animate-notif {
-      animation: notifSlideIn 0.3s ease-out forwards;
-    }
-  </style>
+        .animate-notif {
+            animation: notifSlideIn 0.3s ease-out forwards;
+        }
+    </style>
 </head>
 
 <body>
@@ -113,7 +131,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
             <header class="flex items-center justify-between space-x-4">
                 <div class="flex-grow relative max-w-lg">
                     <form method="GET" action="" class="w-full relative max-w-lg">
-                        <input type="search" name="q" value="<?= isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>" 
+                        <input type="search" name="q" value="<?= isset($_GET['q']) ? htmlspecialchars($_GET['q']) : '' ?>"
                             aria-label="Search anything here"
                             placeholder="Search anything here"
                             class="box-shadow w-full rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-2 pl-10 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-500" />
@@ -122,39 +140,56 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                             <line x1="21" y1="21" x2="16.65" y2="16.65" />
                         </svg>
                     </form>
-                                    </div>
+                </div>
 
-                 <!-- Container relatif agar dropdown tidak ganggu layout -->
-        <div class="relative">
-          <!-- Tombol lonceng -->
-          <button id="notifBtn" aria-label="Notifications" class="bg-white relative p-2 rounded-full hover:bg-lime-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-lime-400">
-            <i class="bi bi-bell text-2xl text-gray-600 dark:text-gray-300"></i>
-            <?php if ($jumlahNotifBaru > 0): ?>
-              <span class="absolute top-1 right-1 inline-block w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-            <?php endif; ?>
-          </button>
-
-          <!-- Panel Dropdown Notifikasi -->
-          <div id="notifPanel" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto animate-fade-slide">
-            <div class="p-4 border-b font-semibold text-gray-700 dark:text-white">Notifications</div>
-            <?php if (count($notifs) > 0): ?>
-              <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-                <?php foreach ($notifs as $notif): ?>
-                  <li class="p-3 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <p class="text-sm font-medium"><?= htmlspecialchars($notif['judul']) ?></p>
-                    <p class="text-xs text-gray-500"><?= htmlspecialchars($notif['pesan']) ?></p>
-                    <p class="text-xs text-gray-400 italic"><?= date("d M Y H:i", strtotime($notif['created_at'])) ?></p>
-                  </li>
-                <?php endforeach; ?>
-              </ul>
-            <?php else: ?>
-              <p class="p-3 text-sm text-gray-500">No new notifications.</p>
-            <?php endif; ?>
-          </div>
-        </div>
-
-                
+                <!-- Container relatif agar dropdown tidak ganggu layout -->
+                <!-- Panel Dropdown Notifikasi -->
+                <div class="relative">
+                    <button id="notifBtn" aria-label="Notifications" class="bg-white relative p-2 rounded-full hover:bg-lime-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-lime-400">
+                        <i class="bi bi-bell text-2xl text-gray-600 dark:text-gray-300"></i>
+                        <?php if ($notifResult->num_rows > 0): ?>
+                            <span id="notifDot" class="absolute top-2 right-2 inline-block w-3 h-3 bg-red-500 rounded-full"></span>
+                        <?php endif; ?>
+                    </button>
+                    <div id="notifDropdown" class="notifikasi bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md absolute right-0 mt-2 w-96 z-50" style="display:none;">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Notifikasi Pengajuan Cuti</h2>
+                            <a href="?read_all=true" class="text-sm text-blue-600 hover:underline">Tandai semua dibaca</a>
+                        </div>
+                        <ul>
+                            <?php if ($notifResult->num_rows > 0): ?>
+                                <?php while ($row = $notifResult->fetch_assoc()): ?>
+                                    <li class="mb-2 border-b pb-1 text-gray-700 dark:text-gray-300">
+                                        <?= htmlspecialchars($row['pesan']) ?>
+                                        <br><small class="text-gray-500"><?= $row['created_at'] ?></small>
+                                    </li>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <li class="text-gray-500 italic">Tidak ada notifikasi baru</li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                </div>
             </header>
+            <script>
+                // Toggle notification dropdown
+                const notifBtn = document.getElementById('notifBtn');
+                const notifDropdown = document.getElementById('notifDropdown');
+                notifBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    notifDropdown.style.display = notifDropdown.style.display === 'none' || notifDropdown.style.display === '' ? 'block' : 'none';
+                    // Sembunyikan dot merah saat dropdown dibuka
+                    const notifDot = document.getElementById('notifDot');
+                    if (notifDropdown.style.display === 'block' && notifDot) {
+                        notifDot.style.display = 'none';
+                    }
+                });
+                document.addEventListener('click', function(e) {
+                    if (!notifDropdown.contains(e.target) && e.target !== notifBtn) {
+                        notifDropdown.style.display = 'none';
+                    }
+                });
+            </script>
 
             <!-- Tabel  -->
             <?php
@@ -181,8 +216,8 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
             $result = mysqli_query($conn, $query);
 
             $cuti = [];
-                while ($row = mysqli_fetch_assoc($result)) {
-            $cuti[] = $row;
+            while ($row = mysqli_fetch_assoc($result)) {
+                $cuti[] = $row;
             }
 
 
@@ -195,11 +230,11 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 
                 <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
                     <?php if (isset($_GET['notif'])): ?>
-                <div class="p-4 mb-4 text-sm text-white rounded-lg 
+                        <div class="p-4 mb-4 text-sm text-white rounded-lg 
                     <?= $_GET['notif'] === 'Disetujui' ? 'bg-green-500' : 'bg-red-500' ?>">
-                    Permohonan berhasil <?= htmlspecialchars($_GET['notif']) ?>.
-                </div>
-            <?php endif; ?>
+                            Permohonan berhasil <?= htmlspecialchars($_GET['notif']) ?>.
+                        </div>
+                    <?php endif; ?>
 
                     <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg">
                         <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914;">
@@ -220,7 +255,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                             </tr>
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            
+
                             <?php foreach ($cuti as $c): ?>
                                 <tr>
                                     <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['username']) ?></td>
@@ -234,22 +269,22 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                                     <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_akhir']) ?></td>
                                     <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['catatan']) ?></td>
                                     <?php if (!empty($c['dokumen'])): ?>
-                                    <?php $dokumen_path = 'uploads/' . urlencode($c['dokumen']); ?>
-                                    <td class="px-5 py-3 whitespace-nowrap">
-                                        <a href="<?= $dokumen_path ?>" target="_blank">📄 Buka</a>
-                                    </td>
+                                        <?php $dokumen_path = 'uploads/' . urlencode($c['dokumen']); ?>
+                                        <td class="px-5 py-3 whitespace-nowrap">
+                                            <a href="<?= $dokumen_path ?>" target="_blank">📄 Buka</a>
+                                        </td>
                                     <?php else: ?>
                                         <td class="px-5 py-3 whitespace-nowrap"><em>Tidak ada</em></td>
                                     <?php endif; ?>
-                                        <td class="px-5 py-3 whitespace-nowrap">
-                                            <form method="post" action="proses_approval.php" class="flex gap-2">
-                                                <input type="hidden" name="cuti_id" value="<?= $c['id'] ?>">
-                                                <button type="submit" name="aksi" value="setujui" class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-full text-xs font-semibold">Setujui</button>
-                                                <button type="submit" name="aksi" value="tolak" class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs font-semibold">Tolak</button>
-                                            </form>
+                                    <td class="px-5 py-3 whitespace-nowrap">
+                                        <form method="post" action="proses_approval.php" class="flex gap-2">
+                                            <input type="hidden" name="cuti_id" value="<?= $c['id'] ?>">
+                                            <button type="submit" name="aksi" value="setujui" class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-full text-xs font-semibold">Setujui</button>
+                                            <button type="submit" name="aksi" value="tolak" class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs font-semibold">Tolak</button>
+                                        </form>
                                     </td>
                                     <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['created_at']) ?></td>
-                                    
+
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -270,7 +305,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                     }
                 });
             </script>
-            
+
             <!-- Bootstrap JS (required for modal) -->
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -330,28 +365,28 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
         </script>
 
         <!-- Notif -->
-  <script>
-    document.getElementById('notifBtn').addEventListener('click', function() {
-      const panel = document.getElementById('notifPanel');
-      const audio = document.getElementById('notifSound');
+        <script>
+            document.getElementById('notifBtn').addEventListener('click', function() {
+                const panel = document.getElementById('notifPanel');
+                const audio = document.getElementById('notifSound');
 
-      panel.classList.toggle('hidden');
+                panel.classList.toggle('hidden');
 
-      if (!panel.classList.contains('hidden')) {
-        panel.classList.remove('animate-notif');
-        void panel.offsetWidth; // restart animation
-        panel.classList.add('animate-notif');
+                if (!panel.classList.contains('hidden')) {
+                    panel.classList.remove('animate-notif');
+                    void panel.offsetWidth; // restart animation
+                    panel.classList.add('animate-notif');
 
-        if (audio) {
-          audio.play();
-        }
-      }
-    });
-  </script>
+                    if (audio) {
+                        audio.play();
+                    }
+                }
+            });
+        </script>
 
-  <?php if ($jumlahNotifBaru > 0): ?>
-    <audio id="notifSound" src="asset/notification.mp3" preload="auto"></audio>
-  <?php endif; ?>
+        <?php if ($jumlahNotifBaru > 0): ?>
+            <audio id="notifSound" src="asset/notification.mp3" preload="auto"></audio>
+        <?php endif; ?>
 
 </body>
 
