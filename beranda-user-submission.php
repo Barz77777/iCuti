@@ -350,66 +350,72 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                 <div class="tab-content pt-3" id="submissionTabContent">
 
                   <!-- Manual Submission Tab -->
-                    <div class="tab-pane fade show active" id="manual" role="tabpanel">
+                  <div class="tab-pane fade show active" id="manual" role="tabpanel">
                     <form action="proses_submission.php" method="POST" enctype="multipart/form-data" id="leaveForm">
 
                       <!-- NIP -->
                       <div class="mb-3">
-                      <label class="form-label">NIP</label>
-                      <input type="text" class="form-control" name="nip" required pattern="[0-9]+" inputmode="numeric">
+                        <label class="form-label">NIP</label>
+                        <input type="text" class="form-control" name="nip" required pattern="[0-9]+" inputmode="numeric">
                       </div>
 
                       <!-- Jabatan -->
                       <div class="mb-3">
-                      <label class="form-label">Jabatan</label>
-                      <input type="text" class="form-control" name="jabatan" required>
+                        <label class="form-label">Jabatan</label>
+                        <input type="text" class="form-control" name="jabatan" required>
                       </div>
 
                       <!-- Divisi -->
                       <div class="mb-3">
-                      <label class="form-label">Divisi</label>
-                      <input type="text" class="form-control" name="divisi" required>
+                        <label class="form-label">Divisi</label>
+                        <input type="text" class="form-control" name="divisi" required>
                       </div>
 
                       <!-- No HP -->
                       <div class="mb-3">
-                      <label class="form-label">No. HP</label>
-                      <input type="text" class="form-control" name="no_hp" required pattern="[0-9]+" inputmode="numeric" title="Masukkan Hanya Angka">
+                        <label class="form-label">No. HP</label>
+                        <input type="text" class="form-control" name="no_hp" required pattern="[0-9]+" inputmode="numeric" title="Masukkan Hanya Angka">
                       </div>
 
                       <!-- Pengganti -->
                       <div class="mb-3">
-                      <label class="form-label">Pengganti (Selama Cuti)</label>
-                      <input type="text" class="form-control" name="pengganti" required>
+                        <label class="form-label">Pengganti (Selama Cuti)</label>
+                        <input type="text" class="form-control" name="pengganti" required>
                       </div>
 
                       <!-- Jenis Cuti -->
                       <div class="mb-3">
-                      <label class="form-label">Jenis Cuti</label>
-                      <select class="form-select" name="jenis_cuti" required>
-                        <option value="">-- Pilih Jenis Cuti --</option>
-                        <option value="Annual Leave">Annual Leave</option>
-                        <option value="Sick Leave">Sick Leave</option>
-                        <option value="Maternity Leave">Maternity Leave</option>
-                      </select>
+                        <label class="form-label">Jenis Cuti</label>
+                        <select class="form-select" name="jenis_cuti" required>
+                          <option value="">-- Pilih Jenis Cuti --</option>
+                          <option value="Annual Leave">Annual Leave</option>
+                          <option value="Sick Leave">Sick Leave</option>
+                          <option value="Maternity Leave">Maternity Leave</option>
+                        </select>
                       </div>
 
                       <!-- Tanggal Mulai -->
                       <div class="mb-3">
-                      <label class="form-label">Tanggal Mulai</label>
-                      <input type="date" class="form-control" name="tanggal_mulai" id="startDate" required>
+                        <label class="form-label">Tanggal Mulai</label>
+                        <input type="date" class="form-control" name="tanggal_mulai" id="startDate" required>
                       </div>
 
                       <!-- Tanggal Akhir -->
                       <div class="mb-3">
-                      <label class="form-label">Tanggal Akhir</label>
-                      <input type="date" class="form-control" name="tanggal_akhir" id="endDate" required>
+                        <label class="form-label">Tanggal Akhir</label>
+                        <input type="date" class="form-control" name="tanggal_akhir" id="endDate" required>
+                      </div>
+
+                      <!-- Info Sisa Cuti -->
+                      <div class="mb-3">
+                        <label class="form-label">Sisa Cuti</label>
+                        <input type="text" class="form-control" id="sisaCuti" readonly>
                       </div>
 
                       <!-- Catatan -->
                       <div class="mb-3">
-                      <label class="form-label">Catatan</label>
-                      <textarea class="form-control" name="catatan" rows="3" required></textarea>
+                        <label class="form-label">Catatan</label>
+                        <textarea class="form-control" name="catatan" rows="3" required></textarea>
                       </div>
 
 
@@ -417,16 +423,16 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 
                       <!-- Upload Dokumen -->
                       <div class="mb-3">
-                      <label class="form-label">Upload Dokumen (PDF/JPG/PNG)</label>
-                      <input type="file" class="form-control" name="dokumen" accept=".pdf,.jpg,.jpeg,.png" required>
+                        <label class="form-label">Upload Dokumen (PDF/JPG/PNG)</label>
+                        <input type="file" class="form-control" name="dokumen" accept=".pdf,.jpg,.jpeg,.png" required>
                       </div>
 
                       <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                      <button type="submit" class="btn btn-primary" style="background-color: #9AD914; border-color: #9AD914;">Submit</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" style="background-color: #9AD914; border-color: #9AD914;">Submit</button>
                       </div>
                     </form>
-                    </div>
+                  </div>
 
                   <!-- Upload CSV Tab -->
                   <div class="tab-pane fade" id="csv" role="tabpanel">
@@ -478,8 +484,48 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
     </script>
   <?php endif; ?>
 
+<!-- code sisa cuti atau validasi kalender -->
+  <script>
+    const maxCuti = 15;
 
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+    const sisaCutiInput = document.getElementById('sisaCuti');
 
+    // Set tanggal minimal (hari ini)
+    const today = new Date().toISOString().split('T')[0];
+    startDate.setAttribute('min', today);
+    endDate.setAttribute('min', today);
+
+    function hitungSisaCuti() {
+      const start = new Date(startDate.value);
+      const end = new Date(endDate.value);
+
+      if (startDate.value && endDate.value && end >= start) {
+        const diffTime = end - start;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+        if (diffDays > maxCuti) {
+          alert("Cuti tidak boleh lebih dari 15 hari!");
+          endDate.value = "";
+          sisaCutiInput.value = "";
+        } else {
+          const sisa = maxCuti - diffDays;
+          sisaCutiInput.value = `${sisa} hari tersisa dari 15 hari cuti tahunan`;
+        }
+      } else {
+        sisaCutiInput.value = "";
+      }
+    }
+
+    startDate.addEventListener('change', () => {
+      // Set tanggal akhir tidak bisa lebih awal dari tanggal mulai
+      endDate.setAttribute('min', startDate.value);
+      hitungSisaCuti();
+    });
+
+    endDate.addEventListener('change', hitungSisaCuti);
+  </script>
 
   <!-- Bootstrap JS (required for modal) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
