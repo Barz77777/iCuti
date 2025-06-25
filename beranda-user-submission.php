@@ -251,12 +251,24 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                   echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['tanggal_mulai']) . "</td>";
                   echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['tanggal_akhir']) . "</td>";
                   echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['catatan']) . "</td>";
+
                   // Link buka dokumen
-                  if (!empty($row['dokumen'])) {
-                    $dokumen_path = 'uploads/' . urlencode($row['dokumen']);
-                    echo "<td><a href='$dokumen_path' target='_blank'>📄 Buka</a></td>";
+                  $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                  $dokumen = $row['dokumen'] ?? '';
+                  $dokumen_path = 'uploads/' . urlencode($dokumen);
+                  $file_ext = strtolower(pathinfo($dokumen, PATHINFO_EXTENSION));
+                  $is_image = in_array($file_ext, $allowed_extensions);
+
+                  if (!empty($dokumen) && file_exists($dokumen_path)) {
+                    echo "<td class='px-5 py-3 whitespace-nowrap'>";
+                    if ($is_image) {
+                      echo "<button type=\"button\" onclick=\"openModal('$dokumen_path')\" class=\"text-blue-600 hover:underline\">🖼️ Lihat</button>";
+                    } else {
+                      echo "<a href=\"$dokumen_path\" target=\"_blank\" class=\"text-blue-600 hover:underline\">📄 Buka</a>";
+                    }
+                    echo "</td>";
                   } else {
-                    echo "<td><em>Tidak ada</em></td>";
+                    echo "<td class='px-5 py-3 whitespace-nowrap text-gray-400'>-</td>";
                   }
 
                   // status badge
@@ -307,6 +319,8 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
           }
         });
       </script>
+
+
 
       <!-- Modal Add Submission -->
       <div class="modal fade" id="submissionModal" tabindex="-1" aria-labelledby="submissionModalLabel" aria-hidden="true">
@@ -435,6 +449,39 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </main>
+
+    <!-- image preview -->
+    <div id="imageModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; transition:background 0.3s;">
+      <span onclick="closeModal()" style="position:absolute; top:30px; right:40px; color:white; font-size:2rem; cursor:pointer; z-index:10001; transition:color 0.2s;">&times;</span>
+      <img id="modalImg" src="" alt="Dokumen" style="max-width:95vw; max-height:90vh; display:block; margin:auto; border-radius:8px; opacity:0; transform:scale(0.85); transition:opacity 0.35s cubic-bezier(.4,2,.6,1), transform 0.35s cubic-bezier(.4,2,.6,1);">
+    </div>
+    <script>
+      function openModal(src) {
+        const modal = document.getElementById('imageModal');
+        const img = document.getElementById('modalImg');
+        img.src = src;
+        modal.style.display = 'flex';
+        setTimeout(() => {
+          img.style.opacity = '1';
+          img.style.transform = 'scale(1)';
+        }, 10);
+      }
+
+      function closeModal() {
+        const modal = document.getElementById('imageModal');
+        const img = document.getElementById('modalImg');
+        img.style.opacity = '0';
+        img.style.transform = 'scale(0.85)';
+        setTimeout(() => {
+          modal.style.display = 'none';
+          img.src = '';
+        }, 350);
+      }
+      // Close modal on outside click
+      document.getElementById('imageModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+      });
+    </script>
 
 
 

@@ -267,10 +267,25 @@ mysqli_query($conn, "
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_mulai']) ?></td>
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['tanggal_akhir']) ?></td>
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['catatan']) ?></td>
-                                        <?php if (!empty($c['dokumen'])): ?>
-                                            <?php $dokumen_path = 'uploads/' . urlencode($c['dokumen']); ?>
+                                        <?php
+                                        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                                        $dokumen = $c['dokumen'] ?? '';
+                                        $dokumen_path = 'uploads/' . urlencode($dokumen);
+                                        $file_ext = strtolower(pathinfo($dokumen, PATHINFO_EXTENSION));
+                                        $is_image = in_array($file_ext, $allowed_extensions);
+                                        ?>
+
+                                        <?php if (!empty($dokumen) && file_exists($dokumen_path)): ?>
                                             <td class="px-5 py-3 whitespace-nowrap">
-                                                <a href="<?= $dokumen_path ?>" target="_blank">📄 Buka</a>
+                                                <?php if ($is_image): ?>
+                                                    <button type="button" onclick="openModal('<?= $dokumen_path ?>')" class="text-blue-600 hover:underline">
+                                                        🖼️ Lihat
+                                                    </button>
+                                                <?php else: ?>
+                                                    <a href="<?= $dokumen_path ?>" target="_blank" class="text-blue-600 hover:underline">
+                                                        📄 Buka
+                                                    </a>
+                                                <?php endif; ?>
                                             </td>
                                         <?php else: ?>
                                             <td class="px-5 py-3 whitespace-nowrap"><em>Tidak ada</em></td>
@@ -325,6 +340,39 @@ mysqli_query($conn, "
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         </main>
+
+        <!-- image preview -->
+        <div id="imageModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; transition:background 0.3s;">
+            <span onclick="closeModal()" style="position:absolute; top:30px; right:40px; color:white; font-size:2rem; cursor:pointer; z-index:10001; transition:color 0.2s;">&times;</span>
+            <img id="modalImg" src="" alt="Dokumen" style="max-width:95vw; max-height:90vh; display:block; margin:auto; border-radius:8px; opacity:0; transform:scale(0.85); transition:opacity 0.35s cubic-bezier(.4,2,.6,1), transform 0.35s cubic-bezier(.4,2,.6,1);">
+        </div>
+        <script>
+            function openModal(src) {
+                const modal = document.getElementById('imageModal');
+                const img = document.getElementById('modalImg');
+                img.src = src;
+                modal.style.display = 'flex';
+                setTimeout(() => {
+                    img.style.opacity = '1';
+                    img.style.transform = 'scale(1)';
+                }, 10);
+            }
+
+            function closeModal() {
+                const modal = document.getElementById('imageModal');
+                const img = document.getElementById('modalImg');
+                img.style.opacity = '0';
+                img.style.transform = 'scale(0.85)';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    img.src = '';
+                }, 350);
+            }
+            // Close modal on outside click
+            document.getElementById('imageModal').addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+        </script>
 
 
         <!-- mode dark dan light -->
