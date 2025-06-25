@@ -75,7 +75,7 @@ while ($cuti = $cekCuti->fetch_assoc()) {
 
 // Tombol "Tandai semua dibaca" untuk user
 if (isset($_GET['read_all'])) {
-  $conn->query("UPDATE notifications SET status = 'dibaca' WHERE penerima_username = '$user' AND penerima_role = 'user'");
+  $conn->query("UPDATE notifications SET status = 'dibaca' WHERE  penerima_role = 'user'");
   header("Location: beranda-user-overview.php");
   exit();
 }

@@ -13,7 +13,7 @@ $role = $_SESSION['role'];
 // Tombol "Tandai semua dibaca"
 if (isset($_GET['read_all'])) {
     $conn->query("UPDATE notifications SET status = 'dibaca' WHERE penerima_role = 'admin'");
-    header("Location: beranda-atasan-overview.php");
+    header("Location: beranda-atasan-agreement.php");
     exit();
 }
 
@@ -255,7 +255,11 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                             </tr>
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-
+                            <?php if(empty($cuti)): ?>
+                                <tr>
+                                    <td colspan="12" class="text-center py-4 text-gray-400">Belum ada data pengajuan.</td>
+                                </tr>
+                            <?php else: ?>
                             <?php foreach ($cuti as $c): ?>
                                 <tr>
                                     <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['username']) ?></td>
@@ -302,6 +306,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 
                                 </tr>
                             <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>

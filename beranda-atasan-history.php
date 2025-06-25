@@ -49,7 +49,7 @@ if ($result && mysqli_num_rows($result) > 0) {
 // Tombol "Tandai semua dibaca"
 if (isset($_GET['read_all'])) {
     $conn->query("UPDATE notifications SET status = 'dibaca' WHERE penerima_role = 'admin'");
-    header("Location: beranda-atasan-overview.php");
+    header("Location: beranda-atasan-history.php");
     exit();
 }
 
@@ -245,6 +245,7 @@ mysqli_query($conn, "
                                 <th class="px-5 py-3">Tanggal Akhir</th>
                                 <th class="px-5 py-3">Catatan</th>
                                 <th class="px-5 py-3">Dokumen</th>
+                                <th class="px-5 py-3">CSV</th>
                                 <th class="px-5 py-3">Status</th>
                                 <th class="px-5 py-3">Tanggal Konfirmasi</th>
                             </tr>
@@ -252,7 +253,7 @@ mysqli_query($conn, "
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             <?php if (empty($history)): ?>
                                 <tr>
-                                    <td colspan="8" class="text-center py-4 text-gray-400">Belum ada data history.</td>
+                                    <td colspan="12" class="text-center py-4 text-gray-400">Belum ada data history.</td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($history as $c): ?>

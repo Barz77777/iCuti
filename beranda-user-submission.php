@@ -33,8 +33,8 @@ while ($cuti = $cekCuti->fetch_assoc()) {
 
 // Tombol "Tandai semua dibaca" untuk user
 if (isset($_GET['read_all'])) {
-  $conn->query("UPDATE notifications SET status = 'dibaca' WHERE penerima_username = '$user' AND penerima_role = 'user'");
-  header("Location: beranda-user-overview.php");
+  $conn->query("UPDATE notifications SET status = 'dibaca' WHERE  penerima_role = 'user'");
+  header("Location: beranda-user-submission.php");
   exit();
 }
 
@@ -188,6 +188,8 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
       <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md h-fit animate__animated animate__fadeIn" style="--animate-duration: 1.2s;">
         <header class="mb-4 flex justify-between items-center">
           <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Received data</h2>
+
+          <!-- Tombol untuk buka modal -->
           <button
             type="button"
             data-bs-toggle="modal"
@@ -299,7 +301,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                   echo "</tr>";
                 }
               } else {
-                echo "<tr><td colspan='10' class='px-5 py-3 text-center text-gray-500'>Belum ada data cuti.</td></tr>";
+                echo "<tr><td colspan='12' class='px-5 py-3 text-center text-gray-500'>Belum ada data cuti.</td></tr>";
               }
               ?>
             </tbody>
@@ -320,7 +322,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
         });
       </script>
 
-
+      
 
       <!-- Modal Add Submission -->
       <div class="modal fade" id="submissionModal" tabindex="-1" aria-labelledby="submissionModalLabel" aria-hidden="true">
@@ -399,7 +401,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                   <input type="file" class="form-control" name="dokumen" accept=".pdf,.jpg,.jpeg,.png" required>
                 </div>
 
-
+                 
 
                 <!-- created_at otomatis oleh database -->
               </div>
@@ -413,6 +415,8 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
         </div>
       </div>
 
+      
+
       <?php if ($success): ?>
         <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered">
@@ -425,6 +429,8 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
             </div>
           </div>
         </div>
+
+        
 
         <script>
           window.addEventListener('DOMContentLoaded', function() {

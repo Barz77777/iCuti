@@ -67,8 +67,8 @@ while ($cuti = $cekCuti->fetch_assoc()) {
 
 // Tombol "Tandai semua dibaca" untuk user
 if (isset($_GET['read_all'])) {
-    $conn->query("UPDATE notifications SET status = 'dibaca' WHERE penerima_username = '$user' AND penerima_role = 'user'");
-    header("Location: beranda-user-overview.php");
+    $conn->query("UPDATE notifications SET status = 'dibaca' WHERE penerima_role = 'user'");
+    header("Location: beranda-user-history.php");
     exit();
 }
 
@@ -262,7 +262,7 @@ mysqli_query($conn, "
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             <?php if (empty($history)): ?>
                                 <tr>
-                                    <td colspan="8" class="text-center py-4 text-gray-400">Belum ada data history.</td>
+                                    <td colspan="12" class="text-center py-4 text-gray-400">Belum ada data history.</td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($history as $c): ?>
