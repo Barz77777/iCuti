@@ -118,7 +118,7 @@ mysqli_query($conn, "
     <div class="layout">
         <div class="sidebar">
             <!-- Logo -->
-            <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="asset/user-avatar.png">
+            <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="asset/default-avatar.png">
                 <span class="text-icon">Profile</span>
                 <i class="menu bi bi-list"></i>
             </div>

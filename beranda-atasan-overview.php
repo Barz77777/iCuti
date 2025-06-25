@@ -168,7 +168,7 @@ while ($row = $resType->fetch_assoc()) {
   <div class="layout">
     <div class="sidebar sticky top-10">
       <!-- Logo -->
-      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="asset/user-avatar.png" alt="User Avatar">
+      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="asset/default-avatar.png" alt="User Avatar">
         <span class="text-icon">Profile</span>
         <i class="menu bi bi-list"></i>
       </div>
