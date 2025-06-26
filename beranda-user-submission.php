@@ -547,7 +547,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
   </div> <!-- Close modal -->
 
   <?php if ($success): ?>
-    <!-- Success Modal (should be outside the form/modal structure) -->
+    <!-- succes modal -->
     <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
