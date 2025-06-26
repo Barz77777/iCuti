@@ -48,24 +48,7 @@ if (isset($_SESSION['user'])) {
   &copy; 2025 iCuti
 </footer>
 
-<script>
-  const menuToggleBtn = document.querySelector('.mobile-menu-toggle');
-  const mobileMenu = document.getElementById('mobile-menu');
-
-  menuToggleBtn.addEventListener('click', () => {
-    const expanded = menuToggleBtn.getAttribute('aria-expanded') === 'true' || false;
-    menuToggleBtn.setAttribute('aria-expanded', !expanded);
-    mobileMenu.classList.toggle('show');
-  });
-
-  // Close mobile menu on window resize if desktop layout
-  window.addEventListener('resize', () => {
-    if(window.innerWidth >= 768) {
-      mobileMenu.classList.remove('show');
-      menuToggleBtn.setAttribute('aria-expanded', false);
-    }
-  });
-</script>
+  
 </body>
 </html>
 

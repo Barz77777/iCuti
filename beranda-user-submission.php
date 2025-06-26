@@ -13,10 +13,7 @@ require 'db_connection.php';
 $user = $_SESSION['user'];
 $role = $_SESSION['role'];
 
-// --- Notifikasi untuk User (Karyawan) ketika pengajuan cuti disetujui/ditolak oleh atasan ---
-
-// Cek apakah ada perubahan status pengajuan cuti untuk user ini (Disetujui/Ditolak) yang belum diberi notifikasi
-// Asumsi: Ada kolom 'notified' (TINYINT 0/1) di tabel cuti untuk menandai sudah/notif
+// Notifikasi untuk user ketika pengajuan cuti disetujui/ditolak oleh atasan
 $cekCuti = $conn->query("SELECT id, status_pengajuan FROM cuti WHERE username = '$user' AND status_pengajuan IN ('Disetujui', 'Ditolak') AND (notified IS NULL OR notified = 0)");
 while ($cuti = $cekCuti->fetch_assoc()) {
   $pesan = "Pengajuan cuti Anda telah " . strtolower($cuti['status_pengajuan']) . " oleh atasan.";
