@@ -300,13 +300,26 @@ mysqli_query($conn, "
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($row['tanggal_mulai']) ?></td>
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($row['tanggal_akhir']) ?></td>
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($row['catatan']) ?></td>
-                                        <td class="px-5 py-3 whitespace-nowrap">
-                                            <?php if (!empty($row['dokumen'])): ?>
-                                                <a href="#" onclick="openModal('<?= htmlspecialchars($row['dokumen']) ?>'); return false;" class="text-blue-600 hover:underline">Lihat</a>
-                                            <?php else: ?>
-                                                <span class="text-gray-400">-</span>
-                                            <?php endif; ?>
-                                        </td>
+                                            <?php
+                                            $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                                            $dokumen = $row['dokumen'] ?? '';
+                                            $dokumen_path = 'uploads/' . urlencode($dokumen);
+                                            $file_ext = strtolower(pathinfo($dokumen, PATHINFO_EXTENSION));
+                                            $is_image = in_array($file_ext, $allowed_extensions);
+
+                                            if (!empty($dokumen) && file_exists($dokumen_path)) {
+                                            echo "
+                                        <td class='px-5 py-3 whitespace-nowrap'>";
+                                            if ($is_image) {
+                                            echo "<button type=\"button\" onclick=\"openModal('$dokumen_path')\" class=\"text-blue-600 hover:underline\">🖼️ Lihat</button>";
+                                            } else {
+                                            echo "<a href=\"$dokumen_path\" target=\"_blank\" class=\"text-blue-600 hover:underline\">📄 Buka</a>";
+                                            }
+                                            echo "</td>";
+                                        } else {
+                                        echo "<td class='px-5 py-3 whitespace-nowrap text-gray-400'>-</td>";
+                                        }
+                                        ?>
                                         <td class="px-5 py-3 whitespace-nowrap">
                                             <?php
                                             $status = $row['status_pengajuan'];
