@@ -149,6 +149,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                         <i class="bi bi-bell text-2xl text-gray-600 dark:text-gray-300"></i>
                         <?php if ($notifResult->num_rows > 0): ?>
                             <span id="notifDot" class="absolute top-2 right-2 inline-block w-3 h-3 bg-red-500 rounded-full"></span>
+                        <?php endif; ?>
                     </button>
                     <div id="notifDropdown" class="notifikasi bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md absolute right-0 mt-2 w-96 z-50" style="display:none;">
                         <div class="flex justify-between items-center mb-4">
@@ -375,7 +376,6 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                         ?>
                     </ul>
                 </nav>
-            <?php endif; ?>
             </article>
 
             <!-- Animate.css CDN -->
