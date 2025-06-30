@@ -47,6 +47,23 @@ if (!$resJumlah) {
 }
 $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 
+// Total jatah
+$leaveLimitTotal = 0;
+$qLeaveLimit = "SELECT SUM(jatah) AS total FROM cuti_limit WHERE username = '$user'";
+$resLimit = $conn->query($qLeaveLimit);
+$row = $resLimit->fetch_assoc();
+$leaveLimitTotal = $row['total'] ?? 0;
+
+// Total yang sudah diambil (disetujui)
+$leaveTakenTotal = 0;
+$qTaken = "SELECT SUM(DATEDIFF(tanggal_akhir, tanggal_mulai) + 1) AS total FROM cuti WHERE username = '$user' AND status_pengajuan = 'Disetujui'";
+$resTaken = $conn->query($qTaken);
+$rowTaken = $resTaken->fetch_assoc();
+$leaveTakenTotal = $rowTaken['total'] ?? 0;
+
+// Sisa cuti
+$leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -195,7 +212,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
         onmouseover="this.style.background='#24482d';"
         onmouseout="this.style.background='#2D5938';">
         <span class="flex items-center gap-1">
-          <i class="bi bi-plus-circle-fill text-lg"></i>
+          <i class="bi bi-plus-circle text-lg"></i>
           Add Submission
           <svg class="ml-2 w-5 h-5 text-white group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -230,7 +247,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
         // Get total rows for pagination
         $countResult = mysqli_query($conn, "SELECT COUNT(*) as total $baseQuery");
         $totalRows = $countResult ? (int)mysqli_fetch_assoc($countResult)['total'] : 0;
-        $totalPages = ceil($totalRows / $perPage);
+        $totalPages = ceil($totalRows / $perPage);  
 
         // Get paginated data
         $query = "SELECT * $baseQuery ORDER BY created_at DESC LIMIT $perPage OFFSET $offset";
@@ -282,7 +299,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
           echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['catatan'] ?? '-') . "</td>";
 
           // Dokumen
-          $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+          $allowed_extensions = ['pdf','jpg', 'jpeg', 'png', 'gif', 'webp'];
           $dokumen = $row['dokumen'] ?? '';
           $dokumen_path = 'uploads/' . urlencode($dokumen);
           $file_ext = strtolower(pathinfo($dokumen, PATHINFO_EXTENSION));
@@ -496,7 +513,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 
                       <!-- Info Sisa Cuti -->
                       <div class="mb-3">
-                        <label class="form-label">Sisa Cuti</label>
+                        <label class="form-label">Batas Hari Cuti</label>
                         <input type="text" class="form-control" id="sisaCuti" readonly>
                       </div>
 
@@ -505,9 +522,6 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                         <label class="form-label">Catatan</label>
                         <textarea class="form-control" name="catatan" rows="3" required></textarea>
                       </div>
-
-
-                      <!-- ... (SEMUA FIELD lainnya tetap seperti sebelumnya) -->
 
                       <!-- Upload Dokumen -->
                       <div class="mb-3">
@@ -574,46 +588,65 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 
 <!-- code sisa cuti atau validasi kalender -->
   <script>
-    const maxCuti = 15;
+  const maxCuti = <?= $leaveRemaining ?>;
 
-    const startDate = document.getElementById('startDate');
-    const endDate = document.getElementById('endDate');
-    const sisaCutiInput = document.getElementById('sisaCuti');
+  const startDate = document.getElementById('startDate');
+  const endDate = document.getElementById('endDate');
+  const sisaCutiInput = document.getElementById('sisaCuti');
 
-    // Set tanggal minimal (hari ini)
-    const today = new Date().toISOString().split('T')[0];
-    startDate.setAttribute('min', today);
-    endDate.setAttribute('min', today);
+  // Set tanggal minimal (hari ini)
+  const today = new Date().toISOString().split('T')[0];
+  startDate.setAttribute('min', today);
+  endDate.setAttribute('min', today);
 
-    function hitungSisaCuti() {
-      const start = new Date(startDate.value);
-      const end = new Date(endDate.value);
+  // Fungsi format tanggal ke YYYY-MM-DD
+  function formatDate(date) {
+    return date.toISOString().split('T')[0];
+  }
 
-      if (startDate.value && endDate.value && end >= start) {
-        const diffTime = end - start;
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  // Fungsi menghitung sisa cuti
+  function hitungSisaCuti() {
+    const start = new Date(startDate.value);
+    const end = new Date(endDate.value);
 
-        if (diffDays > maxCuti) {
-          alert("Cuti tidak boleh lebih dari 15 hari!");
-          endDate.value = "";
-          sisaCutiInput.value = "";
-        } else {
-          const sisa = maxCuti - diffDays;
-          sisaCutiInput.value = `${sisa} hari tersisa dari 15 hari cuti tahunan`;
-        }
-      } else {
+    if (startDate.value && endDate.value && end >= start) {
+      const diffTime = end - start;
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+      if (diffDays > maxCuti) {
+        alert(`Cuti tidak boleh lebih dari ${maxCuti} hari!`);
+        endDate.value = "";
         sisaCutiInput.value = "";
+      } else {
+        const sisa = maxCuti - diffDays;
+        sisaCutiInput.value = `Sisa cuti: ${sisa} dari ${maxCuti} hari`;
       }
+    } else {
+      sisaCutiInput.value = "";
     }
+  }
 
-    startDate.addEventListener('change', () => {
-      // Set tanggal akhir tidak bisa lebih awal dari tanggal mulai
-      endDate.setAttribute('min', startDate.value);
-      hitungSisaCuti();
-    });
+  // Saat tanggal mulai diubah
+  startDate.addEventListener('change', () => {
+    if (!startDate.value) return; 
 
-    endDate.addEventListener('change', hitungSisaCuti);
-  </script>
+    const start = new Date(startDate.value);
+
+    // Atur minimal tanggal akhir = tanggal mulai
+    endDate.setAttribute('min', startDate.value);
+
+    // Hitung dan atur tanggal maksimal akhir = start + (maxCuti - 1)
+    const maxEnd = new Date(start);
+    maxEnd.setDate(maxEnd.getDate() + maxCuti - 1);
+    endDate.setAttribute('max', formatDate(maxEnd));
+
+    hitungSisaCuti();
+  });
+
+  // Saat tanggal akhir diubah
+  endDate.addEventListener('change', hitungSisaCuti);
+</script>
+
 
   <!-- Bootstrap JS (required for modal) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -734,18 +767,6 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
       const dropdown = document.getElementById('profileDropdown');
       if (!profile.contains(event.target)) {
         dropdown.style.display = 'none';
-      }
-    });
-  </script>
-
-  <!-- Validasi tanggal -->
-  <script>
-    document.getElementById('leaveForm').addEventListener('submit', function(e) {
-      const start = new Date(document.getElementById('startDate').value);
-      const end = new Date(document.getElementById('endDate').value);
-      if (end < start) {
-        e.preventDefault();
-        alert("Tanggal akhir tidak boleh sebelum tanggal mulai.");
       }
     });
   </script>
