@@ -1,6 +1,8 @@
 <?php
  session_start();
 
+//  define('BASE_URL', '/projects/iCuti/');
+
 // Konfigurasi LDAP
 $ldap_server = "ldap://172.10.10.70";
 $ldap_port = 389;
@@ -55,9 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $_SESSION['role'] = $is_admin ? 'admin' : 'user';
 
                     if ($is_admin) {
-                        header("Location: beranda-atasan-overview.php");
+                        header("Location: /projects/iCuti/app/view/admin/beranda-atasan-overview.php");
                     } else {
-                        header("Location: beranda-user-overview.php");
+                        header("Location: /projects/iCuti/app/view/user/beranda-user-overview.php");
                     }
                     exit();
                 } else {
@@ -88,6 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 
 <body>
+    <p>VistaTraining1@2025</p>
     <main>
         <div class="login-container">
             <div class="image-side">

@@ -2,14 +2,14 @@
 session_start();
 
 if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'user') {
-  header("Location: index.php");
+  header("Location: /projects/iCuti/public/index.php");
   exit();
 }
 
 $user = $_SESSION['user'];
 $role = $_SESSION['role'];
 
-include 'db_connection.php';
+include '../../../config/db_connection.php';
 
 // 1. Labels bulan
 $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -100,11 +100,11 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="asset/iC.png">
+  <link rel="icon" href="/projects/iCuti/public/asset/iC.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style/beranda-atasan-overview.css" />
+  <link rel="stylesheet" href="/projects/iCuti/public/style/beranda-atasan-overview.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <title>iCuti</title>
 
@@ -173,13 +173,13 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
         <p class="user-role"><?= ($role) ?></p>
       </div>
     </div>
-    <button class="logout-btn" onclick="window.location.href='logout.php';">Logout</button>
+    <button class="logout-btn" onclick="window.location.href='/projects/iCuti/public/logout.php';">Logout</button>
   </div>
 
   <div class="layout">
     <div class="sidebar sticky top-10">
       <!-- Logo -->
-      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="asset/user-avatar.png" alt="User Avatar">
+      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="/projects/iCuti/public/asset/user-avatar.png" alt="User Avatar">
         <span class="text-icon">Profile</span>
         <i class="menu bi bi-list"></i>
       </div>

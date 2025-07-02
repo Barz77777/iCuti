@@ -4,11 +4,11 @@ session_start();
 $success = isset($_GET['success']) && $_GET['success'] == 1;
 
 if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'user') {
-  header("Location: index.php");
+  header("Location: /projects/iCuti/public/index.php");
   exit();
 }
 
-require 'db_connection.php';
+require '../../../config/db_connection.php';
 
 $user = $_SESSION['user'];
 $role = $_SESSION['role'];
@@ -71,11 +71,11 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="asset/iC.png">
+  <link rel="icon" href="/projects/iCuti/public/asset/iC.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style/beranda-user-submission.css" />
+  <link rel="stylesheet" href="/projects/iCuti/public/style/beranda-user-submission.css" />
   <script>
     tailwind.config = {
       theme: {
@@ -97,7 +97,7 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
   <div class="layout">
     <div class="sidebar">
       <!-- Logo -->
-      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="asset/user-avatar.png">
+      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="/projects/iCuti/public/asset/user-avatar.png">
         <span class="text-icon">Profile</span>
         <i class="menu bi bi-list"></i>
       </div>
@@ -109,7 +109,7 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
             <p class="user-role"><?= ($role) ?></p>
           </div>
         </div>
-        <button class="logout-btn" onclick="window.location.href='logout.php';">Logout</button>
+        <button class="logout-btn" onclick="window.location.href='/projects/iCuti/public/logout.php';">Logout</button>
       </div>
 
       <!-- Menu Icons -->
@@ -233,6 +233,7 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
         $baseQuery = "FROM cuti WHERE username = '$user'";
         if (!empty($search)) {
           $baseQuery .= " AND (
+        username LIKE '%$search%' OR
         pengganti LIKE '%$search%' OR 
         jenis_cuti LIKE '%$search%' OR 
         status_pengajuan LIKE '%$search%' OR
@@ -301,7 +302,7 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
           // Dokumen
           $allowed_extensions = ['pdf','jpg', 'jpeg', 'png', 'gif', 'webp'];
           $dokumen = $row['dokumen'] ?? '';
-          $dokumen_path = 'uploads/' . urlencode($dokumen);
+          $dokumen_path = '../../../public/uploads/' . urlencode($dokumen);
           $file_ext = strtolower(pathinfo($dokumen, PATHINFO_EXTENSION));
           $is_image = in_array($file_ext, $allowed_extensions);
 
@@ -433,7 +434,7 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
       <div class="modal fade" id="submissionModal" tabindex="-1" aria-labelledby="submissionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
-            <form action="proses_submission.php" method="POST" enctype="multipart/form-data" id="leaveForm">
+            <form action="/projects/iCuti/app/controller/proses_submission.php" method="POST" enctype="multipart/form-data" id="leaveForm">
               <div class="modal-header">
                 <h5 class="modal-title" id="submissionModalLabel">Add Leave Submission</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'db_connection.php';
+include '../../config/db_connection.php';
 date_default_timezone_set('Asia/Jakarta');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cuti_id'], $_POST['aksi'])) {
@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cuti_id'], $_POST['ak
     mysqli_stmt_bind_param($stmt, 'ssi', $status, $tanggal, $id);
 
     if (mysqli_stmt_execute($stmt)) {
-        header("Location: beranda-atasan-agreement.php?notif=$status");
+        header("Location: /projects/iCuti/app/view/admin/beranda-atasan-agreement.php?notif=$status");
         exit();
     } else {
         echo "Gagal memperbarui data.";
