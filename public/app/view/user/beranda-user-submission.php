@@ -278,11 +278,8 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
             </thead>
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               <?php while ($row = mysqli_fetch_assoc($result)):
-<<<<<<< HEAD:app/view/user/beranda-user-submission.php
                 $dokumen_path = '../../../public/uploads/' . urlencode($row['dokumen']);
-=======
                 $dokumen_path = '../../../uploads/' . urlencode($row['dokumen']);
->>>>>>> 624784f (docker file):public/app/view/user/beranda-user-submission.php
                 $is_image = in_array(pathinfo($row['dokumen'], PATHINFO_EXTENSION), ['jpg', 'png', 'webp', 'jpeg']);
               ?>
                 <tr>
