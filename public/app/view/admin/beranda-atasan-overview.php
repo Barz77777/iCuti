@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
-  header("Location: /projects/iCuti/public/index.php");
+  header("Location: /index.php");
   exit();
 }
 
@@ -14,7 +14,7 @@ include '../../../config/db_connection.php';
 // Tombol "Tandai semua dibaca"
 if (isset($_GET['read_all'])) {
   $conn->query("UPDATE notifications SET status = 'dibaca' WHERE penerima_role = 'admin'");
-  header("Location: /projects/iCuti/app/view/admin/beranda-atasan-overview.php");
+  header("Location: /app/view/admin/beranda-atasan-overview.php");
   exit();
 }
 
@@ -90,11 +90,11 @@ while ($row = $resType->fetch_assoc()) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/projects/iCuti/public/asset/iC.png">
+  <link rel="icon" href="/asset/iC.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/projects/iCuti/public/style/beranda-atasan-overview.css" />
+  <link rel="stylesheet" href="/style/beranda-atasan-overview.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <title>iCuti</title>
 
@@ -160,14 +160,14 @@ while ($row = $resType->fetch_assoc()) {
         <p class="user-role"><?= ($role) ?></p>
       </div>
     </div>
-    <button class="logout-btn" onclick="window.location.href='/projects/iCuti/public/logout.php';">Logout</button>
+    <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
   </div>
 
 
   <div class="layout">
     <div class="sidebar">
       <!-- Logo -->
-      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="/projects/iCuti/public/asset/default-avatar.png" alt="User Avatar">
+      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="/asset/default-avatar.png" alt="User Avatar">
         <span class="text-icon">Profile</span>
         <i class="menu bi bi-list"></i>
       </div>
@@ -445,7 +445,7 @@ while ($row = $resType->fetch_assoc()) {
 
         function logout() {
           alert('Anda Telah Logout');
-          window.location.href = '/projects/iCuti/public/logout.php';
+          window.location.href = '/logout.php';
         }
 
         document.addEventListener('click', function(event) {

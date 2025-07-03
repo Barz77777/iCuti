@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cuti_id'], $_POST['ak
     mysqli_stmt_bind_param($stmt, 'ssi', $status, $tanggal, $id);
 
     if (mysqli_stmt_execute($stmt)) {
-        header("Location: /projects/iCuti/app/view/admin/beranda-atasan-agreement.php?notif=$status");
+        header("Location: /app/view/admin/beranda-atasan-agreement.php?notif=$status");
         exit();
     } else {
         echo "Gagal memperbarui data.";

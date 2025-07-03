@@ -6,10 +6,10 @@ if (isset($_SESSION['user'])) {
   $role = $_SESSION['role'];
 
   if ($role === 'admin') {
-    header("Location: beranda-atasan-overview.php");
+    header("Location: /app/view/admin/beranda-atasan-overview.php");
     exit();
   } elseif ($role === 'user') {
-    header("Location: beranda-user-overview.php");
+    header("Location: /app/view/user/beranda-user-overview.php");
     exit();
   } else {
     header("Location: index.php");

@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'user') {
-  header("Location: /projects/iCuti/public/index.php");
+  header("Location: /index.php");
   exit();
 }
 
@@ -59,6 +59,7 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
 
 // Cek apakah ada perubahan status pengajuan cuti untuk user ini (Disetujui/Ditolak) yang belum diberi notifikasi
 // Asumsi: Ada kolom 'notified' (TINYINT 0/1) di tabel cuti untuk menandai sudah/notif
+date_default_timezone_set('Asia/Jakarta');
 $cekCuti = $conn->query("SELECT id, status_pengajuan FROM cuti WHERE username = '$user' AND status_pengajuan IN ('Disetujui', 'Ditolak') AND (notified IS NULL OR notified = 0)");
 while ($cuti = $cekCuti->fetch_assoc()) {
   $pesan = "Pengajuan cuti Anda telah " . strtolower($cuti['status_pengajuan']) . " oleh atasan.";
@@ -100,11 +101,11 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="/projects/iCuti/public/asset/iC.png">
+  <link rel="icon" href="/asset/iC.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/projects/iCuti/public/style/beranda-atasan-overview.css" />
+  <link rel="stylesheet" href="/style/beranda-atasan-overview.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <title>iCuti</title>
 
@@ -173,7 +174,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
         <p class="user-role"><?= ($role) ?></p>
       </div>
     </div>
-    <button class="logout-btn" onclick="window.location.href='/projects/iCuti/public/logout.php';">Logout</button>
+    <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
   </div>
 
   <div class="layout">
@@ -181,13 +182,21 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
       <!-- Logo -->
       <!-- Mobile/desktop profile icon -->
       <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()" data-label="Profile">
+<<<<<<< HEAD:app/view/user/beranda-user-overview.php
         <img src="/projects/iCuti/public/asset/user-avatar.png" alt="User Avatar" />
+=======
+        <img src="/asset/user-avatar.png" alt="User Avatar" />
+>>>>>>> 624784f (docker file):public/app/view/user/beranda-user-overview.php
         <span class="text-icon">Profile</span>
         <i class="menu bi bi-list"></i>
       </div>
 
       <!-- Menu Icons -->
+<<<<<<< HEAD:app/view/user/beranda-user-overview.php
       <div class="icon-button active sidebar-link" onclick="window.location.href='beranda-atasan-overview.php';" data-label="Overview">
+=======
+      <div class="icon-button active sidebar-link" onclick="window.location.href='beranda-user-overview.php';" data-label="Overview">
+>>>>>>> 624784f (docker file):public/app/view/user/beranda-user-overview.php
         <i class="bi bi-grid-fill"></i>
         <span class="text-icon">Overview</span>
       </div>

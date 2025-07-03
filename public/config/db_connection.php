@@ -1,7 +1,7 @@
 <?php
-$host = "localhost";
+$host = "db";
 $userdb = "root";
-$password = ""; // jika pakai password, isi di sini
+$password = "rootpass"; // jika pakai password, isi di sini
 $database = "cuti_app"; // ganti sesuai nama DB-mu
 
 $conn = mysqli_connect($host, $userdb, $password, $database);

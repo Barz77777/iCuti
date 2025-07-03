@@ -100,15 +100,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
 
         if (count($errors) > 0) {
             $_SESSION['upload_errors'] = $errors;
-            header("Location: beranda-user-submission.php?status=error");
+            header("Location: /app/view/user/beranda-user-submission.php?status=error");
         } else {
             unset($_SESSION['upload_errors']);
-            header("Location: beranda-user-submission.php?status=success");
+            header("Location: /app/view/user/beranda-user-submission.php?status=success");
         }
     } else {
-        header("Location: beranda-user-submission.php?status=error&msg=Gagal membuka file CSV.");
+        header("Location: /app/view/user/beranda-user-submission.php?status=error&msg=Gagal membuka file CSV.");
     }
 } else {
-    header("Location: beranda-user-submission.php?status=error&msg=Tidak ada file diunggah.");
+    header("Location: /app/view/user/beranda-user-submission.php?status=error&msg=Tidak ada file diunggah.");
 }
 exit();

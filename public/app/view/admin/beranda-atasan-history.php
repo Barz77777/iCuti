@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
-    header("Location: projects/iCuti/public/index.php");
+    header("Location: projects/iCuti/index.php");
     exit();
 }
 
@@ -88,11 +88,11 @@ mysqli_query($conn, "
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="/projects/iCuti/public/asset/iC.png">
+    <link rel="icon" href="/asset/iC.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/projects/iCuti/public/style/beranda-atasan-history.css" />
+    <link rel="stylesheet" href="/style/beranda-atasan-history.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <title>iCuti</title>
     <style>
@@ -118,7 +118,7 @@ mysqli_query($conn, "
     <div class="layout">
         <div class="sidebar">
             <!-- Logo -->
-            <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="/projects/iCuti/public/asset/default-avatar.png">
+            <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="/asset/default-avatar.png">
                 <span class="text-icon">Profile</span>
                 <i class="menu bi bi-list"></i>
             </div>
@@ -130,7 +130,7 @@ mysqli_query($conn, "
                         <p class="user-role"><?= ($role) ?></p>
                     </div>
                 </div>
-                <button class="logout-btn" onclick="window.location.href='/projects/iCuti/public/logout.php';">Logout</button>
+                <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
             </div>
 
             <!-- Menu Icons -->
@@ -398,7 +398,7 @@ mysqli_query($conn, "
                                         <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($c['catatan']) ?></td>
                                         <?php
                                         $dokumen = $c['dokumen'] ?? '';
-                                        $dokumen_path = '../../../public/uploads/' . urlencode($dokumen);
+                                        $dokumen_path = '../../../uploads/' . urlencode($dokumen);
                                         $file_ext = strtolower(pathinfo($dokumen, PATHINFO_EXTENSION));
                                         $is_image = in_array($file_ext, $allowed_extensions);
                                         ?>

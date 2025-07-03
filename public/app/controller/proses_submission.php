@@ -4,7 +4,7 @@ require '../../config/db_connection.php';
 
 // Cek jika user sudah login
 if (!isset($_SESSION['user'])) {
-    header("Location: /projects/iCuti/public/login.php");
+    header("Location: /login.php");
     exit();
 }
 
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             fclose($handle);
-            header("Location: /projects/iCuti/app/view/user/beranda-user-submission.php?csv_success=1");
+            header("Location: /app/view/user/beranda-user-submission.php?csv_success=1");
             exit();
         } else {
             echo "Gagal membuka file CSV.";
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['dokumen']) && $_FILES['dokumen']['error'] === 0) {
         $dokumen = $_FILES['dokumen']['name'];
         $tmp_file = $_FILES['dokumen']['tmp_name'];
-        $upload_path = '../../public/uploads/' . basename($dokumen);
+        $upload_path = '../../uploads/' . basename($dokumen);
 
         if (!move_uploaded_file($tmp_file, $upload_path)) {
             echo "Upload dokumen gagal.";
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt_notif->bind_param("sssss", $judul_notif, $pesan_notif, $penerima, $status_notif, $created_at);
     $stmt_notif->execute();
 
-    header("Location: /projects/iCuti/app/view/user/beranda-user-submission.php?success=1");
+    header("Location: /app/view/user/beranda-user-submission.php?success=1");
     exit();
 }
 ?>
