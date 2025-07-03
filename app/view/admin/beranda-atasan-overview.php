@@ -165,7 +165,7 @@ while ($row = $resType->fetch_assoc()) {
 
 
   <div class="layout">
-    <div class="sidebar sticky top-10">
+    <div class="sidebar">
       <!-- Logo -->
       <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="/projects/iCuti/public/asset/default-avatar.png" alt="User Avatar">
         <span class="text-icon">Profile</span>
@@ -212,7 +212,9 @@ while ($row = $resType->fetch_assoc()) {
               <span id="notifDot" class="absolute top-2 right-2 inline-block w-3 h-3 bg-red-500 rounded-full"></span>
             <?php endif; ?>
           </button>
-          <div id="notifDropdown" class="notifikasi bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md absolute right-0 mt-2 w-96 z-50" style="display:none;">
+          <div id="notifDropdown"
+            class="notifikasi bg-white dark:bg-gray-800 rounded-3xl p-4 shadow-md absolute right-0 mt-2 w-80 sm:w-96 max-w-[90vw] z-50"
+            style="display:none;">
             <div class="flex justify-between items-center mb-4">
               <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Notifikasi Pengajuan Cuti</h2>
               <a href="?read_all=true" class="text-sm text-blue-600 hover:underline">Tandai semua dibaca</a>
@@ -254,7 +256,7 @@ while ($row = $resType->fetch_assoc()) {
       </script>
 
       <section class="rounded-3xl p-6 shadow-md text-white max-w-4xl" style="background: linear-gradient(135deg, #2D5938 0%, #334036 100%);">
-        <h1 class="text-3xl font-bold mb-2 animate-text delay-1">Hello, <?= ($user) ?>! <span class="inline-block animate-wave"></span></h1>
+        <h1 class="text-3xl sm:text-3xl font-bold mb-2 break-words animate-text delay-1">Hello, <?= ($user) ?> <span class="inline-block animate-wave"></span></h1>
         <p class="text-lg font-light animate-text delay-2">How are you feeling about your leave today?</p>
       </section>
       <section class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl">
@@ -263,7 +265,7 @@ while ($row = $resType->fetch_assoc()) {
 
         <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md initial-hidden" data-title="Received Data">
           <header class="flex justify-between items-center mb-4">
-          <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100 mb-4">Received Data</h2>
+            <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100 mb-4">Received Data</h2>
           </header>
           <div class="relative h-40 w-full">
             <canvas id="leaveBalanceChart"></canvas>
@@ -276,7 +278,7 @@ while ($row = $resType->fetch_assoc()) {
         <!-- Rejected Data -->
         <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md initial-hidden" data-title="Rejected Data">
           <header class="flex justify-between items-center mb-4">
-          <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100 mb-4">Rejected Data</h2>
+            <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100 mb-4">Rejected Data</h2>
           </header>
           <div class="relative h-40 w-full">
             <canvas id="upcomingLeaveChart"></canvas>

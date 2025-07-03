@@ -156,7 +156,9 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
               <span id="notifDot" class="absolute top-2 right-2 inline-block w-3 h-3 bg-red-500 rounded-full"></span>
             <?php endif; ?>
           </button>
-          <div id="notifDropdown" class="notifikasi bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md absolute right-0 mt-2 w-96 z-50" style="display:none;">
+          <div id="notifDropdown"
+            class="notifikasi bg-white dark:bg-gray-800 rounded-3xl p-4 shadow-md absolute right-0 mt-2 w-80 sm:w-96 max-w-[90vw] z-50"
+            style="display:none;">
             <div class="flex justify-between items-center mb-4">
               <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Notifikasi Pengajuan Cuti</h2>
               <a href="?read_all=true" class="text-sm text-blue-600 hover:underline">Tandai semua dibaca</a>
@@ -204,21 +206,22 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
           <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Received data</h2>
           <!-- Tombol untuk buka modal -->
           <button
-        type="button"
-        data-bs-toggle="modal"
-        data-bs-target="#submissionModal"
-        class="shadow-xl flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all duration-200 font-semibold text-base group"
-        style="background: #2D5938; box-shadow: 0 4px 16px 0 #2D593844;"
-        onmouseover="this.style.background='#24482d';"
-        onmouseout="this.style.background='#2D5938';">
-        <span class="flex items-center gap-1">
-          <i class="bi bi-plus-circle text-lg"></i>
-          Add Submission
-          <svg class="ml-2 w-5 h-5 text-white group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-          </svg>
-        </span>
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#submissionModal"
+            class="shadow-xl flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 text-white rounded-lg transition-all duration-200 font-semibold text-sm sm:text-base group"
+            style="background: #2D5938; box-shadow: 0 4px 16px 0 #2D593844;"
+            onmouseover="this.style.background='#24482d';"
+            onmouseout="this.style.background='#2D5938';">
+            <span class="flex items-center gap-1">
+              <i class="bi bi-plus-circle text-lg"></i>
+              <span class="hidden sm:inline">Add Submission</span>
+              <svg class="ml-1 sm:ml-2 w-4 sm:w-5 h-4 sm:h-5 text-white group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
           </button>
+
         </header>
 
         <?php
@@ -233,186 +236,207 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
         $baseQuery = "FROM cuti WHERE username = '$user'";
         if (!empty($search)) {
           $baseQuery .= " AND (
-        username LIKE '%$search%' OR
-        pengganti LIKE '%$search%' OR 
-        jenis_cuti LIKE '%$search%' OR 
-        status_pengajuan LIKE '%$search%' OR
-        nip LIKE '%$search%' OR
-        jabatan LIKE '%$search%' OR
-        divisi LIKE '%$search%' OR
-        no_hp LIKE '%$search%' OR
-        catatan LIKE '%$search%'
-          )";
+    username LIKE '%$search%' OR
+    pengganti LIKE '%$search%' OR 
+    jenis_cuti LIKE '%$search%' OR 
+    status_pengajuan LIKE '%$search%' OR
+    nip LIKE '%$search%' OR
+    jabatan LIKE '%$search%' OR
+    divisi LIKE '%$search%' OR
+    no_hp LIKE '%$search%' OR
+    catatan LIKE '%$search%'
+  )";
         }
 
-        // Get total rows for pagination
         $countResult = mysqli_query($conn, "SELECT COUNT(*) as total $baseQuery");
         $totalRows = $countResult ? (int)mysqli_fetch_assoc($countResult)['total'] : 0;
-        $totalPages = ceil($totalRows / $perPage);  
+        $totalPages = ceil($totalRows / $perPage);
 
-        // Get paginated data
         $query = "SELECT * $baseQuery ORDER BY created_at DESC LIMIT $perPage OFFSET $offset";
         $result = mysqli_query($conn, $query);
         ?>
 
-        <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
+        <!-- DESKTOP TABLE -->
+        <div class="hidden md:block overflow-x-auto max-h-[400px] overflow-y-auto">
           <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg">
-        <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914;">
-          <tr>
-        <th class="px-5 py-3">Name</th>
-        <th class="px-5 py-3">NIP/ID Karyawan</th>
-        <th class="px-5 py-3">Jabatan</th>
-        <th class="px-5 py-3">Divisi</th>
-        <th class="px-5 py-3">No HP</th>
-        <th class="px-5 py-3">Pengganti</th>
-        <th class="px-5 py-3">Jenis Cuti</th>
-        <th class="px-5 py-3">Tanggal Mulai</th>
-        <th class="px-5 py-3">Tanggal Akhir</th>
-        <th class="px-5 py-3">Catatan</th>
-        <th class="px-5 py-3">Dokumen</th>
-        <th class="px-5 py-3">Status</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-          <?php
-          if ($result && mysqli_num_rows($result) > 0) {
-        while ($row = mysqli_fetch_assoc($result)) {
-          echo "<tr>";
-          // Name
-          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['username']) . "</td>";
-          // NIP/ID Karyawan
-          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['nip'] ?? '-') . "</td>";
-          // Jabatan
-          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['jabatan'] ?? '-') . "</td>";
-          // Divisi
-          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['divisi'] ?? '-') . "</td>";
-          // No HP
-          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['no_hp'] ?? '-') . "</td>";
-          // Pengganti
-          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['pengganti'] ?? '-') . "</td>";
-          // Jenis Cuti
-          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['jenis_cuti'] ?? '-') . "</td>";
-          // Tanggal Mulai
-          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['tanggal_mulai'] ?? '-') . "</td>";
-          // Tanggal Akhir
-          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['tanggal_akhir'] ?? '-') . "</td>";
-          // Catatan
-          echo "<td class='px-5 py-3 whitespace-nowrap'>" . htmlspecialchars($row['catatan'] ?? '-') . "</td>";
-
-          // Dokumen
-          $allowed_extensions = ['pdf','jpg', 'jpeg', 'png', 'gif', 'webp'];
-          $dokumen = $row['dokumen'] ?? '';
-          $dokumen_path = '../../../public/uploads/' . urlencode($dokumen);
-          $file_ext = strtolower(pathinfo($dokumen, PATHINFO_EXTENSION));
-          $is_image = in_array($file_ext, $allowed_extensions);
-
-          if (!empty($dokumen) && file_exists($dokumen_path)) {
-        echo "<td class='px-5 py-3 whitespace-nowrap'>";
-        if ($is_image) {
-          echo "<button type=\"button\" onclick=\"openModal('$dokumen_path')\" class=\"text-blue-600 hover:underline\">🖼️ Lihat</button>";
-        } else {
-          echo "<a href=\"$dokumen_path\" target=\"_blank\" class=\"text-blue-600 hover:underline\">📄 Buka</a>";
-        }
-        echo "</td>";
-          } else {
-        echo "<td class='px-5 py-3 whitespace-nowrap text-gray-400'>-</td>";
-          }
-
-          // Status badge
-          $status = $row['status_pengajuan'];
-          $statusClass = '';
-          $statusText = '';
-
-          switch (strtolower($status)) {
-        case 'disetujui':
-          $statusClass = 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 border-green-400';
-          $statusText = 'Disetujui';
-          break;
-        case 'ditolak':
-          $statusClass = 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400 border-red-400';
-          $statusText = 'Ditolak';
-          break;
-        case 'menunggu':
-        default:
-          $statusClass = 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400 border-yellow-400';
-          $statusText = 'Menunggu';
-          break;
-          }
-          echo "<td class='px-5 py-3 whitespace-nowrap'>
-        <span class='inline-block px-3 py-1 border $statusClass rounded-full text-xs font-semibold'>
-          $statusText
-        </span>
-          </td>";
-
-          echo "</tr>";
-        }
-          } else {
-        echo "<tr><td colspan='12' class='px-5 py-3 text-center text-gray-500'>Belum ada data cuti.</td></tr>";
-          }
-          ?>
-        </tbody>
+            <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914;">
+              <tr>
+                <th class="px-5 py-3">Name</th>
+                <th class="px-5 py-3">NIP</th>
+                <th class="px-5 py-3">Jabatan</th>
+                <th class="px-5 py-3">Divisi</th>
+                <th class="px-5 py-3">No HP</th>
+                <th class="px-5 py-3">Pengganti</th>
+                <th class="px-5 py-3">Jenis Cuti</th>
+                <th class="px-5 py-3">Tgl Mulai</th>
+                <th class="px-5 py-3">Tgl Akhir</th>
+                <th class="px-5 py-3">Catatan</th>
+                <th class="px-5 py-3">Dokumen</th>
+                <th class="px-5 py-3">Status</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <?php while ($row = mysqli_fetch_assoc($result)):
+                $dokumen_path = '../../../public/uploads/' . urlencode($row['dokumen']);
+                $is_image = in_array(pathinfo($row['dokumen'], PATHINFO_EXTENSION), ['jpg', 'png', 'webp', 'jpeg']);
+              ?>
+                <tr>
+                  <td class="px-5 py-3"><?= htmlspecialchars($row['username']) ?></td>
+                  <td class="px-5 py-3"><?= htmlspecialchars($row['nip']) ?></td>
+                  <td class="px-5 py-3"><?= htmlspecialchars($row['jabatan']) ?></td>
+                  <td class="px-5 py-3"><?= htmlspecialchars($row['divisi']) ?></td>
+                  <td class="px-5 py-3"><?= htmlspecialchars($row['no_hp']) ?></td>
+                  <td class="px-5 py-3"><?= htmlspecialchars($row['pengganti']) ?></td>
+                  <td class="px-5 py-3"><?= htmlspecialchars($row['jenis_cuti']) ?></td>
+                  <td class="px-5 py-3"><?= htmlspecialchars($row['tanggal_mulai']) ?></td>
+                  <td class="px-5 py-3"><?= htmlspecialchars($row['tanggal_akhir']) ?></td>
+                  <td class="px-5 py-3"><?= htmlspecialchars($row['catatan']) ?></td>
+                  <td class="px-5 py-3">
+                    <?php if (!empty($row['dokumen'])): ?>
+                      <?php if ($is_image): ?>
+                        <button onclick="openModal('<?= $dokumen_path ?>')" class="text-blue-600 underline">🖼️ lihat</button>
+                      <?php else: ?>
+                        <a href="<?= $dokumen_path ?>" target="_blank" class="text-blue-600 underline">📄</a>
+                      <?php endif; ?>
+                      <?php else: ?>- <?php endif; ?>
+                  </td>
+                  <td class="px-5 py-3">
+                    <?php
+                    $status = strtolower($row['status_pengajuan']);
+                    $badge = match ($status) {
+                      'disetujui' => 'bg-green-100 text-green-700 border border-green-400',
+                      'ditolak' => 'bg-red-100 text-red-700 border border-red-400',
+                      default => 'bg-blue-100 text-blue-700 border border-blue-400'
+                    };
+                    ?>
+                    <span class="px-2 py-1 rounded-full text-xs font-semibold <?= $badge ?>">
+                      <?= ucfirst($status) ?>
+                    </span>
+                  </td>
+                </tr>
+              <?php endwhile; ?>
+            </tbody>
           </table>
+        </div>
+
+        <!-- MOBILE CARD -->
+        <div class="block md:hidden space-y-4">
+          <?php mysqli_data_seek($result, 0);
+          while ($row = mysqli_fetch_assoc($result)): ?>
+            <div class="border rounded-xl p-4 bg-white dark:bg-gray-800">
+              <p class="text-sm font-semibold text-lime-700"><?= htmlspecialchars($row['username']) ?></p>
+              <p class="text-xs text-gray-500 mb-2">NIP: <?= htmlspecialchars($row['nip']) ?> • <?= htmlspecialchars($row['divisi']) ?></p>
+              <ul class="grid grid-cols-3 gap-x-3 gap-y-1 text-sm text-gray-700 dark:text-gray-200 m-0 p-0">
+                <li class="font-semibold col-span-1">Jabatan:</li>
+                <li class="col-span-2"><?= htmlspecialchars($row['jabatan']) ?></li>
+
+                <li class="font-semibold col-span-1">No HP:</li>
+                <li class="col-span-2"><?= htmlspecialchars($row['no_hp']) ?></li>
+
+                <li class="font-semibold col-span-1">Pengganti:</li>
+                <li class="col-span-2"><?= htmlspecialchars($row['pengganti']) ?></li>
+
+                <li class="font-semibold col-span-1">Jenis Cuti:</li>
+                <li class="col-span-2"><?= htmlspecialchars($row['jenis_cuti']) ?></li>
+
+                <li class="font-semibold col-span-1">Tanggal:</li>
+                <li class="col-span-2"><?= htmlspecialchars($row['tanggal_mulai']) ?> - <?= htmlspecialchars($row['tanggal_akhir']) ?></li>
+
+                <li class="font-semibold col-span-1">Catatan:</li>
+                <li class="col-span-2"><?= htmlspecialchars($row['catatan']) ?></li>
+
+                <li class="font-semibold col-span-1">Dokumen:</li>
+                <li class="col-span-2">
+                  <?php if (!empty($row['dokumen'])): ?>
+                    <?php if ($is_image): ?>
+                      <button onclick="openModal('<?= $dokumen_path ?>')" class="text-blue-600 underline">🖼️ lihat</button>
+                    <?php else: ?>
+                      <a href="<?= $dokumen_path ?>" target="_blank" class="text-blue-600 underline">📄</a>
+                    <?php endif; ?>
+                    <?php else: ?>- <?php endif; ?>
+                </li>
+
+                <?php $status = strtolower($row['status_pengajuan']); ?>
+                <li class="font-semibold col-span-1">Status:</li>
+                <li class="col-span-2">
+                  <span class="inline-block px-2 py-1 text-xs rounded-full border
+    <?php
+            echo match ($status) {
+              'disetujui' => 'bg-green-100 text-green-700 border-green-400',
+              'ditolak' => 'bg-red-100 text-red-700 border-red-400',
+              default => 'bg-blue-100 text-blue-700 border-blue-400'
+            };
+    ?>">
+                    <?= ucfirst($status) ?>
+                  </span>
+                </li>
+
+              </ul>
+
+            </div>
+          <?php endwhile; ?>
         </div>
 
         <!-- Pagination -->
         <?php if ($totalPages > 1): ?>
-          <nav class="flex justify-center mt-4">
-        <ul class="inline-flex -space-x-px">
-          <?php
-          $queryString = $_GET;
-          // Tombol prev
-          if ($page > 1) {
-        $queryString['page'] = $page - 1;
-        $urlPrev = '?' . http_build_query($queryString);
-        echo "<li>
+          <nav class="flex justify-center mt-4 overflow-x-auto">
+            <ul class="inline-flex -space-x-px">
+              <?php
+              $queryString = $_GET;
+              // Tombol prev
+              if ($page > 1) {
+                $queryString['page'] = $page - 1;
+                $urlPrev = '?' . http_build_query($queryString);
+                echo "<li>
           <a href=\"$urlPrev\" class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100 rounded-l-lg flex items-center gap-1 font-semibold transition-all\">
         <svg class=\"w-4 h-4 mr-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15 19l-7-7 7-7\"/></svg>
         Prev
           </a>
         </li>";
-          } else {
-        echo "<li>
+              } else {
+                echo "<li>
           <span class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-400 rounded-l-lg flex items-center gap-1 cursor-not-allowed\">
         <svg class=\"w-4 h-4 mr-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15 19l-7-7 7-7\"/></svg>
         Prev
           </span>
         </li>";
-          }
+              }
 
-          // Nomor halaman
-          for ($i = 1; $i <= $totalPages; $i++) {
-        $queryString['page'] = $i;
-        $url = '?' . http_build_query($queryString);
-        $activeClass = $i == $page
-          ? 'bg-lime-500 text-white border-lime-500 shadow font-bold scale-110'
-          : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100';
-        echo "<li>
+              // Nomor halaman
+              for ($i = 1; $i <= $totalPages; $i++) {
+                $queryString['page'] = $i;
+                $url = '?' . http_build_query($queryString);
+                $activeClass = $i == $page
+                  ? 'bg-lime-500 text-white border-lime-500 shadow font-bold scale-110'
+                  : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100';
+                echo "<li>
           <a href=\"$url\" class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 $activeClass rounded transition-all mx-1\">$i</a>
         </li>";
-          }
+              }
 
-          // Tombol next
-          if ($page < $totalPages) {
-        $queryString['page'] = $page + 1;
-        $urlNext = '?' . http_build_query($queryString);
-        echo "<li>
+              // Tombol next
+              if ($page < $totalPages) {
+                $queryString['page'] = $page + 1;
+                $urlNext = '?' . http_build_query($queryString);
+                echo "<li>
           <a href=\"$urlNext\" class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100 rounded-r-lg flex items-center gap-1 font-semibold transition-all\">
         Next
         <svg class=\"w-4 h-4 ml-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M9 5l7 7-7 7\"/></svg>
           </a>
         </li>";
-          } else {
-        echo "<li>
+              } else {
+                echo "<li>
           <span class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-400 rounded-r-lg flex items-center gap-1 cursor-not-allowed\">
         Next
         <svg class=\"w-4 h-4 ml-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M9 5l7 7-7 7\"/></svg>
           </span>
         </li>";
-          }
-          ?>
-        </ul>
+              }
+              ?>
+            </ul>
           </nav>
         <?php endif; ?>
+
       </article>
       <!-- Animate.css CDN -->
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
@@ -587,66 +611,66 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
     </script>
   <?php endif; ?>
 
-<!-- code sisa cuti atau validasi kalender -->
+  <!-- code sisa cuti atau validasi kalender -->
   <script>
-  const maxCuti = <?= $leaveRemaining ?>;
+    const maxCuti = <?= $leaveRemaining ?>;
 
-  const startDate = document.getElementById('startDate');
-  const endDate = document.getElementById('endDate');
-  const sisaCutiInput = document.getElementById('sisaCuti');
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+    const sisaCutiInput = document.getElementById('sisaCuti');
 
-  // Set tanggal minimal (hari ini)
-  const today = new Date().toISOString().split('T')[0];
-  startDate.setAttribute('min', today);
-  endDate.setAttribute('min', today);
+    // Set tanggal minimal (hari ini)
+    const today = new Date().toISOString().split('T')[0];
+    startDate.setAttribute('min', today);
+    endDate.setAttribute('min', today);
 
-  // Fungsi format tanggal ke YYYY-MM-DD
-  function formatDate(date) {
-    return date.toISOString().split('T')[0];
-  }
-
-  // Fungsi menghitung sisa cuti
-  function hitungSisaCuti() {
-    const start = new Date(startDate.value);
-    const end = new Date(endDate.value);
-
-    if (startDate.value && endDate.value && end >= start) {
-      const diffTime = end - start;
-      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
-      if (diffDays > maxCuti) {
-        alert(`Cuti tidak boleh lebih dari ${maxCuti} hari!`);
-        endDate.value = "";
-        sisaCutiInput.value = "";
-      } else {
-        const sisa = maxCuti - diffDays;
-        sisaCutiInput.value = `Sisa cuti: ${sisa} dari ${maxCuti} hari`;
-      }
-    } else {
-      sisaCutiInput.value = "";
+    // Fungsi format tanggal ke YYYY-MM-DD
+    function formatDate(date) {
+      return date.toISOString().split('T')[0];
     }
-  }
 
-  // Saat tanggal mulai diubah
-  startDate.addEventListener('change', () => {
-    if (!startDate.value) return; 
+    // Fungsi menghitung sisa cuti
+    function hitungSisaCuti() {
+      const start = new Date(startDate.value);
+      const end = new Date(endDate.value);
 
-    const start = new Date(startDate.value);
+      if (startDate.value && endDate.value && end >= start) {
+        const diffTime = end - start;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-    // Atur minimal tanggal akhir = tanggal mulai
-    endDate.setAttribute('min', startDate.value);
+        if (diffDays > maxCuti) {
+          alert(`Cuti tidak boleh lebih dari ${maxCuti} hari!`);
+          endDate.value = "";
+          sisaCutiInput.value = "";
+        } else {
+          const sisa = maxCuti - diffDays;
+          sisaCutiInput.value = `Sisa cuti: ${sisa} dari ${maxCuti} hari`;
+        }
+      } else {
+        sisaCutiInput.value = "";
+      }
+    }
 
-    // Hitung dan atur tanggal maksimal akhir = start + (maxCuti - 1)
-    const maxEnd = new Date(start);
-    maxEnd.setDate(maxEnd.getDate() + maxCuti - 1);
-    endDate.setAttribute('max', formatDate(maxEnd));
+    // Saat tanggal mulai diubah
+    startDate.addEventListener('change', () => {
+      if (!startDate.value) return;
 
-    hitungSisaCuti();
-  });
+      const start = new Date(startDate.value);
 
-  // Saat tanggal akhir diubah
-  endDate.addEventListener('change', hitungSisaCuti);
-</script>
+      // Atur minimal tanggal akhir = tanggal mulai
+      endDate.setAttribute('min', startDate.value);
+
+      // Hitung dan atur tanggal maksimal akhir = start + (maxCuti - 1)
+      const maxEnd = new Date(start);
+      maxEnd.setDate(maxEnd.getDate() + maxCuti - 1);
+      endDate.setAttribute('max', formatDate(maxEnd));
+
+      hitungSisaCuti();
+    });
+
+    // Saat tanggal akhir diubah
+    endDate.addEventListener('change', hitungSisaCuti);
+  </script>
 
 
   <!-- Bootstrap JS (required for modal) -->

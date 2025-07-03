@@ -177,35 +177,37 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
   </div>
 
   <div class="layout">
-    <div class="sidebar sticky top-10">
+    <aside class="sidebar">
       <!-- Logo -->
-      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="/projects/iCuti/public/asset/user-avatar.png" alt="User Avatar">
+      <!-- Mobile/desktop profile icon -->
+      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()" data-label="Profile">
+        <img src="/projects/iCuti/public/asset/user-avatar.png" alt="User Avatar" />
         <span class="text-icon">Profile</span>
         <i class="menu bi bi-list"></i>
       </div>
 
-
-
       <!-- Menu Icons -->
-      <div class="icon-button active sidebar-link" onclick="window.location.href='beranda-atasan-overview.php';">
+      <div class="icon-button active sidebar-link" onclick="window.location.href='beranda-atasan-overview.php';" data-label="Overview">
         <i class="bi bi-grid-fill"></i>
         <span class="text-icon">Overview</span>
       </div>
-      <div class="icon-button sidebar-link" onclick="window.location.href='beranda-user-submission.php';">
+
+      <div class="icon-button sidebar-link" onclick="window.location.href='beranda-user-submission.php';" data-label="Submission">
         <i class="bi bi-envelope-paper"></i>
         <span class="text-icon">Submission</span>
       </div>
-      <div class="icon-button" onclick="window.location.href='beranda-user-history.php';">
+
+      <div class="icon-button sidebar-link" onclick="window.location.href='beranda-user-history.php';" data-label="History">
         <i class="bi bi-clock-history"></i>
         <span class="text-icon">History</span>
       </div>
 
-      <!-- Bottom Icon -->
-      <div class="toggle-container">
+      <!-- Toggle Light/Dark Mode -->
+      <div class="toggle-container" data-label="Theme">
         <div id="lightBtn" class="icon-btn active sidebar-link"><i class="bi bi-brightness-high"></i></div>
         <div id="darkBtn" class="icon-btn sidebar-link"><i class="bi bi-moon"></i></div>
       </div>
-    </div>
+    </aside>
 
     <main class="main-content flex-grow max-w-7xl mx-auto flex flex-col gap-8">
       <header class="flex items-center justify-between space-x-4">
@@ -224,7 +226,9 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
               <span id="notifDot" class="absolute top-2 right-2 inline-block w-3 h-3 bg-red-500 rounded-full"></span>
             <?php endif; ?>
           </button>
-          <div id="notifDropdown" class="notifikasi bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md absolute right-0 mt-2 w-96 z-50" style="display:none;">
+          <div id="notifDropdown"
+            class="notifikasi bg-white dark:bg-gray-800 rounded-3xl p-4 shadow-md absolute right-0 mt-2 w-80 sm:w-96 max-w-[90vw] z-50"
+            style="display:none;">
             <div class="flex justify-between items-center mb-4">
               <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Notifikasi Pengajuan Cuti</h2>
               <a href="?read_all=true" class="text-sm text-blue-600 hover:underline">Tandai semua dibaca</a>
@@ -266,7 +270,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
       </script>
 
       <section class="rounded-3xl p-6 shadow-md text-white max-w-4xl" style="background: linear-gradient(135deg, #2D5938 0%, #334036 100%);">
-        <h1 class="text-3xl font-bold mb-2 animate-text delay-1">Hello, <?= ($user) ?> <span class="inline-block animate-wave"></span></h1>
+        <h1 class="text-3xl sm:text-3xl font-bold mb-2 break-words animate-text delay-1">Hello, <?= ($user) ?> <span class="inline-block animate-wave"></span></h1>
         <p class="text-lg font-light animate-text delay-2">How are you feeling about your leave today?</p>
       </section>
       <section class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl">
@@ -390,6 +394,9 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
     const toggleContainer = document.querySelector(".toggle-container");
     const savedSidebar = localStorage.getItem("sidebar-expanded");
 
+    // if (window.innerWidth > 768) {
+    //   document.querySelector('.sidebar').classList.add('expanded');
+    // }
 
 
 

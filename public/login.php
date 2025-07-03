@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 
 <body>
-    <p>VistaTraining1@2025</p>
+    <!-- <p>VistaTraining1@2025</p> -->
     <main>
         <div class="login-container">
             <div class="image-side">
@@ -119,9 +119,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
         </div>
     </main>
-
-    
-
 </body>
 
 </html>
