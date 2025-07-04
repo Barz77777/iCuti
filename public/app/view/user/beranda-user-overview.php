@@ -182,21 +182,13 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
       <!-- Logo -->
       <!-- Mobile/desktop profile icon -->
       <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()" data-label="Profile">
-<<<<<<< HEAD:app/view/user/beranda-user-overview.php
-        <img src="/projects/iCuti/public/asset/user-avatar.png" alt="User Avatar" />
-=======
         <img src="/asset/user-avatar.png" alt="User Avatar" />
->>>>>>> 624784f (docker file):public/app/view/user/beranda-user-overview.php
         <span class="text-icon">Profile</span>
         <i class="menu bi bi-list"></i>
       </div>
 
       <!-- Menu Icons -->
-<<<<<<< HEAD:app/view/user/beranda-user-overview.php
-      <div class="icon-button active sidebar-link" onclick="window.location.href='beranda-atasan-overview.php';" data-label="Overview">
-=======
       <div class="icon-button active sidebar-link" onclick="window.location.href='beranda-user-overview.php';" data-label="Overview">
->>>>>>> 624784f (docker file):public/app/view/user/beranda-user-overview.php
         <i class="bi bi-grid-fill"></i>
         <span class="text-icon">Overview</span>
       </div>
