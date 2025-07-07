@@ -136,13 +136,9 @@ if (empty($username) || empty($password)) {
                 <h1>Welcome back to <span class="highlight">iCuti</span></h1>
                 <p class="subtitle">Please enter your details to login to your account!</p>
                 <form method="POST" action="login.php">
-<<<<<<< HEAD
                     <?php if (isset($message)): ?>
                         <div class="alert alert-<?= $message_type ?>"><?= $message ?></div>
                     <?php endif; ?>
-=======
-                    <!-- Username -->
->>>>>>> 30f0f0ad0c48c0450c0dd2b109d5025fd34f1390
                     <div class="form-group">
                         <label for="username">Username</label>
                         <div class="input-group">
@@ -150,27 +146,15 @@ if (empty($username) || empty($password)) {
                             <input type="text" id="username" name="username" required placeholder="Username" />
                         </div>
                     </div>
-
-                    <!-- Password -->
                     <div class="form-group">
                         <label for="password">Password</label>
                         <div class="input-group" style="position: relative;">
                             <span class="material-icons">lock</span>
                             <input type="password" id="password" name="password" required placeholder="Password" />
-                            <!-- Toggle icon -->
                             <i class="bi bi-eye-slash" id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
                         </div>
-<<<<<<< HEAD
-                    </div>  
+                    </div>   
                     <!-- <div class="g-recaptcha" data-sitekey="6LdW43UrAAAAAG6wXfE3kqkSH503n38xg3dRhoC5"></div>     -->
-=======
-                    </div>
-
-                    <!-- Captcha -->
-                    <div class="g-recaptcha" data-sitekey="6LdW43UrAAAAAG6wXfE3kqkSH503n38xg3dRhoC5"></div>
-
-                    <!-- Submit -->
->>>>>>> 30f0f0ad0c48c0450c0dd2b109d5025fd34f1390
                     <button type="submit">Login</button>
                 </form>
             </div>
