@@ -126,6 +126,34 @@ if (empty($username) || empty($password)) {
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
+<style>
+    .badge-danger {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background-color: #fef2f2;
+        /* bg-red-50 */
+        padding: 4px 8px;
+        /* py-1 px-2 */
+        font-size: 0.75rem;
+        /* text-xs */
+        font-weight: 500;
+        /* font-medium */
+        color: #b91c1c;
+        /* text-red-700 */
+        border: 1px inset rgba(220, 38, 38, 0.1);
+        /* ring-1 ring-inset ring-red-600/10 */
+        text-align: center;
+        /* ⬅️ Pusatkan isi teks multiline */
+        width: 100%;
+        /* Optional: agar lebar penuh */
+        box-sizing: border-box;
+        /* Pastikan padding tidak meluap */
+    }
+</style>
+
+
 <body>
     <main>
         <div class="login-container">
@@ -137,7 +165,7 @@ if (empty($username) || empty($password)) {
                 <p class="subtitle">Please enter your details to login to your account!</p>
                 <form method="POST" action="login.php">
                     <?php if (isset($message)): ?>
-                        <div class="alert alert-<?= $message_type ?>"><?= $message ?></div>
+                        <div class="badge-danger"><?= $message ?></div>
                     <?php endif; ?>
                     <div class="form-group">
                         <label for="username">Username</label>
@@ -153,7 +181,7 @@ if (empty($username) || empty($password)) {
                             <input type="password" id="password" name="password" required placeholder="Password" />
                             <i class="bi bi-eye-slash" id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
                         </div>
-                    </div>   
+                    </div>
                     <!-- <div class="g-recaptcha" data-sitekey="6LdW43UrAAAAAG6wXfE3kqkSH503n38xg3dRhoC5"></div>     -->
                     <button type="submit">Login</button>
                 </form>

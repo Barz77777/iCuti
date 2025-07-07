@@ -162,12 +162,79 @@ while ($row = $resType->fetch_assoc()) {
     </div>
     <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
     <?php if ($_SESSION['role'] === 'admin'): ?>
-        <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
-            <button type="submit" style="font-size: 16px;">
-                Ganti ke <?= $_SESSION['active_role'] === 'admin' ? 'user' : 'admin' ?>
-            </button>
-        </form>
-      <?php endif; ?>
+      <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
+        <button type="submit" style="font-size: 16px;">
+          Ganti ke <?= $_SESSION['active_role'] === 'admin' ? 'user' : 'admin' ?>
+        </button>
+      </form>
+    <?php endif; ?>
+  </div>
+
+  <!-- Alert Tidak Ada Aktivitas -->
+  <div id="idleWarningModal" style="display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: auto;
+  padding: 20px;
+">
+
+    <div style="
+    background: #fff;
+    padding: 40px 30px;
+    border-radius: 25px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  ">
+
+      <!-- Ikon Peringatan -->
+      <img src="/asset/alert.svg" alt="Warning Icon" style="
+      display: block;
+      margin: 0 auto 25px;
+      width: 120px;
+      max-width: 100%;
+      height: auto;
+    ">
+
+      <!-- Judul -->
+      <h2 style="
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 10px;
+      font-weight: 700;
+    ">Tidak Ada Aktivitas!</h2>
+
+      <!-- Subjudul -->
+      <p style="
+      font-size: 15px;
+      color: #555;
+      margin-bottom: 20px;
+    ">
+        Anda akan logout dalam <span id="countdown" style="font-weight: bold; color: #e74c3c;">30</span> detik.
+      </p>
+
+      <!-- Tombol Aksi -->
+      <button onclick="stayLoggedIn()" style="
+      padding: 10px 24px;
+      background-color: #9AD914;
+      border: none;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+      transition: background 0.3s ease;
+    ">Saya Ada di Sini!</button>
+
+    </div>
   </div>
 
 
@@ -503,33 +570,81 @@ while ($row = $resType->fetch_assoc()) {
         });
       </script>
 
-        <!-- ketika user diam akan keluar -->
-  <script>
-    let idleTime = 0;
-    const logoutTime = 600; // dalam detik
+      <!-- ketika user diam akan keluar -->
+      <script>
+        let idleTime = 0;
+        const idleLimit = 60; // 2 menit = 120 detik
+        const logoutDelay = 30; // 30 detik
+        let countdown = logoutDelay;
+        let countdownInterval;
+        let logoutTimeout;
+        let idleTimerStarted = false;
+        let idleInterval;
 
-    // Reset waktu idle saat ada aktivitas
-    function resetIdleTime() {
-        idleTime = 0;
-    }
+        // Reset waktu idle
+        function resetIdleTime() {
+          idleTime = 0;
 
-    // Cek aktivitas user
-    window.onload = resetIdleTime;
-    document.onmousemove = resetIdleTime;
-    document.onkeypress = resetIdleTime;
-    document.onscroll = resetIdleTime;
-    document.onclick = resetIdleTime;
+          // Jika modal sedang muncul, tutup & hentikan countdown
+          if (document.getElementById("idleWarningModal").style.display === "flex") {
+            hideModal();
+          }
 
-    // Set timer setiap 1 detik
-    setInterval(() => {
-        idleTime++;
-        if (idleTime >= logoutTime) {
-            // Redirect ke logout atau halaman login
-            window.location.href = "/logout.php";
+          // Mulai interval jika belum dimulai
+          if (!idleTimerStarted) {
+            idleInterval = setInterval(() => {
+              idleTime++;
+
+              if (idleTime === idleLimit) {
+                showModal();
+              }
+            }, 1000);
+
+            idleTimerStarted = true;
+          }
         }
-    }, 1000);
-</script>
 
+        // Tampilkan modal warning
+        function showModal() {
+          document.getElementById("idleWarningModal").style.display = "flex";
+          countdown = logoutDelay;
+          document.getElementById("countdown").textContent = countdown;
+
+          // Hitung mundur
+          countdownInterval = setInterval(() => {
+            countdown--;
+            document.getElementById("countdown").textContent = countdown;
+          }, 1000);
+
+          // Logout otomatis
+          logoutTimeout = setTimeout(() => {
+            window.location.href = "/logout.php?reason=idle";
+          }, logoutDelay * 1000);
+        }
+
+        // Sembunyikan modal dan reset
+        function hideModal() {
+          clearInterval(countdownInterval);
+          clearTimeout(logoutTimeout);
+          document.getElementById("idleWarningModal").style.display = "none";
+          countdown = logoutDelay;
+        }
+
+        // Klik tombol "Saya ada di sini"
+        function stayLoggedIn() {
+          resetIdleTime();
+        }
+
+        // Aktivitas user
+        ['mousemove', 'keypress', 'click', 'scroll'].forEach(event => {
+          document.addEventListener(event, resetIdleTime);
+        });
+
+        // Reset saat halaman pertama kali dimuat
+        window.addEventListener('load', () => {
+          resetIdleTime(); // pastikan langsung reset begitu halaman selesai load
+        });
+      </script>
 </body>
 
 </html>

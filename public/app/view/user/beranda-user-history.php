@@ -125,6 +125,73 @@ mysqli_query($conn, "
 </head>
 
 <body>
+  <!-- Alert Tidak Ada Aktivitas -->
+  <div id="idleWarningModal" style="display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: auto;
+  padding: 20px;
+">
+
+    <div style="
+    background: #fff;
+    padding: 40px 30px;
+    border-radius: 25px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  ">
+
+      <!-- Ikon Peringatan -->
+      <img src="/asset/alert.svg" alt="Warning Icon" style="
+      display: block;
+      margin: 0 auto 25px;
+      width: 120px;
+      max-width: 100%;
+      height: auto;
+    ">
+
+      <!-- Judul -->
+      <h2 style="
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 10px;
+      font-weight: 700;
+    ">Tidak Ada Aktivitas!</h2>
+
+      <!-- Subjudul -->
+      <p style="
+      font-size: 15px;
+      color: #555;
+      margin-bottom: 20px;
+    ">
+        Anda akan logout dalam <span id="countdown" style="font-weight: bold; color: #e74c3c;">30</span> detik.
+      </p>
+
+      <!-- Tombol Aksi -->
+      <button onclick="stayLoggedIn()" style="
+      padding: 10px 24px;
+      background-color: #9AD914;
+      border: none;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+      transition: background 0.3s ease;
+    ">Saya Ada di Sini!</button>
+
+    </div>
+  </div>
+
   <div class="layout">
     <div class="sidebar">
       <!-- Logo -->
@@ -142,12 +209,12 @@ mysqli_query($conn, "
         </div>
         <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
         <?php if ($_SESSION['role'] === 'admin'): ?>
-        <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
+          <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
             <button type="submit" style="font-size: 16px;">
-                Ganti ke <?= $_SESSION['active_role'] === 'admin' ? 'user' : 'admin' ?>
+              Ganti ke <?= $_SESSION['active_role'] === 'admin' ? 'user' : 'admin' ?>
             </button>
-        </form>
-      <?php endif; ?>
+          </form>
+        <?php endif; ?>
       </div>
 
       <!-- Menu Icons -->
@@ -320,14 +387,13 @@ mysqli_query($conn, "
                 <li class="font-semibold col-span-1">Status:</li>
                 <li class="col-span-2">
                   <span class="inline-block px-2 py-1 text-xs rounded-full border <?php
-                    echo match ($status)
-                     {
-                       'disetujui' => 'bg-green-100 text-green-700 border-green-400',
-                      'ditolak' => 'bg-red-100 text-red-700 border-red-400',
-                      'selesai' => 'bg-blue-100 text-blue-700 border-blue-400',
-                      default => 'bg-gray-100 text-gray-500 border-gray-300'
-                     };
-                       ?>">
+                                                                                  echo match ($status) {
+                                                                                    'disetujui' => 'bg-green-100 text-green-700 border-green-400',
+                                                                                    'ditolak' => 'bg-red-100 text-red-700 border-red-400',
+                                                                                    'selesai' => 'bg-blue-100 text-blue-700 border-blue-400',
+                                                                                    default => 'bg-gray-100 text-gray-500 border-gray-300'
+                                                                                  };
+                                                                                  ?>">
                     <?= ucfirst($status) ?>
                   </span>
                 </li>
@@ -338,7 +404,7 @@ mysqli_query($conn, "
         </div>
 
         <!-- DESKTOP TABLE -->
-        <div class="hidden md:block overflow-x-auto max-h-[400px] overflow-y-auto">
+        <div class="hidden md:block overflow-x-auto max-h-[400px] overflow-y-auto scroll-custom">
           <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg">
             <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914;">
               <tr>
@@ -603,31 +669,63 @@ mysqli_query($conn, "
     <?php endif; ?>
 
     <!-- ketika user diam akan keluar -->
-  <script>
-    let idleTime = 0;
-    const logoutTime = 600; // dalam detik
+    <script>
+      let idleTime = 0;
+      const logoutTime = 600; // 10 menit
+      const warningTime = logoutTime - 30; // Tampilkan warning 30 detik sebelum logout
+      let countdown = 30;
+      let countdownInterval;
+      let warningShown = false;
 
-    // Reset waktu idle saat ada aktivitas
-    function resetIdleTime() {
+      function resetIdleTime() {
         idleTime = 0;
-    }
+        warningShown = false;
+        hideModal();
+      }
 
-    // Cek aktivitas user
-    window.onload = resetIdleTime;
-    document.onmousemove = resetIdleTime;
-    document.onkeypress = resetIdleTime;
-    document.onscroll = resetIdleTime;
-    document.onclick = resetIdleTime;
+      function showModal() {
+        document.getElementById("idleWarningModal").style.display = "flex";
+        document.getElementById("countdown").innerText = countdown;
+        countdownInterval = setInterval(() => {
+          countdown--;
+          document.getElementById("countdown").innerText = countdown;
+          if (countdown <= 0) {
+            clearInterval(countdownInterval);
+            window.location.href = "/logout.php"; // Redirect logout
+          }
+        }, 1000);
+      }
 
-    // Set timer setiap 1 detik
-    setInterval(() => {
-        idleTime++;
-        if (idleTime >= logoutTime) {
-            // Redirect ke logout atau halaman login
-            window.location.href = "/logout.php";
-        }
-    }, 1000);
-</script>
+      function hideModal() {
+        document.getElementById("idleWarningModal").style.display = "none";
+        clearInterval(countdownInterval);
+        countdown = 30;
+      }
+
+      function stayLoggedIn() {
+        resetIdleTime();
+      }
+
+      // Pasang listener aktivitas
+      document.onkeypress = resetIdleTime;
+      document.onclick = resetIdleTime;
+
+      window.onload = () => {
+        resetIdleTime();
+        setTimeout(() => {
+          setInterval(() => {
+            idleTime++;
+            if (idleTime >= warningTime && !warningShown) {
+              warningShown = true;
+              showModal();
+            }
+            if (idleTime >= logoutTime) {
+              window.location.href = "/logout.php";
+            }
+          }, 1000);
+        }, 1000); // Delay untuk cegah modal muncul di awal
+      };
+    </script>
 
 </body>
 

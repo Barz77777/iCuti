@@ -117,6 +117,73 @@ $jenisCuti = $result->fetch_assoc();
         <i class="menu bi bi-list"></i>
       </div>
 
+    <!-- Alert Tidak Ada Aktivitas -->
+  <div id="idleWarningModal" style="display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: auto;
+  padding: 20px;
+">
+
+    <div style="
+    background: #fff;
+    padding: 40px 30px;
+    border-radius: 25px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  ">
+
+      <!-- Ikon Peringatan -->
+      <img src="/asset/alert.svg" alt="Warning Icon" style="
+      display: block;
+      margin: 0 auto 25px;
+      width: 120px;
+      max-width: 100%;
+      height: auto;
+    ">
+
+      <!-- Judul -->
+      <h2 style="
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 10px;
+      font-weight: 700;
+    ">Tidak Ada Aktivitas!</h2>
+
+      <!-- Subjudul -->
+      <p style="
+      font-size: 15px;
+      color: #555;
+      margin-bottom: 20px;
+    ">
+        Anda akan logout dalam <span id="countdown" style="font-weight: bold; color: #e74c3c;">30</span> detik.
+      </p>
+
+      <!-- Tombol Aksi -->
+      <button onclick="stayLoggedIn()" style="
+      padding: 10px 24px;
+      background-color: #9AD914;
+      border: none;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+      transition: background 0.3s ease;
+    ">Saya Ada di Sini!</button>
+
+    </div>
+  </div>
+
       <div class="profile-dropdown" id="profileDropdown">
         <div class="profile-content">
           <div class="user-info">
@@ -279,7 +346,7 @@ $jenisCuti = $result->fetch_assoc();
         ?>
 
         <!-- DESKTOP TABLE -->
-        <div class="hidden md:block overflow-x-auto max-h-[400px] overflow-y-auto">
+        <div class="hidden md:block overflow-x-auto max-h-[400px] overflow-y-auto scroll-costum">
           <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg">
             <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914;">
               <tr>
@@ -883,41 +950,64 @@ $jenisCuti = $result->fetch_assoc();
   <?php if ($jumlahNotifBaru > 0): ?>
     <audio id="notifSound" src="asset/notification.mp3" preload="auto"></audio>
   <?php endif; ?>
-
   <!-- ketika user diam akan keluar -->
   <script>
     let idleTime = 0;
-    const logoutTime = 600; // dalam detik
+    const logoutTime = 600; // 10 menit
+    const warningTime = logoutTime - 30; // Tampilkan warning 30 detik sebelum logout
+    let countdown = 30;
+    let countdownInterval;
+    let warningShown = false;
 
-    // Reset waktu idle saat ada aktivitas
     function resetIdleTime() {
-        idleTime = 0;
+      idleTime = 0;
+      warningShown = false;
+      hideModal();
     }
 
-    // Cek aktivitas user
-    window.onload = resetIdleTime;
-    document.onmousemove = resetIdleTime;
+    function showModal() {
+      document.getElementById("idleWarningModal").style.display = "flex";
+      document.getElementById("countdown").innerText = countdown;
+      countdownInterval = setInterval(() => {
+        countdown--;
+        document.getElementById("countdown").innerText = countdown;
+        if (countdown <= 0) {
+          clearInterval(countdownInterval);
+          window.location.href = "/logout.php"; // Redirect logout
+        }
+      }, 1000);
+    }
+
+    function hideModal() {
+      document.getElementById("idleWarningModal").style.display = "none";
+      clearInterval(countdownInterval);
+      countdown = 30;
+    }
+
+    function stayLoggedIn() {
+      resetIdleTime();
+    }
+
+    // Pasang listener aktivitas
     document.onkeypress = resetIdleTime;
-    document.onscroll = resetIdleTime;
     document.onclick = resetIdleTime;
 
-    // Set timer setiap 1 detik
-    setInterval(() => {
-        idleTime++;
-        if (idleTime >= logoutTime) {
-            // Redirect ke logout atau halaman login
+    window.onload = () => {
+      resetIdleTime();
+      setTimeout(() => {
+        setInterval(() => {
+          idleTime++;
+          if (idleTime >= warningTime && !warningShown) {
+            warningShown = true;
+            showModal();
+          }
+          if (idleTime >= logoutTime) {
             window.location.href = "/logout.php";
-        }
-    }, 1000);
-</script>
-
-<script>
-window.addEventListener("unload", function () {
-  navigator.sendBeacon("/logout.php");
-});
-</script>
-
-
+          }
+        }, 1000);
+      }, 1000); // Delay untuk cegah modal muncul di awal
+    };
+  </script>
 </body>
 
 </html>
