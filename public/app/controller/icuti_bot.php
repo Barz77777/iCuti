@@ -1,7 +1,10 @@
 <?php
 function kirimTelegram($pesan) {
     $token = "7637196457:AAEQJFAbD1lkrnxEu_JJkrKiAv3-IAOv3V0"; // ganti dengan token bot kamu
-    $chat_id = "7324689890"; // ganti dengan chat ID kamu
+    $chat_id = [
+        "7324689890",
+        "1826576117"
+    ]; //ID Chat
 
     $url = "https://api.telegram.org/bot{$token}/sendMessage";
     $data = [
