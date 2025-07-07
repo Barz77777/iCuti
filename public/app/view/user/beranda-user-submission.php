@@ -566,7 +566,7 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
 
                   <!-- Upload CSV Tab -->
                   <div class="tab-pane fade" id="csv" role="tabpanel">
-                    <form action="upload-csv-batch.php" method="POST" enctype="multipart/form-data">
+                    <form action="/app/controller/upload-csv-batch.php" method="POST" enctype="multipart/form-data">
                       <div class="mb-3">
                         <label class="form-label">Upload File CSV</label>
                         <input type="file" class="form-control" name="csv_file" accept=".csv" required>
@@ -588,31 +588,27 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
       </div> <!-- Close modal-dialog -->
   </div> <!-- Close modal -->
 
-  <?php if ($success): ?>
-    <!-- succes modal -->
-    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-body text-center">
-            <h5 class="modal-title mb-3">✅ Pengajuan Berhasil</h5>
-            <p>Data cuti berhasil dikirim!</p>
-            <button type="button" class="btn btn-success mt-2" data-bs-dismiss="modal">Tutup</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <script>
-      window.addEventListener('DOMContentLoaded', function() {
-        var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-        successModal.show();
-
-        // Hapus ?success=1 dari URL tanpa reload
-        const url = new URL(window.location);
-        url.searchParams.delete('success');
-        window.history.replaceState({}, document.title, url.toString());
+<?php if (isset($_SESSION['csv_upload_success']) && $_SESSION['csv_upload_success'] === true): ?>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Upload CSV berhasil dikirimkan.',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#9AD914',
+        backdrop: true,
+        allowOutsideClick: false,
+        customClass: {
+          popup: 'rounded-4',
+          confirmButton: 'px-4 py-2'
+        }
       });
-    </script>
-  <?php endif; ?>
+    });
+  </script>
+  <?php unset($_SESSION['csv_upload_success']); ?>
+<?php endif; ?>
 
   <!-- code sisa cuti atau validasi kalender -->
   <script>

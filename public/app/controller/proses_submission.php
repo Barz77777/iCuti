@@ -31,8 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bind_param("ssssssssssss", $username, $nip, $jabatan, $divisi, $no_hp, $pengganti, $jenis_cuti, $tanggal_mulai, $tanggal_akhir, $catatan, $dokumen, $status);
                 $stmt->execute();
 
-                // ✅ Notifikasi ke Telegram per baris CSV
-                $pesan = "📢 <b>Pengajuan Cuti (CSV)</b>\n"
+                // Notifikasi ke Telegram
+                $pesan = "📢 <b>Pengajuan Cuti</b>\n"
                     . "👤 User: <b>$username</b>\n"
                     . "📅 Tanggal: <b>$tanggal_mulai</b> s/d <b>$tanggal_akhir</b>\n"
                     . "📄 Jenis: <b>$jenis_cuti</b>\n"
@@ -98,8 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     );
     mysqli_stmt_execute($stmt);
 
-    // ✅ Notifikasi ke Telegram per baris CSV
-    $pesan = "📢 <b>Pengajuan Cuti (CSV)</b>\n"
+    // Notifikasi ke Telegram
+    $pesan = "📢 <b>Pengajuan Cuti</b>\n"
         . "👤 User: <b>$username</b>\n"
         . "📅 Tanggal: <b>$tanggal_mulai</b> s/d <b>$tanggal_akhir</b>\n"
         . "📄 Jenis: <b>$jenis_cuti</b>\n"
