@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['choose_role'])) {
         }
 
         .modal-header {
-            background-color: #2d6a4f;
+            background-color: #2d5938;
             color: white;
             border-top-left-radius: 15px;
             border-top-right-radius: 15px;
@@ -50,12 +50,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['choose_role'])) {
         }
 
         .btn-primary {
-            background-color: #2d6a4f;
+            background-color: #2d5938;
             border: none;
         }
 
         .btn-secondary {
-            background-color: #334036;
+            background-color: #2d5938;
             color: white;
             border: none;
         }
@@ -66,7 +66,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['choose_role'])) {
         }
 
         .btn-primary:hover {
-            background-color: #334036;
+            background-color: #9ad914;
+        }
+
+        .btn-secondary:hover {
+            background-color: #9ad914;
         }
 
         .modal-body p {

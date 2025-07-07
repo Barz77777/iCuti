@@ -607,7 +607,7 @@ $jenisCuti = $result->fetch_assoc();
                         <input type="file" class="form-control" name="csv_file" accept=".csv" required>
                       </div>
                       <div class="mb-3">
-                        <a href="asset/template/template_pengajuan_cuti.csv" class="btn btn-outline-secondary">📥 Download Template CSV</a>
+                        <a href="/asset/template/template_pengajuan_cuti.csv" class="btn btn-outline-secondary">📥 Download Template CSV</a>
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -910,6 +910,13 @@ $jenisCuti = $result->fetch_assoc();
         }
     }, 1000);
 </script>
+
+<script>
+window.addEventListener("unload", function () {
+  navigator.sendBeacon("/logout.php");
+});
+</script>
+
 
 </body>
 
