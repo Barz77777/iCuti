@@ -556,6 +556,7 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
                         <input type="file" class="form-control" name="dokumen" accept=".pdf,.jpg,.jpeg,.png" required>
                       </div>
 
+                      <!-- Submit -->
                       <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary" style="background-color: #9AD914; border-color: #9AD914;">Submit</button>

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require '../../config/db_connection.php';
+require 'icuti_bot.php'; // ⬅️ File kirim Telegram
 
 // Cek jika user sudah login
 if (!isset($_SESSION['user'])) {
@@ -12,7 +13,7 @@ $username = $_SESSION['user'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // 🟨 Proses Upload CSV (jika ada)
+    // 🟨 Proses Upload CSV
     if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === 0) {
         $csvTmp = $_FILES['csv_file']['tmp_name'];
 
@@ -22,13 +23,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             while (($row = fgetcsv($handle, 1000, ",")) !== false) {
                 [$nip, $jabatan, $divisi, $no_hp, $pengganti, $jenis_cuti, $tanggal_mulai, $tanggal_akhir, $catatan] = $row;
                 $status = "Menunggu";
-                $dokumen = ''; // kosong karena CSV tidak upload file
+                $dokumen = ''; // CSV tidak ada dokumen
 
                 $stmt = $conn->prepare("INSERT INTO cuti 
                     (username, nip, jabatan, divisi, no_hp, pengganti, jenis_cuti, tanggal_mulai, tanggal_akhir, catatan, dokumen, status_pengajuan)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->bind_param("ssssssssssss", $username, $nip, $jabatan, $divisi, $no_hp, $pengganti, $jenis_cuti, $tanggal_mulai, $tanggal_akhir, $catatan, $dokumen, $status);
                 $stmt->execute();
+
+                // ✅ Notifikasi ke Telegram per baris CSV
+                $pesan = "📢 <b>Pengajuan Cuti (CSV)</b>\n"
+                    . "👤 User: <b>$username</b>\n"
+                    . "📅 Tanggal: <b>$tanggal_mulai</b> s/d <b>$tanggal_akhir</b>\n"
+                    . "📄 Jenis: <b>$jenis_cuti</b>\n"
+                    . "📝 Catatan: <i>$catatan</i>\n"
+                    . "📌 Status: <b>$status</b>";
+
+                kirimTelegram($pesan);
             }
 
             fclose($handle);
@@ -64,18 +75,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Simpan ke tabel cuti
+    // Simpan ke database
     $sql = "INSERT INTO cuti 
         (username, nip, jabatan, divisi, no_hp, pengganti, jenis_cuti, tanggal_mulai, tanggal_akhir, catatan, dokumen, status_pengajuan)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, 'ssssssssssss',
-        $username, $nip, $jabatan, $divisi, $no_hp, $pengganti,
-        $jenis_cuti, $tanggal_mulai, $tanggal_akhir, $catatan, $dokumen, $status
+    mysqli_stmt_bind_param(
+        $stmt,
+        'ssssssssssss',
+        $username,
+        $nip,
+        $jabatan,
+        $divisi,
+        $no_hp,
+        $pengganti,
+        $jenis_cuti,
+        $tanggal_mulai,
+        $tanggal_akhir,
+        $catatan,
+        $dokumen,
+        $status
     );
     mysqli_stmt_execute($stmt);
 
-    // Notifikasi ke admin
+    // ✅ Notifikasi ke Telegram per baris CSV
+    $pesan = "📢 <b>Pengajuan Cuti (CSV)</b>\n"
+        . "👤 User: <b>$username</b>\n"
+        . "📅 Tanggal: <b>$tanggal_mulai</b> s/d <b>$tanggal_akhir</b>\n"
+        . "📄 Jenis: <b>$jenis_cuti</b>\n"
+        . "📝 Catatan: <i>$catatan</i>\n"
+        . "📌 Status: <b>$status</b>";
+    kirimTelegram($pesan);
+
+    // ✅ Simpan Notifikasi Internal
     date_default_timezone_set('Asia/Jakarta');
     $judul_notif = "Pengajuan Cuti Baru";
     $pesan_notif = "Karyawan $username mengajukan cuti dari $tanggal_mulai sampai $tanggal_akhir.";
@@ -92,4 +124,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: /app/view/user/beranda-user-submission.php?success=1");
     exit();
 }
-?>
