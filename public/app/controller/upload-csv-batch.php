@@ -9,24 +9,6 @@ function isValidDate($date)
     return $d && $d->format('Y-m-d') === $date;
 }
 
-// Proses CSV
-if (isset($_FILES['csv_file'])) {
-    $fileTmp = $_FILES['csv_file']['tmp_name'];
-
-    if (($handle = fopen($fileTmp, "r")) !== FALSE) {
-        fgetcsv($handle); // Skip header
-        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-            // Simpan ke database
-            // (Sama seperti sebelumnya)
-        }
-        fclose($handle);
-    }
-
-    $_SESSION['csv_upload_success'] = true;
-    header("Location: /app/view/user/beranda-user-submission.php");
-    exit;
-}
-
 $allowedLeaveTypes = ['Annual Leave', 'Sick Leave', 'Maternity Leave'];
 $errors = [];
 
@@ -40,11 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
         while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
             $rowNumber++;
 
+            // Lewati baris header
             if ($isHeader) {
                 $isHeader = false;
                 continue;
             }
 
+            // Cek jumlah kolom
             if (count($data) < 12) {
                 $errors[] = "Baris $rowNumber: Kolom tidak lengkap.";
                 continue;
@@ -52,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
 
             list($username, $nip, $jabatan, $divisi, $no_hp, $pengganti, $jenis_cuti, $tanggal_mulai, $tanggal_akhir, $catatan, $dokumen, $status_csv) = $data;
 
+            // Validasi data
             if (
                 empty($username) || empty($nip) || empty($jabatan) || empty($divisi) ||
                 empty($no_hp) || empty($pengganti) || empty($jenis_cuti) ||
@@ -71,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
                 continue;
             }
 
+            // Siapkan data untuk insert
             $status_pengajuan = "Menunggu";
             $notified = 0;
             $tanggal_disetujui = null;
@@ -79,17 +65,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
 
             $stmt = $conn->prepare("INSERT INTO cuti (
                 username, nip, jabatan, divisi, no_hp, pengganti,
-                jenis_cuti, tanggal_mulai, tanggal_akhir, catatan, dokumen,
+                jenis_cuti, tanggal_mulai, tanggal_akhir, catatan, dokumen, csv,
                 status_pengajuan, notified, tanggal_disetujui, tanggal_selesai, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             if (!$stmt) {
                 $errors[] = "Baris $rowNumber: Query error: " . $conn->error;
                 continue;
             }
 
+            // Bind dan eksekusi
             $stmt->bind_param(
-                "ssssssssssssssss",
+                "sssssssssssssssss",
                 $username,
                 $nip,
                 $jabatan,
@@ -101,6 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
                 $tanggal_akhir,
                 $catatan,
                 $dokumen,
+                $status_csv,
                 $status_pengajuan,
                 $notified,
                 $tanggal_disetujui,
@@ -111,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
             if (!$stmt->execute()) {
                 $errors[] = "Baris $rowNumber: Gagal simpan. " . $stmt->error;
             } else {
-                // ✅ Kirim notifikasi Telegram jika simpan berhasil
+                // Notifikasi Telegram
                 $pesan = "📢 <b>Pengajuan Cuti (CSV)</b>\n"
                     . "👤 User: <b>$username</b>\n"
                     . "📅 Tanggal: <b>$tanggal_mulai</b> s/d <b>$tanggal_akhir</b>\n"
@@ -131,8 +119,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
             header("Location: /app/view/user/beranda-user-submission.php?status=error");
         } else {
             unset($_SESSION['upload_errors']);
+            $_SESSION['csv_upload_success'] = true;
             header("Location: /app/view/user/beranda-user-submission.php?status=success");
         }
+
     } else {
         header("Location: /app/view/user/beranda-user-submission.php?status=error&msg=Gagal membuka file CSV.");
     }

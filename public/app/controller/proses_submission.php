@@ -13,43 +13,6 @@ $username = $_SESSION['user'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // 🟨 Proses Upload CSV
-    if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === 0) {
-        $csvTmp = $_FILES['csv_file']['tmp_name'];
-
-        if (($handle = fopen($csvTmp, "r")) !== false) {
-            fgetcsv($handle); // skip header
-
-            while (($row = fgetcsv($handle, 1000, ",")) !== false) {
-                [$nip, $jabatan, $divisi, $no_hp, $pengganti, $jenis_cuti, $tanggal_mulai, $tanggal_akhir, $catatan] = $row;
-                $status = "Menunggu";
-                $dokumen = ''; // CSV tidak ada dokumen
-
-                $stmt = $conn->prepare("INSERT INTO cuti 
-                    (username, nip, jabatan, divisi, no_hp, pengganti, jenis_cuti, tanggal_mulai, tanggal_akhir, catatan, dokumen, status_pengajuan)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("ssssssssssss", $username, $nip, $jabatan, $divisi, $no_hp, $pengganti, $jenis_cuti, $tanggal_mulai, $tanggal_akhir, $catatan, $dokumen, $status);
-                $stmt->execute();
-
-                // Notifikasi ke Telegram
-                $pesan = "📢 <b>Pengajuan Cuti</b>\n"
-                    . "👤 User: <b>$username</b>\n"
-                    . "📅 Tanggal: <b>$tanggal_mulai</b> s/d <b>$tanggal_akhir</b>\n"
-                    . "📄 Jenis: <b>$jenis_cuti</b>\n"
-                    . "📝 Catatan: <i>$catatan</i>\n"
-                    . "📌 Status: <b>$status</b>";
-
-                kirimTelegram($pesan);
-            }
-
-            fclose($handle);
-            header("Location: /app/view/user/beranda-user-submission.php?csv_success=1");
-            exit();
-        } else {
-            echo "Gagal membuka file CSV.";
-            exit();
-        }
-    }
 
     // 🟨 Proses Form Manual
     $nip = $_POST['nip'] ?? '';
