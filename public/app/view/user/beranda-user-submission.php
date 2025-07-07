@@ -346,7 +346,7 @@ $jenisCuti = $result->fetch_assoc();
         ?>
 
         <!-- DESKTOP TABLE -->
-        <div class="hidden md:block overflow-x-auto max-h-[400px] overflow-y-auto scroll-costum">
+        <div class="hidden md:block overflow-x-auto max-h-[400px] overflow-y-auto scroll-custom">
           <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg">
             <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914;">
               <tr>
