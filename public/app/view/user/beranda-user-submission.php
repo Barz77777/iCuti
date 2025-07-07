@@ -623,9 +623,8 @@ $jenisCuti = $result->fetch_assoc();
       </div> <!-- Close modal-dialog -->
   </div> <!-- Close modal -->
 
-<<<<<<< HEAD
 
- <!-- massage CSV berhasil atau gagal -->
+ <!-- massage pengajuan cuti -->
   <?php if (isset($_GET['status'])): ?>
     <script>
       const status = "<?= $_GET['status'] ?>";
@@ -654,7 +653,6 @@ $jenisCuti = $result->fetch_assoc();
     </script>
   <?php endif; ?>
   
-=======
 <?php if (isset($_SESSION['csv_upload_success']) && $_SESSION['csv_upload_success'] === true): ?>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
@@ -676,7 +674,6 @@ $jenisCuti = $result->fetch_assoc();
   </script>
   <?php unset($_SESSION['csv_upload_success']); ?>
 <?php endif; ?>
->>>>>>> 30f0f0ad0c48c0450c0dd2b109d5025fd34f1390
 
   <!-- code sisa cuti atau validasi kalender -->
   <script>

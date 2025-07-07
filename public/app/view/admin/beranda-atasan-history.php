@@ -244,6 +244,7 @@ mysqli_query($conn, "
             $countSql = "SELECT COUNT(*) as total FROM cuti WHERE (status_pengajuan = 'Ditolak' OR status_pengajuan = 'Disetujui')";
             if (!empty($search)) {
                 $countSql .= " AND (
+                    username LIKE '%$search%' OR
                     nip LIKE '%$search%' OR
                     jabatan LIKE '%$search%' OR
                     divisi LIKE '%$search%' OR
@@ -267,6 +268,7 @@ mysqli_query($conn, "
                     WHERE (status_pengajuan = 'Ditolak' OR status_pengajuan = 'Disetujui')";
             if (!empty($search)) {
                 $sql .= " AND (
+                    username LIKE '%$search%' OR
                     nip LIKE '%$search%' OR
                     jabatan LIKE '%$search%' OR
                     divisi LIKE '%$search%' OR
