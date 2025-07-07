@@ -14,14 +14,14 @@ $password = $_POST['password'] ?? '';
 $responseKey = $_POST['g-recaptcha-response'] ?? '';
 
 // Aktifkan ini kalau mau gunakan reCAPTCHA
-// $secretKey = "YOUR_SECRET_KEY";
-// $verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secretKey&response=$responseKey");
-// $captcha_response = json_decode($verify);
-// if (!$captcha_response->success) {
-//     $message = "Verifikasi reCAPTCHA gagal. Silakan coba lagi.";
-//     $message_type = "danger";
-//     exit();
-// }
+$secretKey = "6LdVyHorAAAAALF4w3bRSupNFvhuiRMKlkI9rhnw";
+$verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secretKey&response=$responseKey");
+$captcha_response = json_decode($verify);
+if (!$captcha_response->success) {
+    $message = "Verifikasi reCAPTCHA gagal. Silakan coba lagi.";
+    $message_type = "danger";
+    exit();
+}
 
 if (empty($username) || empty($password)) {
     $message = "Username dan Password wajib diisi.";
@@ -109,6 +109,7 @@ if (empty($username) || empty($password)) {
         }
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -182,7 +183,7 @@ if (empty($username) || empty($password)) {
                             <i class="bi bi-eye-slash" id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
                         </div>
                     </div>
-                    <!-- <div class="g-recaptcha" data-sitekey="6LdW43UrAAAAAG6wXfE3kqkSH503n38xg3dRhoC5"></div>     -->
+                    <div class="g-recaptcha" data-sitekey="6LdVyHorAAAAAJ1IlVbw7HO4vsFzlwjhkPpDJbSO"></div>    
                     <button type="submit">Login</button>
                 </form>
             </div>
