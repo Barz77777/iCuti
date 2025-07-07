@@ -591,6 +591,7 @@ $jenisCuti = $result->fetch_assoc();
                         <input type="file" class="form-control" name="dokumen" accept=".pdf,.jpg,.jpeg,.png" required>
                       </div>
 
+                      <!-- Submit -->
                       <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary" style="background-color: #9AD914; border-color: #9AD914;">Submit</button>
@@ -622,6 +623,7 @@ $jenisCuti = $result->fetch_assoc();
       </div> <!-- Close modal-dialog -->
   </div> <!-- Close modal -->
 
+<<<<<<< HEAD
 
  <!-- massage CSV berhasil atau gagal -->
   <?php if (isset($_GET['status'])): ?>
@@ -652,6 +654,29 @@ $jenisCuti = $result->fetch_assoc();
     </script>
   <?php endif; ?>
   
+=======
+<?php if (isset($_SESSION['csv_upload_success']) && $_SESSION['csv_upload_success'] === true): ?>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: 'Upload CSV berhasil dikirimkan.',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#9AD914',
+        backdrop: true,
+        allowOutsideClick: false,
+        customClass: {
+          popup: 'rounded-4',
+          confirmButton: 'px-4 py-2'
+        }
+      });
+    });
+  </script>
+  <?php unset($_SESSION['csv_upload_success']); ?>
+<?php endif; ?>
+>>>>>>> 30f0f0ad0c48c0450c0dd2b109d5025fd34f1390
 
   <!-- code sisa cuti atau validasi kalender -->
   <script>

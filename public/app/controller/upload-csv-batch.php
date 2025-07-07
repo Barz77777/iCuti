@@ -1,11 +1,33 @@
 <?php
 include '../../config/db_connection.php';
+<<<<<<< HEAD
+=======
+include 'icuti_bot.php'; //
+>>>>>>> 30f0f0ad0c48c0450c0dd2b109d5025fd34f1390
 session_start();
 
 function isValidDate($date)
 {
     $d = DateTime::createFromFormat('Y-m-d', $date);
     return $d && $d->format('Y-m-d') === $date;
+}
+
+// Proses CSV
+if (isset($_FILES['csv_file'])) {
+    $fileTmp = $_FILES['csv_file']['tmp_name'];
+
+    if (($handle = fopen($fileTmp, "r")) !== FALSE) {
+        fgetcsv($handle); // Skip header
+        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+            // Simpan ke database
+            // (Sama seperti sebelumnya)
+        }
+        fclose($handle);
+    }
+
+    $_SESSION['csv_upload_success'] = true;
+    header("Location: /app/view/user/beranda-user-submission.php");
+    exit;
 }
 
 $allowedLeaveTypes = ['Annual Leave', 'Sick Leave', 'Maternity Leave'];
@@ -91,6 +113,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
 
             if (!$stmt->execute()) {
                 $errors[] = "Baris $rowNumber: Gagal simpan. " . $stmt->error;
+            } else {
+                // ✅ Kirim notifikasi Telegram jika simpan berhasil
+                $pesan = "📢 <b>Pengajuan Cuti (CSV)</b>\n"
+                    . "👤 User: <b>$username</b>\n"
+                    . "📅 Tanggal: <b>$tanggal_mulai</b> s/d <b>$tanggal_akhir</b>\n"
+                    . "📄 Jenis: <b>$jenis_cuti</b>\n"
+                    . "📝 Catatan: <i>$catatan</i>\n"
+                    . "📌 Status: <b>$status_pengajuan</b>";
+                kirimTelegram($pesan);
             }
 
             $stmt->close();

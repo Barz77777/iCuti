@@ -113,6 +113,7 @@ if (empty($username) || empty($password)) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -120,6 +121,7 @@ if (empty($username) || empty($password)) {
     <title>Login iCuti</title>
     <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="style/set.css" />
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
@@ -134,9 +136,13 @@ if (empty($username) || empty($password)) {
                 <h1>Welcome back to <span class="highlight">iCuti</span></h1>
                 <p class="subtitle">Please enter your details to login to your account!</p>
                 <form method="POST" action="login.php">
+<<<<<<< HEAD
                     <?php if (isset($message)): ?>
                         <div class="alert alert-<?= $message_type ?>"><?= $message ?></div>
                     <?php endif; ?>
+=======
+                    <!-- Username -->
+>>>>>>> 30f0f0ad0c48c0450c0dd2b109d5025fd34f1390
                     <div class="form-group">
                         <label for="username">Username</label>
                         <div class="input-group">
@@ -144,19 +150,46 @@ if (empty($username) || empty($password)) {
                             <input type="text" id="username" name="username" required placeholder="Username" />
                         </div>
                     </div>
+
+                    <!-- Password -->
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <div class="input-group">
+                        <div class="input-group" style="position: relative;">
                             <span class="material-icons">lock</span>
                             <input type="password" id="password" name="password" required placeholder="Password" />
+                            <!-- Toggle icon -->
+                            <i class="bi bi-eye-slash" id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
                         </div>
+<<<<<<< HEAD
                     </div>  
                     <!-- <div class="g-recaptcha" data-sitekey="6LdW43UrAAAAAG6wXfE3kqkSH503n38xg3dRhoC5"></div>     -->
+=======
+                    </div>
+
+                    <!-- Captcha -->
+                    <div class="g-recaptcha" data-sitekey="6LdW43UrAAAAAG6wXfE3kqkSH503n38xg3dRhoC5"></div>
+
+                    <!-- Submit -->
+>>>>>>> 30f0f0ad0c48c0450c0dd2b109d5025fd34f1390
                     <button type="submit">Login</button>
                 </form>
             </div>
         </div>
     </main>
+
+    <!-- Script untuk toggle password -->
+    <script>
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+
+            togglePassword.classList.toggle('bi-eye');
+            togglePassword.classList.toggle('bi-eye-slash');
+        });
+    </script>
 </body>
 
 </html>

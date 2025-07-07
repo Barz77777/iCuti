@@ -60,16 +60,18 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
 // Cek apakah ada perubahan status pengajuan cuti untuk user ini (Disetujui/Ditolak) yang belum diberi notifikasi
 // Asumsi: Ada kolom 'notified' (TINYINT 0/1) di tabel cuti untuk menandai sudah/notif
 date_default_timezone_set('Asia/Jakarta');
+
 $cekCuti = $conn->query("SELECT id, status_pengajuan FROM cuti WHERE username = '$user' AND status_pengajuan IN ('Disetujui', 'Ditolak') AND (notified IS NULL OR notified = 0)");
+
+$judul = "Status Pengajuan Cuti";
+
 while ($cuti = $cekCuti->fetch_assoc()) {
   $pesan = "Pengajuan cuti Anda telah " . strtolower($cuti['status_pengajuan']) . " oleh atasan.";
 
-  // Hanya satu kali penerima_role
-  $stmt = $conn->prepare("INSERT INTO notifications (penerima_role, pesan, status, created_at) VALUES ('user', ?, 'baru', NOW())");
-  $stmt->bind_param('s', $pesan);
+  $stmt = $conn->prepare("INSERT INTO notifications (judul, penerima_role, pesan, status, created_at) VALUES (?, 'user', ?, 'baru', NOW())");
+  $stmt->bind_param('ss', $judul, $pesan);
   $stmt->execute();
 
-  // Update agar cuti tidak di-notify lagi
   $conn->query("UPDATE cuti SET notified = 1 WHERE id = " . (int)$cuti['id']);
 }
 
