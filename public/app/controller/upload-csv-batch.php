@@ -1,9 +1,6 @@
 <?php
 include '../../config/db_connection.php';
-<<<<<<< HEAD
-=======
-include 'icuti_bot.php'; //
->>>>>>> 30f0f0ad0c48c0450c0dd2b109d5025fd34f1390
+include 'icuti_bot.php'; 
 session_start();
 
 function isValidDate($date)
