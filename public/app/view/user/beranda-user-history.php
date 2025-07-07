@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'user') {
+if (!isset($_SESSION['user'])) {
   header("Location: /index.php");
   exit();
 }
@@ -11,12 +11,10 @@ $role = $_SESSION['role'];
 
 require '../../../config/db_connection.php';
 
-// Ambil history cuti yang sudah disetujui atau ditolak
+// search
 $search = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
 
-$sql = "SELECT username, nip, jabatan, divisi, no_hp, pengganti, jenis_cuti, tanggal_mulai, tanggal_akhir, catatan, dokumen, status_pengajuan, tanggal_disetujui
-        FROM cuti 
-        WHERE status_pengajuan = 'Selesai'";
+$sql = "SELECT * FROM cuti WHERE username = '$user' AND status_pengajuan = 'Selesai'";
 
 
 if (!empty($search)) {
@@ -89,7 +87,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 mysqli_query($conn, "
     UPDATE cuti 
     SET status_pengajuan = 'Selesai' 
-    WHERE tanggal_selesai < CURDATE() AND status_pengajuan != 'Selesai'
+    WHERE tanggal_akhir < CURDATE() AND status_pengajuan != 'Selesai'
 ");
 
 ?>
@@ -143,6 +141,13 @@ mysqli_query($conn, "
           </div>
         </div>
         <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
+        <?php if ($_SESSION['role'] === 'admin'): ?>
+        <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
+            <button type="submit" style="font-size: 16px;">
+                Ganti ke <?= $_SESSION['active_role'] === 'admin' ? 'user' : 'admin' ?>
+            </button>
+        </form>
+      <?php endif; ?>
       </div>
 
       <!-- Menu Icons -->
@@ -371,7 +376,7 @@ mysqli_query($conn, "
                     <td class="px-5 py-3 whitespace-nowrap"><?= htmlspecialchars($row['catatan']) ?></td>
                     <?php
                     $dokumen = $row['dokumen'] ?? '';
-                    $dokumen_path = 'uploads/' . urlencode($dokumen);
+                    $dokumen_path = '../../../uploads/' . urlencode($dokumen);
                     $file_ext = strtolower(pathinfo($dokumen, PATHINFO_EXTENSION));
                     $is_image = in_array($file_ext, $allowed_extensions);
                     ?>
@@ -596,6 +601,33 @@ mysqli_query($conn, "
     <?php if ($jumlahNotifBaru > 0): ?>
       <audio id="notifSound" src="asset/notification.mp3" preload="auto"></audio>
     <?php endif; ?>
+
+    <!-- ketika user diam akan keluar -->
+  <script>
+    let idleTime = 0;
+    const logoutTime = 600; // dalam detik
+
+    // Reset waktu idle saat ada aktivitas
+    function resetIdleTime() {
+        idleTime = 0;
+    }
+
+    // Cek aktivitas user
+    window.onload = resetIdleTime;
+    document.onmousemove = resetIdleTime;
+    document.onkeypress = resetIdleTime;
+    document.onscroll = resetIdleTime;
+    document.onclick = resetIdleTime;
+
+    // Set timer setiap 1 detik
+    setInterval(() => {
+        idleTime++;
+        if (idleTime >= logoutTime) {
+            // Redirect ke logout atau halaman login
+            window.location.href = "/logout.php";
+        }
+    }, 1000);
+</script>
 
 </body>
 

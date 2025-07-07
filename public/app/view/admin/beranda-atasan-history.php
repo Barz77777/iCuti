@@ -131,6 +131,13 @@ mysqli_query($conn, "
                     </div>
                 </div>
                 <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
+                <?php if ($_SESSION['role'] === 'admin'): ?>
+        <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
+            <button type="submit" style="font-size: 16px;">
+                Ganti ke <?= $_SESSION['active_role'] === 'admin' ? 'user' : 'admin' ?>
+            </button>
+        </form>
+      <?php endif; ?>
             </div>
 
             <!-- Menu Icons -->
@@ -146,6 +153,10 @@ mysqli_query($conn, "
                 <i class="bi bi-clock-history"></i>
                 <span class="text-icon">History</span>
             </div>
+            <div class="icon-button" onclick="window.location.href='admin-unban.php';">
+                <i class="bi bi-person-circle"></i>
+                <span class="text-icon">Account</span>
+             </div>
 
             <!-- Bottom Icon -->
             <div class="toggle-container" style="margin-top:auto;">
@@ -581,6 +592,33 @@ mysqli_query($conn, "
         <?php if ($jumlahNotifBaru > 0): ?>
             <audio id="notifSound" src="asset/notification.mp3" preload="auto"></audio>
         <?php endif; ?>
+
+            <!-- ketika user diam akan keluar -->
+  <script>
+    let idleTime = 0;
+    const logoutTime = 600; // dalam detik
+
+    // Reset waktu idle saat ada aktivitas
+    function resetIdleTime() {
+        idleTime = 0;
+    }
+
+    // Cek aktivitas user
+    window.onload = resetIdleTime;
+    document.onmousemove = resetIdleTime;
+    document.onkeypress = resetIdleTime;
+    document.onscroll = resetIdleTime;
+    document.onclick = resetIdleTime;
+
+    // Set timer setiap 1 detik
+    setInterval(() => {
+        idleTime++;
+        if (idleTime >= logoutTime) {
+            // Redirect ke logout atau halaman login
+            window.location.href = "/logout.php";
+        }
+    }, 1000);
+</script>
 
 </body>
 

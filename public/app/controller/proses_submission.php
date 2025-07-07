@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt_notif->bind_param("sssss", $judul_notif, $pesan_notif, $penerima, $status_notif, $created_at);
     $stmt_notif->execute();
 
-    header("Location: /app/view/user/beranda-user-submission.php?success=1");
+    header("Location: /app/view/user/beranda-user-submission.php?status=success=1");
     exit();
 }
 ?>

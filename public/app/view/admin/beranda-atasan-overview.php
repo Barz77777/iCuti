@@ -161,6 +161,13 @@ while ($row = $resType->fetch_assoc()) {
       </div>
     </div>
     <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
+    <?php if ($_SESSION['role'] === 'admin'): ?>
+        <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
+            <button type="submit" style="font-size: 16px;">
+                Ganti ke <?= $_SESSION['active_role'] === 'admin' ? 'user' : 'admin' ?>
+            </button>
+        </form>
+      <?php endif; ?>
   </div>
 
 
@@ -184,6 +191,10 @@ while ($row = $resType->fetch_assoc()) {
       <div class="icon-button" onclick="window.location.href='beranda-atasan-history.php';">
         <i class="bi bi-clock-history"></i>
         <span class="text-icon">History</span>
+      </div>
+      <div class="icon-button" onclick="window.location.href='admin-unban.php';">
+        <i class="bi bi-person-circle"></i>
+        <span class="text-icon">Account</span>
       </div>
 
       <!-- Bottom Icon -->
@@ -260,6 +271,9 @@ while ($row = $resType->fetch_assoc()) {
         <p class="text-lg font-light animate-text delay-2">How are you feeling about your leave today?</p>
       </section>
       <section class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl">
+
+
+
 
         <!-- Received Data -->
 
@@ -488,6 +502,34 @@ while ($row = $resType->fetch_assoc()) {
           });
         });
       </script>
+
+        <!-- ketika user diam akan keluar -->
+  <script>
+    let idleTime = 0;
+    const logoutTime = 600; // dalam detik
+
+    // Reset waktu idle saat ada aktivitas
+    function resetIdleTime() {
+        idleTime = 0;
+    }
+
+    // Cek aktivitas user
+    window.onload = resetIdleTime;
+    document.onmousemove = resetIdleTime;
+    document.onkeypress = resetIdleTime;
+    document.onscroll = resetIdleTime;
+    document.onclick = resetIdleTime;
+
+    // Set timer setiap 1 detik
+    setInterval(() => {
+        idleTime++;
+        if (idleTime >= logoutTime) {
+            // Redirect ke logout atau halaman login
+            window.location.href = "/logout.php";
+        }
+    }, 1000);
+</script>
+
 </body>
 
 </html>

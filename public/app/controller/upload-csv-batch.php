@@ -1,5 +1,5 @@
 <?php
-include 'db_connection.php';
+include '../../config/db_connection.php';
 session_start();
 
 function isValidDate($date)

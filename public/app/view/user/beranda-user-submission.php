@@ -1,9 +1,7 @@
 <?php
 session_start();
 
-$success = isset($_GET['success']) && $_GET['success'] == 1;
-
-if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'user') {
+if (!isset($_SESSION['user'])) {
   header("Location: /index.php");
   exit();
 }
@@ -65,6 +63,22 @@ $leaveTakenTotal = $rowTaken['total'] ?? 0;
 // Sisa cuti
 $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
 
+// Ambil data pegawai berdasarkan username
+$sql = "SELECT * FROM users WHERE username = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $user);
+$stmt->execute();
+$result = $stmt->get_result();
+$pegawai = $result->fetch_assoc();
+
+// Ambil data jenis cuti
+$sqlJenis = "SELECT * FROM jenis_cuti";
+$stmt = $conn->prepare($sqlJenis);
+$stmt->execute();
+$result = $stmt->get_result();
+$jenisCuti = $result->fetch_assoc();
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -111,6 +125,13 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
           </div>
         </div>
         <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
+      <?php if ($_SESSION['role'] === 'admin'): ?>
+        <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
+            <button type="submit" style="font-size: 16px;">
+                Ganti ke <?= $_SESSION['active_role'] === 'admin' ? 'user' : 'admin' ?>
+            </button>
+        </form>
+      <?php endif; ?>
       </div>
 
       <!-- Menu Icons -->
@@ -234,7 +255,7 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
 
         $search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
 
-        $baseQuery = "FROM cuti WHERE username = '$user'";
+        $baseQuery = "FROM cuti WHERE username = '$user' AND (status_pengajuan = 'Ditolak' OR status_pengajuan = 'Disetujui' OR status_pengajuan = 'Menunggu')";
         if (!empty($search)) {
           $baseQuery .= " AND (
     username LIKE '%$search%' OR
@@ -276,48 +297,56 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
                 <th class="px-5 py-3">Status</th>
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              <?php while ($row = mysqli_fetch_assoc($result)):
-                $dokumen_path = '../../../public/uploads/' . urlencode($row['dokumen']);
-                $dokumen_path = '../../../uploads/' . urlencode($row['dokumen']);
-                $is_image = in_array(pathinfo($row['dokumen'], PATHINFO_EXTENSION), ['jpg', 'png', 'webp', 'jpeg']);
-              ?>
-                <tr>
-                  <td class="px-5 py-3"><?= htmlspecialchars($row['username']) ?></td>
-                  <td class="px-5 py-3"><?= htmlspecialchars($row['nip']) ?></td>
-                  <td class="px-5 py-3"><?= htmlspecialchars($row['jabatan']) ?></td>
-                  <td class="px-5 py-3"><?= htmlspecialchars($row['divisi']) ?></td>
-                  <td class="px-5 py-3"><?= htmlspecialchars($row['no_hp']) ?></td>
-                  <td class="px-5 py-3"><?= htmlspecialchars($row['pengganti']) ?></td>
-                  <td class="px-5 py-3"><?= htmlspecialchars($row['jenis_cuti']) ?></td>
-                  <td class="px-5 py-3"><?= htmlspecialchars($row['tanggal_mulai']) ?></td>
-                  <td class="px-5 py-3"><?= htmlspecialchars($row['tanggal_akhir']) ?></td>
-                  <td class="px-5 py-3"><?= htmlspecialchars($row['catatan']) ?></td>
-                  <td class="px-5 py-3">
-                    <?php if (!empty($row['dokumen'])): ?>
-                      <?php if ($is_image): ?>
-                        <button onclick="openModal('<?= $dokumen_path ?>')" class="text-blue-600 underline">🖼️ lihat</button>
-                      <?php else: ?>
-                        <a href="<?= $dokumen_path ?>" target="_blank" class="text-blue-600 underline">📄</a>
-                      <?php endif; ?>
-                      <?php else: ?>- <?php endif; ?>
-                  </td>
-                  <td class="px-5 py-3">
-                    <?php
-                    $status = strtolower($row['status_pengajuan']);
-                    $badge = match ($status) {
-                      'disetujui' => 'bg-green-100 text-green-700 border border-green-400',
-                      'ditolak' => 'bg-red-100 text-red-700 border border-red-400',
-                      default => 'bg-blue-100 text-blue-700 border border-blue-400'
-                    };
-                    ?>
-                    <span class="px-2 py-1 rounded-full text-xs font-semibold <?= $badge ?>">
-                      <?= ucfirst($status) ?>
-                    </span>
-                  </td>
-                </tr>
-              <?php endwhile; ?>
-            </tbody>
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <?php if (mysqli_num_rows($result) === 0): ?>
+            <tr>
+              <td colspan="13" class="text-center py-4 text-gray-400">Belum ada data cuti.</td>
+            </tr>
+          <?php else: ?>
+            <?php while ($row = mysqli_fetch_assoc($result)):
+              $dokumen_path = '../../../uploads/' . urlencode($row['dokumen']);
+              $is_image = in_array(pathinfo($row['dokumen'], PATHINFO_EXTENSION), ['jpg', 'png', 'webp', 'jpeg']);
+            ?>
+              <tr>
+                <td class="px-5 py-3"><?= htmlspecialchars($row['username']) ?></td>
+                <td class="px-5 py-3"><?= htmlspecialchars($row['nip']) ?></td>
+                <td class="px-5 py-3"><?= htmlspecialchars($row['jabatan']) ?></td>
+                <td class="px-5 py-3"><?= htmlspecialchars($row['divisi']) ?></td>
+                <td class="px-5 py-3"><?= htmlspecialchars($row['no_hp']) ?></td>
+                <td class="px-5 py-3"><?= htmlspecialchars($row['pengganti']) ?></td>
+                <td class="px-5 py-3"><?= htmlspecialchars($row['jenis_cuti']) ?></td>
+                <td class="px-5 py-3"><?= htmlspecialchars($row['tanggal_mulai']) ?></td>
+                <td class="px-5 py-3"><?= htmlspecialchars($row['tanggal_akhir']) ?></td>
+                <td class="px-5 py-3"><?= htmlspecialchars($row['catatan']) ?></td>
+                <td class="px-5 py-3">
+                  <?php if (!empty($row['dokumen'])): ?>
+                    <?php if ($is_image): ?>
+                      <button onclick="openModal('<?= $dokumen_path ?>')" class="text-blue-600 underline">🖼️ lihat</button>
+                    <?php else: ?>
+                      <a href="<?= $dokumen_path ?>" target="_blank" class="text-blue-600 underline">📄</a>
+                    <?php endif; ?>
+                  <?php else: ?>
+                    -
+                  <?php endif; ?>
+                </td>
+                <td class="px-5 py-3">
+                  <?php
+                  $status = strtolower($row['status_pengajuan']);
+                  $badge = match ($status) {
+                    'disetujui' => 'bg-green-100 text-green-700 border border-green-400',
+                    'ditolak' => 'bg-red-100 text-red-700 border border-red-400',
+                    default => 'bg-yellow-100 text-yellow-700 border border-yellow-400'
+                  };
+                  ?>
+                  <span class="px-2 py-1 rounded-full text-xs font-semibold <?= $badge ?>">
+                    <?= ucfirst($status) ?>
+                  </span>
+                </td>
+              </tr>
+            <?php endwhile; ?>
+          <?php endif; ?>
+        </tbody>
+
           </table>
         </div>
 
@@ -485,28 +514,34 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
                   <div class="tab-pane fade show active" id="manual" role="tabpanel">
                     <form action="proses_submission.php" method="POST" enctype="multipart/form-data" id="leaveForm">
 
+                    <!-- NAMA -->
+                      <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" name="nama" value="<?= htmlspecialchars($user) ?>" readonly>
+                      </div>
+
                       <!-- NIP -->
                       <div class="mb-3">
                         <label class="form-label">NIP</label>
-                        <input type="text" class="form-control" name="nip" required pattern="[0-9]+" inputmode="numeric">
+                        <input type="text" class="form-control" name="nip" value="<?= htmlspecialchars($pegawai['nip']) ?>" readonly>
                       </div>
 
                       <!-- Jabatan -->
                       <div class="mb-3">
                         <label class="form-label">Jabatan</label>
-                        <input type="text" class="form-control" name="jabatan" required>
+                        <input type="text" class="form-control" name="jabatan" value="<?= htmlspecialchars($pegawai['jabatan']) ?>" readonly>
                       </div>
 
                       <!-- Divisi -->
                       <div class="mb-3">
                         <label class="form-label">Divisi</label>
-                        <input type="text" class="form-control" name="divisi" required>
+                        <input type="text" class="form-control" name="divisi" value="<?= htmlspecialchars($pegawai['divisi']) ?>" readonly>
                       </div>
 
                       <!-- No HP -->
                       <div class="mb-3">
                         <label class="form-label">No. HP</label>
-                        <input type="text" class="form-control" name="no_hp" required pattern="[0-9]+" inputmode="numeric" title="Masukkan Hanya Angka">
+                        <input type="text" class="form-control" name="no_hp" value="<?= htmlspecialchars($pegawai['no_hp']) ?>" readonly>
                       </div>
 
                       <!-- Pengganti -->
@@ -519,10 +554,10 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
                       <div class="mb-3">
                         <label class="form-label">Jenis Cuti</label>
                         <select class="form-select" name="jenis_cuti" required>
-                          <option value="">-- Pilih Jenis Cuti --</option>
-                          <option value="Annual Leave">Annual Leave</option>
-                          <option value="Sick Leave">Sick Leave</option>
-                          <option value="Maternity Leave">Maternity Leave</option>
+                          <option>-- Pilih Jenis Cuti --</option>
+                          <option><?= htmlspecialchars($jenisCuti['Annual']) ?></option>
+                          <option><?= htmlspecialchars($jenisCuti['Sick']) ?></option>
+                          <option><?= htmlspecialchars($jenisCuti['Maternity']) ?></option>
                         </select>
                       </div>
 
@@ -565,7 +600,7 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
 
                   <!-- Upload CSV Tab -->
                   <div class="tab-pane fade" id="csv" role="tabpanel">
-                    <form action="upload-csv-batch.php" method="POST" enctype="multipart/form-data">
+                    <form action="/app/controller/upload-csv-batch.php" method="POST" enctype="multipart/form-data">
                       <div class="mb-3">
                         <label class="form-label">Upload File CSV</label>
                         <input type="file" class="form-control" name="csv_file" accept=".csv" required>
@@ -587,31 +622,36 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
       </div> <!-- Close modal-dialog -->
   </div> <!-- Close modal -->
 
-  <?php if ($success): ?>
-    <!-- succes modal -->
-    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-body text-center">
-            <h5 class="modal-title mb-3">✅ Pengajuan Berhasil</h5>
-            <p>Data cuti berhasil dikirim!</p>
-            <button type="button" class="btn btn-success mt-2" data-bs-dismiss="modal">Tutup</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <script>
-      window.addEventListener('DOMContentLoaded', function() {
-        var successModal = new bootstrap.Modal(document.getElementById('successModal'));
-        successModal.show();
 
-        // Hapus ?success=1 dari URL tanpa reload
-        const url = new URL(window.location);
-        url.searchParams.delete('success');
-        window.history.replaceState({}, document.title, url.toString());
+ <!-- massage CSV berhasil atau gagal -->
+  <?php if (isset($_GET['status'])): ?>
+    <script>
+      const status = "<?= $_GET['status'] ?>";
+      const msg = "<?= isset($_GET['msg']) ? urldecode($_GET['msg']) : '' ?>";
+
+      document.addEventListener("DOMContentLoaded", function() {
+        if (status === "success=1") {
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Pengajuan Cuti Berhasil Diajukan.',
+            confirmButtonColor: '#9AD914'
+          });
+        } else if (status === "error") {
+          Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            html: `<pre style="text-align:left; white-space:pre-wrap;">${msg}</pre>`,
+            confirmButtonColor: '#d33'
+          });
+        }
+
+        // Hapus query string agar tidak muncul ulang saat refresh
+        window.history.replaceState({}, document.title, "beranda-user-submission.php");
       });
     </script>
   <?php endif; ?>
+  
 
   <!-- code sisa cuti atau validasi kalender -->
   <script>
@@ -822,6 +862,32 @@ $leaveRemaining = max($leaveLimitTotal - $leaveTakenTotal, 0);
     <audio id="notifSound" src="asset/notification.mp3" preload="auto"></audio>
   <?php endif; ?>
 
+  <!-- ketika user diam akan keluar -->
+  <script>
+    let idleTime = 0;
+    const logoutTime = 600; // dalam detik
+
+    // Reset waktu idle saat ada aktivitas
+    function resetIdleTime() {
+        idleTime = 0;
+    }
+
+    // Cek aktivitas user
+    window.onload = resetIdleTime;
+    document.onmousemove = resetIdleTime;
+    document.onkeypress = resetIdleTime;
+    document.onscroll = resetIdleTime;
+    document.onclick = resetIdleTime;
+
+    // Set timer setiap 1 detik
+    setInterval(() => {
+        idleTime++;
+        if (idleTime >= logoutTime) {
+            // Redirect ke logout atau halaman login
+            window.location.href = "/logout.php";
+        }
+    }, 1000);
+</script>
 
 </body>
 
