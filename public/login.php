@@ -14,14 +14,15 @@ $password = $_POST['password'] ?? '';
 $responseKey = $_POST['g-recaptcha-response'] ?? '';
 
 // Aktifkan ini kalau mau gunakan reCAPTCHA
-$secretKey = "6LdVyHorAAAAALF4w3bRSupNFvhuiRMKlkI9rhnw";
-$verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secretKey&response=$responseKey");
-$captcha_response = json_decode($verify);
-if (!$captcha_response->success) {
-    $message = "Verifikasi reCAPTCHA gagal. Silakan coba lagi.";
-    $message_type = "danger";
-    exit();
-}
+// $secretKey = "6LdVyHorAAAAALF4w3bRSupNFvhuiRMKlkI9rhnw";
+// $verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secretKey&response=$responseKey");
+// $captcha_response = json_decode($verify);
+
+// if (!$captcha_response->success) {
+//     $message = "Verifikasi reCAPTCHA gagal. Silakan coba lagi.";
+//     $message_type = "danger";
+//     exit();
+// }
 
 if (empty($username) || empty($password)) {
     $message = "Username dan Password wajib diisi.";
