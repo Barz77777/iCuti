@@ -168,25 +168,8 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 </head>
 
 <body>
-  <!-- Profile Card -->
-  <div class="profile-dropdown" id="profileDropdown">
-    <div class="profile-content">
-      <div class="user-info">
-        <p class="user-name"><?= ($user) ?></p>
-        <p class="user-role"><?= ($role) ?></p>
-      </div>
-    </div>
-    <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
-    <?php if ($_SESSION['role'] === 'admin'): ?>
-      <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
-        <button type="submit" style="font-size: 16px;">
-          Ganti ke <?= $_SESSION['active_role'] === 'admin' ? 'user' : 'admin' ?>
-        </button>
-      </form>
-    <?php endif; ?>
-  </div>
 
-  <!-- Alert Tidak Ada Aktivitas -->
+<!-- Alert Tidak Ada Aktivitas -->
   <div id="idleWarningModal" style="display: none;
   position: fixed;
   top: 0; left: 0;
@@ -252,7 +235,23 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 
     </div>
   </div>
-
+  <!-- Profile Card -->
+  <div class="profile-dropdown" id="profileDropdown">
+    <div class="profile-content">
+      <div class="user-info">
+        <p class="user-name"><?= ($user) ?></p>
+        <p class="user-role"><?= ($role) ?></p>
+      </div>
+    </div>
+    <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
+    <?php if ($_SESSION['role'] === 'admin'): ?>
+        <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
+            <button type="submit" style="font-size: 16px;">
+                Ganti ke <?= $_SESSION['active_role'] === 'admin' ? 'user' : 'admin' ?>
+            </button>
+        </form>
+      <?php endif; ?>
+  </div>
 
   <div class="layout">
     <aside class="sidebar">
