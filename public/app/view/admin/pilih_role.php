@@ -67,11 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['choose_role'])) {
         }
 
         .btn-primary:hover {
-            background-color: #9ad914;
+            background-color: #1E5938;
         }
 
         .btn-secondary:hover {
-            background-color: #9ad914;
+            background-color: #1E5938;
         }
 
         .modal-body p {
