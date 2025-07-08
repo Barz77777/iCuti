@@ -105,6 +105,66 @@ $jenisCuti = $result->fetch_assoc();
   <script src="https://cdn.tailwindcss.com"></script>
   <title>iCuti</title>
   <style>
+    /* Loader full screen */
+    #loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .morphing-squares {
+      display: flex;
+      gap: 8px;
+    }
+
+    .morphing-squares div {
+      width: 15px;
+      height: 15px;
+      background: linear-gradient(45deg, #9AD914, #8ABF17);
+      border-radius: 2px;
+      animation: morphSquares 1.5s ease-in-out infinite;
+    }
+
+    .morphing-squares div:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .morphing-squares div:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+
+    .morphing-squares div:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+
+    .morphing-squares div:nth-child(4) {
+      animation-delay: 0.3s;
+    }
+
+    .morphing-squares div:nth-child(5) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes morphSquares {
+
+      0%,
+      100% {
+        transform: scale(1) rotate(0deg);
+        border-radius: 2px;
+      }
+
+      50% {
+        transform: scale(1.5) rotate(180deg);
+        border-radius: 50%;
+      }
+    }
   </style>
 </head>
 
@@ -117,73 +177,36 @@ $jenisCuti = $result->fetch_assoc();
         <i class="menu bi bi-list"></i>
       </div>
 
-    <!-- Alert Tidak Ada Aktivitas -->
-  <div id="idleWarningModal" style="display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: auto;
-  padding: 20px;
-">
+      <!-- Loader -->
+      <div id="loader">
+        <div class="morphing-squares">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
 
-    <div style="
-    background: #fff;
-    padding: 40px 30px;
-    border-radius: 25px;
-    text-align: center;
-    max-width: 400px;
-    width: 100%;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-  ">
+      <!-- Alert Tidak Ada Aktivitas -->
+      <div id="idleWarningModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 9999; justify-content: center; align-items: center; overflow: auto; padding: 20px;">
+        <div style="background: #fff; padding: 40px 30px; border-radius: 25px; text-align: center; max-width: 400px; width: 100%; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);">
 
-      <!-- Ikon Peringatan -->
-      <img src="/asset/alert.svg" alt="Warning Icon" style="
-      display: block;
-      margin: 0 auto 25px;
-      width: 120px;
-      max-width: 100%;
-      height: auto;
-    ">
+          <!-- Ikon Peringatan -->
+          <img src="/asset/alert.svg" alt="Warning Icon" style="display: block; margin: 0 auto 25px; width: 120px; max-width: 100%; height: auto;">
 
-      <!-- Judul -->
-      <h2 style="
-      font-size: 20px;
-      color: #333;
-      margin-bottom: 10px;
-      font-weight: 700;
-    ">Tidak Ada Aktivitas!</h2>
+          <!-- Judul -->
+          <h2 style="font-size: 20px; color: #333; margin-bottom: 10px; font-weight: 700;">Tidak Ada Aktivitas!</h2>
 
-      <!-- Subjudul -->
-      <p style="
-      font-size: 15px;
-      color: #555;
-      margin-bottom: 20px;
-    ">
-        Anda akan logout dalam <span id="countdown" style="font-weight: bold; color: #e74c3c;">30</span> detik.
-      </p>
+          <!-- Subjudul -->
+          <p style="font-size: 15px; color: #555; margin-bottom: 20px;">Anda akan logout dalam <span id="countdown" style="font-weight: bold; color: #e74c3c">30</span> detik.</p>
 
-      <!-- Tombol Aksi -->
-      <button onclick="stayLoggedIn()" style="
-      padding: 10px 24px;
-      background-color: #9AD914;
-      border: none;
-      color: white;
-      font-weight: bold;
-      font-size: 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-      transition: background 0.3s ease;
-    ">Saya Ada di Sini!</button>
+          <!-- Tombol Aksi -->
+          <button onclick="stayLoggedIn()" style="padding: 10px 24px; background-color: #9AD914; border: none; color: white; font-weight: bold; font-size: 14px;border-radius: 8px; cursor: pointer; box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1); transition: background 0.3s ease;">Saya Ada di Sini!</button>
+        </div>
+      </div>
 
-    </div>
-  </div>
-
+      <!-- Profile Dropdown -->
       <div class="profile-dropdown" id="profileDropdown">
         <div class="profile-content">
           <div class="user-info">
@@ -192,13 +215,13 @@ $jenisCuti = $result->fetch_assoc();
           </div>
         </div>
         <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
-      <?php if ($_SESSION['role'] === 'admin'): ?>
-        <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
+        <?php if ($_SESSION['role'] === 'admin'): ?>
+          <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
             <button type="submit" style="font-size: 16px;">
-                Ganti ke <?= $_SESSION['active_role'] === 'admin' ? 'user' : 'admin' ?>
+              Ganti ke <?= $_SESSION['active_role'] === 'admin' ? 'user' : 'admin' ?>
             </button>
-        </form>
-      <?php endif; ?>
+          </form>
+        <?php endif; ?>
       </div>
 
       <!-- Menu Icons -->
@@ -364,55 +387,55 @@ $jenisCuti = $result->fetch_assoc();
                 <th class="px-5 py-3">Status</th>
               </tr>
             </thead>
-        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-          <?php if (mysqli_num_rows($result) === 0): ?>
-            <tr>
-              <td colspan="13" class="text-center py-4 text-gray-400">Belum ada data cuti.</td>
-            </tr>
-          <?php else: ?>
-            <?php while ($row = mysqli_fetch_assoc($result)):
-              $dokumen_path = '../../../uploads/' . urlencode($row['dokumen']);
-              $is_image = in_array(pathinfo($row['dokumen'], PATHINFO_EXTENSION), ['jpg', 'png', 'webp', 'jpeg']);
-            ?>
-              <tr>
-                <td class="px-5 py-3"><?= htmlspecialchars($row['username']) ?></td>
-                <td class="px-5 py-3"><?= htmlspecialchars($row['nip']) ?></td>
-                <td class="px-5 py-3"><?= htmlspecialchars($row['jabatan']) ?></td>
-                <td class="px-5 py-3"><?= htmlspecialchars($row['divisi']) ?></td>
-                <td class="px-5 py-3"><?= htmlspecialchars($row['no_hp']) ?></td>
-                <td class="px-5 py-3"><?= htmlspecialchars($row['pengganti']) ?></td>
-                <td class="px-5 py-3"><?= htmlspecialchars($row['jenis_cuti']) ?></td>
-                <td class="px-5 py-3"><?= htmlspecialchars($row['tanggal_mulai']) ?></td>
-                <td class="px-5 py-3"><?= htmlspecialchars($row['tanggal_akhir']) ?></td>
-                <td class="px-5 py-3"><?= htmlspecialchars($row['catatan']) ?></td>
-                <td class="px-5 py-3">
-                  <?php if (!empty($row['dokumen'])): ?>
-                    <?php if ($is_image): ?>
-                      <button onclick="openModal('<?= $dokumen_path ?>')" class="text-blue-600 underline">🖼️ lihat</button>
-                    <?php else: ?>
-                      <a href="<?= $dokumen_path ?>" target="_blank" class="text-blue-600 underline">📄</a>
-                    <?php endif; ?>
-                  <?php else: ?>
-                    -
-                  <?php endif; ?>
-                </td>
-                <td class="px-5 py-3">
-                  <?php
-                  $status = strtolower($row['status_pengajuan']);
-                  $badge = match ($status) {
-                    'disetujui' => 'bg-green-100 text-green-700 border border-green-400',
-                    'ditolak' => 'bg-red-100 text-red-700 border border-red-400',
-                    default => 'bg-yellow-100 text-yellow-700 border border-yellow-400'
-                  };
-                  ?>
-                  <span class="px-2 py-1 rounded-full text-xs font-semibold <?= $badge ?>">
-                    <?= ucfirst($status) ?>
-                  </span>
-                </td>
-              </tr>
-            <?php endwhile; ?>
-          <?php endif; ?>
-        </tbody>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <?php if (mysqli_num_rows($result) === 0): ?>
+                <tr>
+                  <td colspan="13" class="text-center py-4 text-gray-400">Belum ada data cuti.</td>
+                </tr>
+              <?php else: ?>
+                <?php while ($row = mysqli_fetch_assoc($result)):
+                  $dokumen_path = '../../../uploads/' . urlencode($row['dokumen']);
+                  $is_image = in_array(pathinfo($row['dokumen'], PATHINFO_EXTENSION), ['jpg', 'png', 'webp', 'jpeg']);
+                ?>
+                  <tr>
+                    <td class="px-5 py-3"><?= htmlspecialchars($row['username']) ?></td>
+                    <td class="px-5 py-3"><?= htmlspecialchars($row['nip']) ?></td>
+                    <td class="px-5 py-3"><?= htmlspecialchars($row['jabatan']) ?></td>
+                    <td class="px-5 py-3"><?= htmlspecialchars($row['divisi']) ?></td>
+                    <td class="px-5 py-3"><?= htmlspecialchars($row['no_hp']) ?></td>
+                    <td class="px-5 py-3"><?= htmlspecialchars($row['pengganti']) ?></td>
+                    <td class="px-5 py-3"><?= htmlspecialchars($row['jenis_cuti']) ?></td>
+                    <td class="px-5 py-3"><?= htmlspecialchars($row['tanggal_mulai']) ?></td>
+                    <td class="px-5 py-3"><?= htmlspecialchars($row['tanggal_akhir']) ?></td>
+                    <td class="px-5 py-3"><?= htmlspecialchars($row['catatan']) ?></td>
+                    <td class="px-5 py-3">
+                      <?php if (!empty($row['dokumen'])): ?>
+                        <?php if ($is_image): ?>
+                          <button onclick="openModal('<?= $dokumen_path ?>')" class="text-blue-600 underline">🖼️ lihat</button>
+                        <?php else: ?>
+                          <a href="<?= $dokumen_path ?>" target="_blank" class="text-blue-600 underline">📄</a>
+                        <?php endif; ?>
+                      <?php else: ?>
+                        -
+                      <?php endif; ?>
+                    </td>
+                    <td class="px-5 py-3">
+                      <?php
+                      $status = strtolower($row['status_pengajuan']);
+                      $badge = match ($status) {
+                        'disetujui' => 'bg-green-100 text-green-700 border border-green-400',
+                        'ditolak' => 'bg-red-100 text-red-700 border border-red-400',
+                        default => 'bg-yellow-100 text-yellow-700 border border-yellow-400'
+                      };
+                      ?>
+                      <span class="px-2 py-1 rounded-full text-xs font-semibold <?= $badge ?>">
+                        <?= ucfirst($status) ?>
+                      </span>
+                    </td>
+                  </tr>
+                <?php endwhile; ?>
+              <?php endif; ?>
+            </tbody>
 
           </table>
         </div>
@@ -581,7 +604,7 @@ $jenisCuti = $result->fetch_assoc();
                   <div class="tab-pane fade show active" id="manual" role="tabpanel">
                     <form action="proses_submission.php" method="POST" enctype="multipart/form-data" id="leaveForm">
 
-                    <!-- NAMA -->
+                      <!-- NAMA -->
                       <div class="mb-3">
                         <label class="form-label">Name</label>
                         <input type="text" class="form-control" name="nama" value="<?= htmlspecialchars($user) ?>" readonly>
@@ -691,7 +714,7 @@ $jenisCuti = $result->fetch_assoc();
   </div> <!-- Close modal -->
 
 
- <!-- massage pengajuan cuti -->
+  <!-- massage pengajuan cuti -->
   <?php if (isset($_GET['status'])): ?>
     <script>
       const status = "<?= $_GET['status'] ?>";
@@ -719,28 +742,28 @@ $jenisCuti = $result->fetch_assoc();
       });
     </script>
   <?php endif; ?>
-  
-<?php if (isset($_SESSION['csv_upload_success']) && $_SESSION['csv_upload_success'] === true): ?>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      Swal.fire({
-        icon: 'success',
-        title: 'Berhasil!',
-        text: 'Upload CSV berhasil dikirimkan.',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#9AD914',
-        backdrop: true,
-        allowOutsideClick: false,
-        customClass: {
-          popup: 'rounded-4',
-          confirmButton: 'px-4 py-2'
-        }
+
+  <?php if (isset($_SESSION['csv_upload_success']) && $_SESSION['csv_upload_success'] === true): ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Upload CSV berhasil dikirimkan.',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#9AD914',
+          backdrop: true,
+          allowOutsideClick: false,
+          customClass: {
+            popup: 'rounded-4',
+            confirmButton: 'px-4 py-2'
+          }
+        });
       });
-    });
-  </script>
-  <?php unset($_SESSION['csv_upload_success']); ?>
-<?php endif; ?>
+    </script>
+    <?php unset($_SESSION['csv_upload_success']); ?>
+  <?php endif; ?>
 
   <!-- code sisa cuti atau validasi kalender -->
   <script>
@@ -950,63 +973,262 @@ $jenisCuti = $result->fetch_assoc();
   <?php if ($jumlahNotifBaru > 0): ?>
     <audio id="notifSound" src="asset/notification.mp3" preload="auto"></audio>
   <?php endif; ?>
+
+  <!-- Loader JS -->
+  <script>
+    async function ambilData() {
+      try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts/1'); // simulasi API
+        const data = await response.json();
+
+        document.getElementById('dataOutput').innerText = JSON.stringify(data, null, 2);
+      } catch (error) {
+        document.getElementById('dataOutput').innerText = "Gagal memuat data. Coba periksa koneksi Anda.";
+      } finally {
+        // Sembunyikan loader setelah data selesai diambil (berhasil/gagal)
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+      }
+    }
+
+    window.addEventListener('load', ambilData);
+  </script>
+
   <!-- ketika user diam akan keluar -->
   <script>
-    let idleTime = 0;
-    const logoutTime = 600; // 10 menit
-    const warningTime = logoutTime - 30; // Tampilkan warning 30 detik sebelum logout
-    let countdown = 30;
-    let countdownInterval;
-    let warningShown = false;
+    // ================================
+    // KONFIGURASI & VARIABEL GLOBAL
+    // ================================
+    const CONFIG = {
+      LOGOUT_TIME: 600, // 15 detik untuk testing (ganti ke 600 untuk produksi)
+      WARNING_TIME: 10, // 10 detik untuk warning (ganti ke 570 untuk produksi)
+      COUNTDOWN_DURATION: 30, // 5 detik countdown untuk testing (ganti ke 30 untuk produksi)
+      GRACE_PERIOD: 2000, // 2 detik grace period setelah page load
+      ACTIVITY_DELAY: 500, // 0.5 detik delay untuk mendeteksi aktivitas user
+      LOADING_DELAY: 1000 // 1 detik delay untuk page loading
+    };
 
-    function resetIdleTime() {
-      idleTime = 0;
-      warningShown = false;
+    let state = {
+      idleTime: 0,
+      countdown: CONFIG.COUNTDOWN_DURATION,
+      countdownInterval: null,
+      idleInterval: null,
+      warningShown: false,
+      userStarted: false,
+      isPageLoading: true,
+      pageLoadTime: Date.now()
+    };
+
+    // ================================
+    // FUNGSI UTILITAS
+    // ================================
+    function getTimeSinceLoad() {
+      return Date.now() - state.pageLoadTime;
+    }
+
+    function isValidToShowModal() {
+      return state.userStarted &&
+        !state.isPageLoading &&
+        !state.warningShown &&
+        getTimeSinceLoad() >= CONFIG.GRACE_PERIOD;
+    }
+
+    function isValidToStartTimer() {
+      return state.userStarted &&
+        !state.isPageLoading &&
+        !state.idleInterval;
+    }
+
+    function clearAllIntervals() {
+      if (state.idleInterval) {
+        clearInterval(state.idleInterval);
+        state.idleInterval = null;
+      }
+      if (state.countdownInterval) {
+        clearInterval(state.countdownInterval);
+        state.countdownInterval = null;
+      }
+    }
+
+    // ================================
+    // FUNGSI MODAL
+    // ================================
+    function showModal() {
+      if (!isValidToShowModal()) return;
+
+      const modal = document.getElementById("idleWarningModal");
+      const countdownEl = document.getElementById("countdown");
+
+      if (modal && countdownEl) {
+        modal.style.display = "flex";
+        countdownEl.innerText = state.countdown;
+        state.warningShown = true;
+
+        if (state.countdownInterval) {
+          clearInterval(state.countdownInterval);
+        }
+
+        state.countdownInterval = setInterval(() => {
+          state.countdown--;
+          countdownEl.innerText = state.countdown;
+
+          if (state.countdown <= 0) {
+            clearInterval(state.countdownInterval);
+            state.countdownInterval = null;
+            window.location.href = "/logout.php";
+          }
+        }, 1000);
+      }
+    }
+
+    function hideModal() {
+      const modal = document.getElementById("idleWarningModal");
+      if (modal) {
+        modal.style.display = "none";
+      }
+
+      if (state.countdownInterval) {
+        clearInterval(state.countdownInterval);
+        state.countdownInterval = null;
+      }
+
+      state.countdown = CONFIG.COUNTDOWN_DURATION;
+      state.warningShown = false;
+    }
+
+    // ================================
+    // FUNGSI TIMER
+    // ================================
+    function resetIdle() {
+      state.idleTime = 0;
+      state.warningShown = false;
       hideModal();
     }
 
-    function showModal() {
-      document.getElementById("idleWarningModal").style.display = "flex";
-      document.getElementById("countdown").innerText = countdown;
-      countdownInterval = setInterval(() => {
-        countdown--;
-        document.getElementById("countdown").innerText = countdown;
-        if (countdown <= 0) {
-          clearInterval(countdownInterval);
-          window.location.href = "/logout.php"; // Redirect logout
+    function startIdleTimer() {
+      if (!isValidToStartTimer()) return;
+
+      console.log('Starting idle timer'); // Debug
+      state.idleInterval = setInterval(() => {
+        state.idleTime++;
+        console.log(`Idle time: ${state.idleTime}s`); // Debug
+
+        if (state.idleTime >= CONFIG.WARNING_TIME && !state.warningShown &&
+          state.userStarted && !state.isPageLoading) {
+          console.log('Showing warning modal'); // Debug
+          showModal();
+        }
+
+        if (state.idleTime >= CONFIG.LOGOUT_TIME &&
+          state.userStarted && !state.isPageLoading) {
+          console.log('Auto logout triggered'); // Debug
+          window.location.href = "/logout.php";
         }
       }, 1000);
     }
 
-    function hideModal() {
-      document.getElementById("idleWarningModal").style.display = "none";
-      clearInterval(countdownInterval);
-      countdown = 30;
-    }
-
     function stayLoggedIn() {
-      resetIdleTime();
+      resetIdle();
+      if (state.userStarted && !state.isPageLoading) {
+        startIdleTimer();
+      }
     }
 
-    // Pasang listener aktivitas
-    document.onkeypress = resetIdleTime;
-    document.onclick = resetIdleTime;
+    // ================================
+    // FUNGSI AKTIVITAS USER
+    // ================================
+    function handleUserActivity() {
+      if (getTimeSinceLoad() < CONFIG.ACTIVITY_DELAY) return;
 
-    window.onload = () => {
-      resetIdleTime();
-      setTimeout(() => {
-        setInterval(() => {
-          idleTime++;
-          if (idleTime >= warningTime && !warningShown) {
-            warningShown = true;
-            showModal();
+      if (!state.userStarted && !state.isPageLoading) {
+        console.log('User activity detected - starting timer'); // Debug
+        state.userStarted = true;
+        resetIdle();
+        startIdleTimer();
+      } else if (state.userStarted && !state.isPageLoading) {
+        console.log('User activity - resetting idle timer'); // Debug
+        resetIdle();
+        if (!state.idleInterval) {
+          startIdleTimer();
+        }
+      }
+    }
+
+    function cleanup() {
+      clearAllIntervals();
+      state.userStarted = false;
+      state.isPageLoading = true;
+      state.warningShown = false;
+      hideModal();
+    }
+
+    // ================================
+    // EVENT LISTENERS
+    // ================================
+    function initializeEventListeners() {
+      // User activity events
+      ["mousemove", "keydown", "click", "scroll", "touchstart"].forEach(evt => {
+        document.addEventListener(evt, handleUserActivity, {
+          passive: true
+        });
+      });
+
+      // Page lifecycle events
+      window.addEventListener('DOMContentLoaded', () => {
+        state.pageLoadTime = Date.now();
+        state.idleTime = 0;
+        state.userStarted = false;
+        state.isPageLoading = true;
+        state.warningShown = false;
+        hideModal();
+
+        setTimeout(() => {
+          state.isPageLoading = false;
+          console.log('Page loading complete, user can now interact');
+
+          // FIX: Jika user tidak langsung gerak, paksa mulai idle
+          if (!state.userStarted && !state.idleInterval) {
+            console.log('No user interaction detected after load, starting idle timer');
+            state.userStarted = true; // anggap user sudah siap
+            startIdleTimer();
           }
-          if (idleTime >= logoutTime) {
-            window.location.href = "/logout.php";
+        }, CONFIG.LOADING_DELAY);
+      });
+
+      window.addEventListener('beforeunload', cleanup);
+
+      window.addEventListener('load', () => {
+        state.pageLoadTime = Date.now();
+        cleanup();
+      });
+
+      // Visibility change events
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          if (state.idleInterval) {
+            clearInterval(state.idleInterval);
+            state.idleInterval = null;
           }
-        }, 1000);
-      }, 1000); // Delay untuk cegah modal muncul di awal
-    };
+        } else {
+          if (state.userStarted && !state.isPageLoading && !state.idleInterval) {
+            if (getTimeSinceLoad() > CONFIG.GRACE_PERIOD) {
+              startIdleTimer();
+            }
+          }
+        }
+      });
+
+      window.addEventListener('focus', () => {
+        if (getTimeSinceLoad() < CONFIG.GRACE_PERIOD) {
+          cleanup();
+        }
+      });
+    }
+
+    // ================================
+    // INISIALISASI
+    // ================================
+    initializeEventListeners();
   </script>
 </body>
 
