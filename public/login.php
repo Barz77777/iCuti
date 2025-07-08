@@ -8,27 +8,29 @@ $ldap_port   = 663;
 $domain      = "training.local";
 $base_dn     = "DC=training,DC=local";
 
-// Ambil input
+// Ambil input dari form
 $username = $_POST['username'] ?? '';
 $password = $_POST['password'] ?? '';
 $responseKey = $_POST['g-recaptcha-response'] ?? '';
 
-// Aktifkan ini kalau mau gunakan reCAPTCHA
-// $secretKey = "6LdVyHorAAAAALF4w3bRSupNFvhuiRMKlkI9rhnw";
-// $verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secretKey&response=$responseKey");
-// $captcha_response = json_decode($verify);
+// Verifikasi reCAPTCHA
+$secretKey = "6LczgXsrAAAAAO5Q8y2cu3tEzpsDNpzsUw1955YW";
+$verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secretKey&response=$responseKey");
+$captcha_response = json_decode($verify);
 
-// if (!$captcha_response->success) {
-//     $message = "Verifikasi reCAPTCHA gagal. Silakan coba lagi.";
-//     $message_type = "danger";
-//     exit();
-// }
-
-if (empty($username) || empty($password)) {
+// Jika reCAPTCHA gagal
+if (!$captcha_response->success) {
+    $message = "Silahkan Centang reCAPTCHA'.";
+    $message_type = "danger";
+}
+// Jika username/password kosong
+elseif (empty($username) || empty($password)) {
     $message = "Username dan Password wajib diisi.";
     $message_type = "danger";
-} else {
-    // Cek status ban
+}
+// Lanjut proses login
+else {
+    // Cek apakah user diblokir
     $stmt = $conn->prepare("SELECT login_attempts, is_banned FROM users WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -39,8 +41,8 @@ if (empty($username) || empty($password)) {
         $message = "Akun Anda telah diblokir karena terlalu banyak percobaan gagal login.";
         $message_type = "danger";
     } else {
+        // Proses login ke LDAP
         $ldap_conn = ldap_connect($ldap_server, $ldap_port);
-
         if (!$ldap_conn) {
             $message = "Gagal terhubung ke server LDAP.";
             $message_type = "danger";
@@ -51,6 +53,7 @@ if (empty($username) || empty($password)) {
             $ldap_user = $username . '@' . $domain;
 
             if (@ldap_bind($ldap_conn, $ldap_user, $password)) {
+                // Login sukses, ambil grup
                 $filter = "(sAMAccountName=$username)";
                 $attributes = ['memberOf'];
                 $result = ldap_search($ldap_conn, $base_dn, $filter, $attributes);
@@ -67,12 +70,12 @@ if (empty($username) || empty($password)) {
                         }
                     }
 
-                    // Set session login
+                    // Simpan session
                     $_SESSION['user'] = $username;
                     $_SESSION['role'] = $is_admin ? 'admin' : 'user';
                     $_SESSION['active_role'] = $is_admin ? 'admin' : 'user';
 
-                    // Reset login_attempts
+                    // Reset login attempts
                     $conn->query("UPDATE users SET login_attempts = 0 WHERE username = '$username'");
 
                     ldap_unbind($ldap_conn);
@@ -89,7 +92,7 @@ if (empty($username) || empty($password)) {
                     $message_type = "danger";
                 }
             } else {
-                // Login gagal, tambahkan attempts
+                // Gagal login → tambah attempt
                 $attempts = ($user_row['login_attempts'] ?? 0) + 1;
                 $is_banned = ($attempts >= 5) ? 1 : 0;
 
@@ -110,7 +113,6 @@ if (empty($username) || empty($password)) {
         }
     }
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -184,12 +186,14 @@ if (empty($username) || empty($password)) {
                             <i class="bi bi-eye-slash" id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
                         </div>
                     </div>
-                    <div class="g-recaptcha" data-sitekey="6LdVyHorAAAAAJ1IlVbw7HO4vsFzlwjhkPpDJbSO"></div>    
+                    <div class="g-recaptcha" data-sitekey="6LczgXsrAAAAAIJyFn8E-c6cWqSuhtx8m4gq53j_"></div>    
                     <button type="submit">Login</button>
                 </form>
             </div>
         </div>
     </main>
+
+    
 
     <!-- Script untuk toggle password -->
     <script>
@@ -204,6 +208,8 @@ if (empty($username) || empty($password)) {
             togglePassword.classList.toggle('bi-eye-slash');
         });
     </script>
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </body>
 
 </html>
