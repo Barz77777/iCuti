@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['choose_role'])) {
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <link rel="icon" href="/asset/iC.png">
     <meta charset="UTF-8">
     <title>Pilih Peran</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
