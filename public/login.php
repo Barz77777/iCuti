@@ -14,7 +14,7 @@ $password = $_POST['password'] ?? '';
 $responseKey = $_POST['g-recaptcha-response'] ?? '';
 
 // Verifikasi reCAPTCHA
-$secretKey = "6LczgXsrAAAAAO5Q8y2cu3tEzpsDNpzsUw1955YW";
+$secretKey = "6Lcsm3srAAAAANDzZl4WShWkb7fGTE4iGW8fD4mD";
 $verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secretKey&response=$responseKey");
 $captcha_response = json_decode($verify);
 
@@ -186,7 +186,7 @@ else {
                             <i class="bi bi-eye-slash" id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
                         </div>
                     </div>
-                    <div class="g-recaptcha" data-sitekey="6LczgXsrAAAAAIJyFn8E-c6cWqSuhtx8m4gq53j_"></div>    
+                    <div class="g-recaptcha" data-sitekey="6Lcsm3srAAAAAMlHTtTBxEt_zrAfKRYX7ZddqYhI"></div>    
                     <button type="submit">Login</button>
                 </form>
             </div>
