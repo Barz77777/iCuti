@@ -14,9 +14,7 @@ require '../../../config/db_connection.php';
 // Ambil history cuti yang sudah disetujui atau ditolak
 $search = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
 
-$sql = "SELECT username, nip, jabatan, divisi, no_hp, pengganti, jenis_cuti, tanggal_mulai, tanggal_akhir, catatan, dokumen, status_pengajuan, tanggal_disetujui
-        FROM cuti 
-        WHERE (status_pengajuan = 'Ditolak' OR status_pengajuan = 'Disetujui')";
+$sql = "SELECT * FROM cuti";
 
 if (!empty($search)) {
     $sql .= " AND (
@@ -187,7 +185,6 @@ mysqli_query($conn, "
             <div></div>
         </div>
     </div>
-
     <!-- Alert Tidak Ada Aktivitas -->
     <div id="idleWarningModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 9999; justify-content: center; align-items: center; overflow: auto; padding: 20px;">
         <div style="background: #fff; padding: 40px 30px; border-radius: 25px; text-align: center; max-width: 400px; width: 100%; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);">
@@ -354,9 +351,7 @@ mysqli_query($conn, "
             $offset = ($page - 1) * $perPage;
 
             // Query with LIMIT for pagination
-            $sql = "SELECT username, nip, jabatan, divisi, no_hp, pengganti, jenis_cuti, tanggal_mulai, tanggal_akhir, catatan, dokumen, status_pengajuan, tanggal_disetujui
-                    FROM cuti 
-                    WHERE (status_pengajuan = 'Ditolak' OR status_pengajuan = 'Disetujui')";
+            $sql = "SELECT * FROM cuti WHERE (status_pengajuan = 'Selesai' OR status_pengajuan = 'Disetujui' OR status_pengajuan = 'Ditolak')"; 
             if (!empty($search)) {
                 $sql .= " AND (
                     username LIKE '%$search%' OR
