@@ -329,7 +329,7 @@ mysqli_query($conn, "
             $perPage = 5;
 
             // Count total data
-            $countSql = "SELECT COUNT(*) as total FROM cuti WHERE (status_pengajuan = 'Ditolak' OR status_pengajuan = 'Disetujui')";
+            $countSql = "SELECT COUNT(*) as total FROM cuti WHERE (status_pengajuan = 'Ditolak' OR status_pengajuan = 'Disetujui' OR status_pengajuan = 'Selesai')";
             if (!empty($search)) {
                 $countSql .= " AND (
                     username LIKE '%$search%' OR
@@ -460,7 +460,7 @@ mysqli_query($conn, "
                 <!-- DESKTOP TABLE -->
                 <div class="hidden md:block overflow-x-auto max-h-[400px] overflow-y-auto scroll-custom">
                     <table class="min-w-full text-sm text-left text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-lg">
-                        <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914;">
+                        <thead class="text-gray-900 text-xs uppercase font-semibold" style="background-color: #9AD914; text-align:center">
                             <tr>
                                 <th class="px-5 py-3">Name</th>
                                 <th class="px-5 py-3">NIP/ID Karyawan</th>
@@ -541,11 +541,62 @@ mysqli_query($conn, "
                     </table>
                 </div>
 
-                <!-- PAGINATION (unchanged) -->
+                <!-- Pagination -->
                 <?php if ($totalPages > 1): ?>
-                    <nav class="flex justify-center mt-4">
+                    <nav class="flex justify-center mt-4 overflow-x-auto">
                         <ul class="inline-flex -space-x-px">
-                            <?php /* pagination code here */ ?>
+                            <?php
+                            $queryString = $_GET;
+                            // Tombol prev
+                            if ($page > 1) {
+                                $queryString['page'] = $page - 1;
+                                $urlPrev = '?' . http_build_query($queryString);
+                                echo "<li>
+          <a href=\"$urlPrev\" class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100 rounded-l-lg flex items-center gap-1 font-semibold transition-all\">
+        <svg class=\"w-4 h-4 mr-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15 19l-7-7 7-7\"/></svg>
+        Prev
+          </a>
+        </li>";
+                            } else {
+                                echo "<li>
+          <span class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-400 rounded-l-lg flex items-center gap-1 cursor-not-allowed\">
+        <svg class=\"w-4 h-4 mr-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M15 19l-7-7 7-7\"/></svg>
+        Prev
+          </span>
+        </li>";
+                            }
+
+                            // Nomor halaman
+                            for ($i = 1; $i <= $totalPages; $i++) {
+                                $queryString['page'] = $i;
+                                $url = '?' . http_build_query($queryString);
+                                $activeClass = $i == $page
+                                    ? 'bg-lime-500 text-white border-lime-500 shadow font-bold scale-110'
+                                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100';
+                                echo "<li>
+          <a href=\"$url\" class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 $activeClass rounded transition-all mx-1\">$i</a>
+        </li>";
+                            }
+
+                            // Tombol next
+                            if ($page < $totalPages) {
+                                $queryString['page'] = $page + 1;
+                                $urlNext = '?' . http_build_query($queryString);
+                                echo "<li>
+          <a href=\"$urlNext\" class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-lime-100 rounded-r-lg flex items-center gap-1 font-semibold transition-all\">
+        Next
+        <svg class=\"w-4 h-4 ml-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M9 5l7 7-7 7\"/></svg>
+          </a>
+        </li>";
+                            } else {
+                                echo "<li>
+          <span class=\"px-3 py-1 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-400 rounded-r-lg flex items-center gap-1 cursor-not-allowed\">
+        Next
+        <svg class=\"w-4 h-4 ml-1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M9 5l7 7-7 7\"/></svg>
+          </span>
+        </li>";
+                            }
+                            ?>
                         </ul>
                     </nav>
                 <?php endif; ?>

@@ -361,7 +361,7 @@ $result = $conn->query("SELECT * FROM users WHERE is_banned = 1");
             // ================================
             const CONFIG = {
                 LOGOUT_TIME: 600, // 15 detik untuk testing (ganti ke 600 untuk produksi)
-                WARNING_TIME: 10, // 10 detik untuk warning (ganti ke 570 untuk produksi)
+                WARNING_TIME: 600, // 10 detik untuk warning (ganti ke 570 untuk produksi)
                 COUNTDOWN_DURATION: 30, // 5 detik countdown untuk testing (ganti ke 30 untuk produksi)
                 GRACE_PERIOD: 2000, // 2 detik grace period setelah page load
                 ACTIVITY_DELAY: 500, // 0.5 detik delay untuk mendeteksi aktivitas user
