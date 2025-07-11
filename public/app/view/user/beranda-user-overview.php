@@ -47,7 +47,7 @@ $leaveLimitTotal = $row['total'] ?? 0;
 
 // Total yang sudah diambil (disetujui)
 $leaveTakenTotal = 0;
-$qTaken = "SELECT SUM(DATEDIFF(tanggal_akhir, tanggal_mulai) + 1) AS total FROM cuti WHERE username = '$user' AND status_pengajuan = 'Disetujui'";
+$qTaken = "SELECT SUM(DATEDIFF(tanggal_akhir, tanggal_mulai) + 1) AS total FROM cuti WHERE username = '$user' AND (status_pengajuan = 'Disetujui' AND status_pengajuan = 'Selesai')";
 $resTaken = $conn->query($qTaken);
 $rowTaken = $resTaken->fetch_assoc();
 $leaveTakenTotal = $rowTaken['total'] ?? 0;
