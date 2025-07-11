@@ -75,7 +75,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
 mysqli_query($conn, "
     UPDATE cuti 
     SET status_pengajuan = 'Selesai' 
-    WHERE tanggal_selesai < CURDATE() AND status_pengajuan != 'Selesai'
+    WHERE tanggal_akhir < CURDATE() AND status_pengajuan != 'Selesai'
 ");
 
 ?>
