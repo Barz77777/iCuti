@@ -203,6 +203,22 @@ $result = $conn->query("SELECT * FROM users WHERE is_banned = 1");
             <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md h-fit animate__animated animate__fadeIn" style="--animate-duration: 1.2s;">
                 <header class="mb-4 flex justify-between items-center">
                     <h2 class="font-semibold text-lg text-gray-800 dark:text-gray-100">Account</h2>
+                    <button
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#submissionModal"
+                        class="shadow-xl flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 text-white rounded-lg transition-all duration-200 font-semibold text-sm sm:text-base group"
+                        style="background: #2D5938; box-shadow: 0 4px 16px 0 #2D593844;"
+                        onmouseover="this.style.background='#24482d';"
+                        onmouseout="this.style.background='#2D5938';">
+                        <span class="flex items-center gap-1">
+                        <i class="bi bi-plus-circle text-lg"></i>
+                        <span class="hidden sm:inline">Add Account</span>
+                        <svg class="ml-1 sm:ml-2 w-4 sm:w-5 h-4 sm:h-5 text-white group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                        </span>
+                    </button>
                 </header>
 
                 <!-- TABEL UNTUK DESKTOP -->
@@ -237,6 +253,8 @@ $result = $conn->query("SELECT * FROM users WHERE is_banned = 1");
                     </form>
                 </div>
 
+                
+
                 <!-- CARD UNTUK MOBILE -->
                 <div class="block md:hidden space-y-4">
                     <form method="post">
@@ -261,8 +279,77 @@ $result = $conn->query("SELECT * FROM users WHERE is_banned = 1");
                         <?php endif; ?>
                     </form>
                 </div>
-
             </article>
+        <!-- Modal -->
+            <div class="modal fade" id="submissionModal" tabindex="-1" aria-labelledby="submissionModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content rounded-3xl">
+                <form action="/app/controller/proses_add_account.php" method="POST">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="submissionModalLabel">Add New Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body space-y-4">
+                    <div>
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control rounded-lg" name="username" id="username" required>
+                    </div>
+                    <div>
+                        <label for="nip" class="form-label">NIP</label>
+                        <input type="text" class="form-control rounded-lg" id="nip" name="nip" required>
+                    </div>
+                    <div>
+                        <label for="nip" class="form-label">Jabatan</label>
+                        <input type="text" class="form-control rounded-lg" id="jabatan" name="jabatan" required>
+                    </div>
+                    <div>
+                        <label for="nip" class="form-label">Divisi</label>
+                        <input type="text" class="form-control rounded-lg" id="divisi" name="divisi" required>
+                    </div>
+                    <div>
+                        <label for="nip" class="form-label">NO HP</label>
+                        <input type="text" class="form-control rounded-lg" id="no_hp" name="no_hp" required>
+                    </div>
+                    </div>
+                    <div class="modal-footer justify-between px-4 py-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" name="add_account" class="btn text-white" style="background-color: #9AD914;">Add Account</button>
+                    </div>
+                </form>
+                </div>
+            </div>
+            </div>
+
+             <!-- massage pengajuan cuti -->
+  <?php if (isset($_GET['status'])): ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      const status = "<?= $_GET['status'] ?>";
+      const msg = "<?= isset($_GET['msg']) ? urldecode($_GET['msg']) : '' ?>";
+
+      document.addEventListener("DOMContentLoaded", function() {
+        if (status === "success=1") {
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Penambahan akun berhasil.',
+            confirmButtonColor: '#9AD914'
+          });
+        } else if (status === "error") {
+          Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            html: `<pre style="text-align:left; white-space:pre-wrap;">${msg}</pre>`,
+            confirmButtonColor: '#d33'
+          });
+        }
+
+        // Hapus query string agar tidak muncul ulang saat refresh
+        window.history.replaceState({}, document.title, "admin-unban.php");
+      });
+    </script>
+  <?php endif; ?>
+
         </main>
 
         <!-- Animate.css CDN -->

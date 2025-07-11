@@ -2,7 +2,7 @@
 session_start();
 require 'config/db_connection.php';
 
-// Variabel konfigurasi
+// konfigurasi LDAPS
 $ldap_server = "ldap://172.10.10.70";
 $ldap_port   = 663;
 $domain      = "training.local";
