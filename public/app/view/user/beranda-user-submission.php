@@ -90,7 +90,7 @@ $jenisCuti = $result->fetch_assoc();
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/style/beranda-user-submission.css" />
+  <link rel="stylesheet" href="/project-vistakom/iCuti/public/style/beranda-user-submission.css" />
   <script>
     tailwind.config = {
       theme: {
@@ -172,7 +172,7 @@ $jenisCuti = $result->fetch_assoc();
   <div class="layout">
     <div class="sidebar">
       <!-- Logo -->
-      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="/asset/user-avatar.png">
+      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="/project-vistakom/iCuti/public/asset/user-avatar.png">
         <span class="text-icon">Profile</span>
         <i class="menu bi bi-list"></i>
       </div>

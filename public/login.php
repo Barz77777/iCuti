@@ -3,10 +3,10 @@ session_start();
 require 'config/db_connection.php';
 
 // konfigurasi LDAPS
-$ldap_server = "ldap://172.10.10.70";
-$ldap_port   = 663;
-$domain      = "training.local";
-$base_dn     = "DC=training,DC=local";
+$ldap_server = "ldap://172.10.10.61";
+$ldap_port   = 389;
+$domain      = "nuc.local";
+$base_dn     = "DC=nuc,DC=local";
 
 // Ambil input dari form
 $username = $_POST['username'] ?? '';
@@ -82,9 +82,9 @@ else {
 
                     // Redirect
                     if ($is_admin) {
-                        header("Location: /app/view/admin/pilih_role.php");
+                        header("Location: app/view/admin/pilih_role.php");
                     } else {
-                        header("Location: /app/view/user/beranda-user-overview.php");
+                        header("Location: app/view/user/beranda-user-overview.php");
                     }
                     exit();
                 } else {
