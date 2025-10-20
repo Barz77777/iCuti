@@ -102,7 +102,7 @@ mysqli_query($conn, "
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/style/beranda-atasan-history.css" />
+  <link rel="stylesheet" href="/project-vistakom/iCuti/public/style/beranda-atasan-history.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <title>iCuti</title>
   <style>
@@ -204,7 +204,7 @@ mysqli_query($conn, "
     <div style="background: #fff; padding: 40px 30px; border-radius: 25px; text-align: center; max-width: 400px; width: 100%; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);">
 
       <!-- Ikon Peringatan -->
-      <img src="/asset/alert.svg" alt="Warning Icon" style="display: block; margin: 0 auto 25px; width: 120px; max-width: 100%; height: auto;">
+      <img src="/project-vistakom/iCuti/public/asset/alert.svg" alt="Warning Icon" style="display: block; margin: 0 auto 25px; width: 120px; max-width: 100%; height: auto;">
 
       <!-- Judul -->
       <h2 style="font-size: 20px; color: #333; margin-bottom: 10px; font-weight: 700;">Tidak Ada Aktivitas!</h2>
@@ -220,7 +220,7 @@ mysqli_query($conn, "
   <div class="layout">
     <div class="sidebar">
       <!-- Logo -->
-      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="/asset/user-avatar.png">
+      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="/project-vistakom/iCuti/public/asset/user-avatar.png">
         <span class="text-icon">Profile</span>
         <i class="menu bi bi-list"></i>
       </div>
