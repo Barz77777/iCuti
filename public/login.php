@@ -11,20 +11,20 @@ $base_dn     = "DC=nuc,DC=local";
 // Ambil input dari form
 $username = $_POST['username'] ?? '';
 $password = $_POST['password'] ?? '';
-$responseKey = $_POST['g-recaptcha-response'] ?? '';
+// $responseKey = $_POST['g-recaptcha-response'] ?? '';
 
-// Verifikasi reCAPTCHA
-$secretKey = "6Lcsm3srAAAAANDzZl4WShWkb7fGTE4iGW8fD4mD";
-$verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secretKey&response=$responseKey");
-$captcha_response = json_decode($verify);
+// // Verifikasi reCAPTCHA
+// $secretKey = "6Lcsm3srAAAAANDzZl4WShWkb7fGTE4iGW8fD4mD";
+// $verify = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$secretKey&response=$responseKey");
+// $captcha_response = json_decode($verify);
 
-// Jika reCAPTCHA gagal
-if (!$captcha_response->success) {
-    $message = "Silahkan Centang reCAPTCHA'.";
-    $message_type = "danger";
-}
+// // Jika reCAPTCHA gagal
+// if (!$captcha_response->success) {
+//     $message = "Silahkan Centang reCAPTCHA'.";
+//     $message_type = "danger";
+// }
 // Jika username/password kosong
-elseif (empty($username) || empty($password)) {
+if (empty($username) || empty($password)) {
     $message = "Username dan Password wajib diisi.";
     $message_type = "danger";
 }
@@ -186,7 +186,7 @@ else {
                             <i class="bi bi-eye-slash" id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;"></i>
                         </div>
                     </div>
-                    <div class="g-recaptcha" data-sitekey="6Lcsm3srAAAAAMlHTtTBxEt_zrAfKRYX7ZddqYhI"></div>    
+                    <!-- <div class="g-recaptcha" data-sitekey="6Lcsm3srAAAAAMlHTtTBxEt_zrAfKRYX7ZddqYhI"></div>     -->
                     <button type="submit">Login</button>
                 </form>
             </div>
@@ -209,7 +209,7 @@ else {
         });
     </script>
 
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <!-- <script src="https://www.google.com/recaptcha/api.js" async defer></script> -->
 </body>
 
 </html>

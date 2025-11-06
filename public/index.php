@@ -35,13 +35,8 @@ if (isset($_SESSION['user'])) {
 <main>
   <section class="login-card" aria-labelledby="login-title" role="form">
     <h1 class="judul">PERINGATAN!</h1>
-
-
     <p class="peringatan">Silahkan login terlebih dahulu untuk melanjutkan ke aplikasi</p>
-    
-   
     <button type="submit" class="login-btn" onclick="window.location.href='login.php'">Login</button>
-    
   </section>
 </main>
 
