@@ -264,7 +264,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
         <p class="user-role"><?= ($role) ?></p>
       </div>
     </div>
-    <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
+    <button class="logout-btn" onclick="window.location.href='/public/logout.php';">Logout</button>
     <?php if ($_SESSION['role'] === 'admin'): ?>
       <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
         <button type="submit" style="font-size: 16px;">
@@ -279,7 +279,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
       <!-- Logo -->
       <!-- Mobile/desktop profile icon -->
       <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()" data-label="Profile">
-        <img src="/project-vistakom/iCuti/public/asset/user-avatar.png" alt="User Avatar" />
+        <img src="/public/asset/user-avatar.png" alt="User Avatar" />
         <span class="text-icon">Profile</span>
         <i class="menu bi bi-list"></i>
       </div>
