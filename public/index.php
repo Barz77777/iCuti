@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-//jika user suda login dan sesuai role nya
+//jika user sudah login dan sesuai role nya
 if (isset($_SESSION['user'])) {
   $role = $_SESSION['role'];
 

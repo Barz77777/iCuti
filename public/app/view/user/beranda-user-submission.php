@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['user'])) {
-  header("Location: /index.php");
+  header("Location: ../../../index.php");
   exit();
 }
 
@@ -90,7 +90,7 @@ $jenisCuti = $result->fetch_assoc();
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style/beranda-user-submission.css">
+  <link rel="stylesheet" href="../../../style/beranda-user-submission.css">
   <script>
     tailwind.config = {
       theme: {
@@ -172,7 +172,7 @@ $jenisCuti = $result->fetch_assoc();
   <div class="layout">
     <div class="sidebar">
       <!-- Logo -->
-      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="/project-vistakom/iCuti/public/asset/user-avatar.png">
+      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="../../../asset/user-avatar.png">
         <span class="text-icon">Profile</span>
         <i class="menu bi bi-list"></i>
       </div>
@@ -214,7 +214,7 @@ $jenisCuti = $result->fetch_assoc();
             <p class="user-role"><?= ($role) ?></p>
           </div>
         </div>
-        <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
+        <button class="logout-btn" onclick="window.location.href='../../../logout.php';">Logout</button>
         <?php if ($_SESSION['role'] === 'admin'): ?>
           <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
             <button type="submit" style="font-size: 16px;">
@@ -348,16 +348,16 @@ $jenisCuti = $result->fetch_assoc();
         $baseQuery = "FROM cuti WHERE username = '$user' AND (status_pengajuan = 'Ditolak' OR status_pengajuan = 'Disetujui' OR status_pengajuan = 'Menunggu')";
         if (!empty($search)) {
           $baseQuery .= " AND (
-    username LIKE '%$search%' OR
-    pengganti LIKE '%$search%' OR 
-    jenis_cuti LIKE '%$search%' OR 
-    status_pengajuan LIKE '%$search%' OR
-    nip LIKE '%$search%' OR
-    jabatan LIKE '%$search%' OR
-    divisi LIKE '%$search%' OR
-    no_hp LIKE '%$search%' OR
-    catatan LIKE '%$search%'
-  )";
+            username LIKE '%$search%' OR
+            pengganti LIKE '%$search%' OR 
+            jenis_cuti LIKE '%$search%' OR 
+            status_pengajuan LIKE '%$search%' OR
+            nip LIKE '%$search%' OR
+            jabatan LIKE '%$search%' OR
+            divisi LIKE '%$search%' OR
+            no_hp LIKE '%$search%' OR
+            catatan LIKE '%$search%'
+          )";
         }
 
         $countResult = mysqli_query($conn, "SELECT COUNT(*) as total $baseQuery");
