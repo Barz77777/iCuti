@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['user']) || $_SESSION['role'] !== 'admin') {
-    header("Location: projects/iCuti/index.php");
+    header("Location: /index.php");
     exit();
 }
 
@@ -90,7 +90,7 @@ mysqli_query($conn, "
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style/beranda-atasan-history.css" />
+    <link rel="stylesheet" href="public/style/beranda-atasan-history.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <title>iCuti</title>
     <style>
