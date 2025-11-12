@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y \
 # Aktifkan mod_rewrite
 RUN a2enmod rewrite
 
+# Ganti port Apache ke 8080 biar bisa jalan non-root
+RUN sed -i 's/80/8080/g' /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf
+
 # Set ServerName agar tidak muncul warning
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
@@ -26,6 +29,8 @@ COPY . /var/www/html/
 # Atur permission
 RUN chown -R www-data:www-data /var/www/html
 
-# Jalankan Apache
-CMD ["apache2-foreground"]
+# Expose port baru
+EXPOSE 8080
 
+# Jalankan Apache di foreground
+CMD ["apache2-foreground"]
