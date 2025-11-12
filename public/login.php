@@ -165,7 +165,7 @@ else {
                 <img src="asset/Chill-Time.png" alt="Login Illustration" />
             </div>
             <div class="form-side">
-                <h1>Welcome back to <span class="highlight">iCutii</span></h1>
+                <h1>Welcome back to <span class="highlight">iCuti</span></h1>
                 <p class="subtitle">Please enter your details to login to your account!</p>
                 <form method="POST" action="login.php">
                     <?php if (isset($message)): ?>
