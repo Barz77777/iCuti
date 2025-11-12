@@ -1,8 +1,13 @@
 <?php
-$host = "172.15.10.80";
-$userdb = "app_user_iCuti01";
-$password = "Cyberark1"; // jika pakai password, isi di sini
-$database = "cuti_app"; // ganti sesuai nama DB-mu
+require __DIR__ . '/../vendor/autoload.php';
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv->load();
+
+$host = $_ENV['DB_HOST'];
+$userdb = $_ENV['DB_USER'];
+$password = $_ENV['DB_PASS'];
+$database = $_ENV['DB_NAME'];
 
 $conn = mysqli_connect($host, $userdb, $password, $database);
 
