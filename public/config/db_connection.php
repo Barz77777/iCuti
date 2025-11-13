@@ -1,6 +1,6 @@
 <?php
 $host = "172.15.10.80";
-$userdb = "cuti_app";
+$userdb = "app_user_iCuti01";
 $password = "Cyberark1";
 $database = "cuti_app";
 
