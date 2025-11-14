@@ -6,9 +6,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['choose_role'])) {
     $_SESSION['active_role'] = $_POST['choose_role'];
     
     if ($_POST['choose_role'] === 'admin') {
-        header("Location: /app/view/admin/beranda-atasan-overview.php");
+        header("Location: ../admin/beranda-atasan-overview.php");
     } else {
-        header("Location: /app/view/user/beranda-user-overview.php");
+        header("Location: ../user/beranda-user-overview.php");
     }
     exit;
 }
