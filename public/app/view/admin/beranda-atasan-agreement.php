@@ -179,7 +179,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
     <div class="layout">
         <div class="sidebar">
             <!-- Logo -->
-            <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="/asset/default-avatar.png">
+            <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="../../../asset/default-avatar.png">
                 <span class="text-icon">Profile</span>
                 <i class="menu bi bi-list"></i>
             </div>
@@ -191,7 +191,7 @@ $jumlahNotifBaru = $resJumlah->fetch_assoc()['total'] ?? 0;
                         <p class="user-role"><?= ($role) ?></p>
                     </div>
                 </div>
-                <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
+                <button class="logout-btn" onclick="window.location.href='../../../logout.php';">Logout</button>
                 <?php if ($_SESSION['role'] === 'admin'): ?>
                     <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
                         <button type="submit" style="font-size: 16px;">

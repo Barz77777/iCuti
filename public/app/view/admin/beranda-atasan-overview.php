@@ -223,7 +223,7 @@ while ($row = $resType->fetch_assoc()) {
         <p class="user-role"><?= ($role) ?></p>
       </div>
     </div>
-    <button class="logout-btn" onclick="window.location.href='/logout.php';">Logout</button>
+    <button class="logout-btn" onclick="window.location.href='../../../logout.php';">Logout</button>
     <?php if ($_SESSION['role'] === 'admin'): ?>
       <form action="/app/controller/switch_role.php" method="post" style="display:inline;">
         <button type="submit" style="font-size: 16px;">
@@ -265,7 +265,7 @@ while ($row = $resType->fetch_assoc()) {
   <div class="layout">
     <div class="sidebar">
       <!-- Logo -->
-      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="/asset/default-avatar.png" alt="User Avatar">
+      <div class="icon-button top-icon profile-toggle" onclick="toggleProfileMenu()"><img src="../../../asset/default-avatar.png" alt="User Avatar">
         <span class="text-icon">Profile</span>
         <i class="menu bi bi-list"></i>
       </div>
@@ -363,9 +363,6 @@ while ($row = $resType->fetch_assoc()) {
       </section>
       <section class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl">
 
-
-
-
         <!-- Received Data -->
 
         <article class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-md initial-hidden" data-title="Received Data">
@@ -417,7 +414,6 @@ while ($row = $resType->fetch_assoc()) {
             </div>
           </div>
         </article>
-
 
       </section>
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
